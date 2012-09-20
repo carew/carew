@@ -64,3 +64,7 @@ In order to build the site, you can use the `balrog build` command:
 
 This will populate the `web` directory with a set of files that can be
 deployed onto any static web server.
+
+## Quote of the day
+
+"Fly, you fools!" - Gandalf
