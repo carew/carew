@@ -30,6 +30,7 @@ function parsePost($filename, $contents)
 
     $markdownParser = new MarkdownParser();
     $body = $markdownParser->transformMarkdown($rawBody);
+    $body = str_replace('$relativeRoot', '../../..', $body);
 
     list($year, $month, $day, $slug) = explode('-', basename($filename, '.md'), 4);
 
