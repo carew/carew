@@ -1,0 +1,20 @@
+{
+    "name": "igorw/balrog",
+    "description": "The tiny static site generator.",
+    "keywords": ["static-site-generator"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Igor Wiedler",
+            "email": "igor@wiedler.ch"
+        }
+    ],
+    "require": {
+        "dflydev/markdown": "1.0.*",
+        "symfony/console": "2.1.*",
+        "symfony/filesystem": "2.1.*",
+        "symfony/yaml": "2.1.*",
+        "twig/twig": "1.9.*"
+    },
+    "bin": ["bin/balrog"]
+}

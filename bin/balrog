@@ -1,0 +1,94 @@
+#!/usr/bin/env php
+<?php
+
+use dflydev\markdown\MarkdownParser;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Yaml;
+
+if ((!@include __DIR__.'/../../../autoload.php') && (!@include __DIR__.'/../vendor/autoload.php')) {
+    die('You must set up the project dependencies, run the following commands:'.PHP_EOL.
+        'curl -s http://getcomposer.org/installer | php'.PHP_EOL.
+        'php composer.phar install'.PHP_EOL);
+}
+
+function parsePost($filename, $contents)
+{
+    preg_match('#---\n(.+)---\n(.+)#s', $contents, $matches);
+    if (!$matches) {
+        throw new \RuntimeException(sprintf('Could not parse front matter in blog post %s', basename($filename)));
+    }
+
+    list($_, $rawInfo, $rawBody) = $matches;
+
+    $info = Yaml::parse($rawInfo);
+    $layout = isset($info['layout']) ? $info['layout'] : 'default';
+
+    $markdownParser = new MarkdownParser();
+    $body = $markdownParser->transformMarkdown($rawBody);
+
+    list($year, $month, $day, $slug) = explode('-', basename($filename, '.md'), 4);
+
+    $date = "$year-$month-$day";
+    $url = "$year/$month/$day/$slug.html";
+
+    $post = array_merge($info, array(
+        'url'           => $url,
+        'date_string'   => $date,
+        'date'          => new DateTime($date),
+        'body'          => $body,
+    ));
+
+    return $post;
+}
+
+$console = new Application();
+$console
+    ->register('build')
+    ->setDescription('Builds static html files from markdown source')
+    ->setCode(function (InputInterface $input, OutputInterface $output) {
+        $baseDir = getcwd();
+
+        $fs = new Filesystem();
+        $fs->remove($baseDir.'/web');
+
+        $loader = new Twig_Loader_Filesystem($baseDir.'/layouts');
+        $twig = new Twig_Environment($loader);
+
+        $posts = array();
+
+        $files = new \FilesystemIterator($baseDir.'/posts');
+        foreach ($files as $file) {
+            if ($input->getOption('verbose')) {
+                $output->writeln(sprintf('Processing <info>%s</info>', $file->getBasename()));
+            }
+
+            $contents = file_get_contents($file);
+            $post = parsePost((string) $file, $contents);
+
+            $posts[$post['date_string']] = $post;
+
+            $rendered = $twig->render("{$post['layout']}.html.twig", $post);
+
+            $target = $baseDir.'/web/'.$post['url'];
+            $fs->mkdir(dirname($target));
+            file_put_contents($target, $rendered);
+        }
+
+        if ($input->getOption('verbose')) {
+            $output->writeln('Building index');
+        }
+
+        $posts = array_reverse($posts);
+
+        $rendered = $twig->render('index.html.twig', array('posts' => $posts));
+
+        $target = $baseDir.'/web/index.html';
+        file_put_contents($target, $rendered);
+    })
+;
+$console->run();
