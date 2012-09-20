@@ -89,6 +89,13 @@ $console
 
         $target = $baseDir.'/web/index.html';
         file_put_contents($target, $rendered);
+
+        if (is_dir($baseDir.'/assets')) {
+            $files = new \FilesystemIterator($baseDir.'/assets');
+            foreach ($files as $file) {
+                $fs->copy($file, $baseDir.'/web/'.$file->getBasename());
+            }
+        }
     })
 ;
 $console->run();
