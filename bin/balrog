@@ -72,7 +72,8 @@ $console
 
             $posts[$post['date_string']] = $post;
 
-            $rendered = $twig->render("{$post['layout']}.html.twig", $post);
+            $vars = array('post' => $post, 'relativeRoot' => '../../..');
+            $rendered = $twig->render($post['layout'].'.html.twig', $vars);
 
             $target = $baseDir.'/web/'.$post['url'];
             $fs->mkdir(dirname($target));
@@ -85,7 +86,8 @@ $console
 
         $posts = array_reverse($posts);
 
-        $rendered = $twig->render('index.html.twig', array('posts' => $posts));
+        $vars = array('posts' => $posts, 'relativeRoot' => '.');
+        $rendered = $twig->render('index.html.twig', $vars);
 
         $target = $baseDir.'/web/index.html';
         file_put_contents($target, $rendered);
