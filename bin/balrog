@@ -85,6 +85,7 @@ $console
             $output->writeln('Building index');
         }
 
+        ksort($posts);
         $posts = array_reverse($posts);
 
         $vars = array('posts' => $posts, 'relativeRoot' => '.');
