@@ -88,11 +88,16 @@ $console
         ksort($posts);
         $posts = array_reverse($posts);
 
-        $vars = array('posts' => $posts, 'relativeRoot' => '.');
-        $rendered = $twig->render('index.html.twig', $vars);
+        foreach (glob($baseDir.'/layouts/index.*.twig') as $file) {
+            preg_match('#index\.(.+?)\.twig$#', basename($file), $match);
+            $format = $match[1];
 
-        $target = $baseDir.'/web/index.html';
-        file_put_contents($target, $rendered);
+            $vars = array('posts' => $posts, 'relativeRoot' => '.');
+            $rendered = $twig->render("index.$format.twig", $vars);
+
+            $target = $baseDir.'/web/index.'.$format;
+            file_put_contents($target, $rendered);
+        }
 
         if (is_dir($baseDir.'/assets')) {
             $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($baseDir.'/assets'), RecursiveIteratorIterator::CHILD_FIRST);
