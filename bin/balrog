@@ -35,10 +35,11 @@ function parsePost($filename, $contents)
     list($year, $month, $day, $slug) = explode('-', basename($filename, '.md'), 4);
 
     $date = "$year-$month-$day";
-    $url = "$year/$month/$day/$slug.html";
+    $path = "$year/$month/$day/$slug.html";
 
     $post = array_merge($info, array(
-        'url'           => $url,
+        'url'           => $path, // deprecated
+        'path'          => $path,
         'date_string'   => $date,
         'date'          => new DateTime($date),
         'body'          => $body,
@@ -60,6 +61,28 @@ $console
         $loader = new Twig_Loader_Filesystem($baseDir.'/layouts');
         $twig = new Twig_Environment($loader, array('strict_variables' => true));
 
+        $getEngine = function ($name) use ($twig) {
+            $engines = array(
+                'twig'  => function ($filename, $vars) use ($twig) {
+                    return $twig->render($filename, $vars);
+                },
+                'php'   => function ($filename, $vars) {
+                    extract($vars);
+                    return include $baseDir.'/layouts'.$filename;
+                },
+            );
+
+            return $engines[$name];
+        };
+
+        $renderLayout = function ($filename, $vars) use ($getEngine) {
+            list($layout, $format, $engineName) = explode('.', $filename);
+
+            $engine = $getEngine($engineName);
+
+            return $engine($filename, $vars);
+        };
+
         $posts = array();
 
         $files = new \FilesystemIterator($baseDir.'/posts');
@@ -74,9 +97,9 @@ $console
             $posts[$post['date_string']] = $post;
 
             $vars = array('post' => $post, 'relativeRoot' => '../../..');
-            $rendered = $twig->render($post['layout'].'.html.twig', $vars);
+            $rendered = $renderLayout($post['layout'].'.html.twig', $vars);
 
-            $target = $baseDir.'/web/'.$post['url'];
+            $target = $baseDir.'/web/'.$post['path'];
             $fs->mkdir(dirname($target));
             file_put_contents($target, $rendered);
         }
@@ -88,12 +111,16 @@ $console
         ksort($posts);
         $posts = array_reverse($posts);
 
+        $latest = reset($posts);
+
         foreach (glob($baseDir.'/layouts/index.*.twig') as $file) {
-            preg_match('#index\.(.+?)\.twig$#', basename($file), $match);
+            $file = basename($file);
+
+            preg_match('#index\.(.+?)\.twig$#', $file, $match);
             $format = $match[1];
 
-            $vars = array('posts' => $posts, 'relativeRoot' => '.');
-            $rendered = $twig->render("index.$format.twig", $vars);
+            $vars = array('posts' => $posts, 'relativeRoot' => '.', 'latest' => $latest);
+            $rendered = $renderLayout($file, $vars);
 
             $target = $baseDir.'/web/index.'.$format;
             file_put_contents($target, $rendered);
