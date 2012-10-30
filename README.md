@@ -36,16 +36,16 @@ Now you can add the following directories:
   `YYYY-mm-dd-slug.md`, e.g. `2012-09-20-like-a-hacker.md`. Each one must begin
   with a YAML front matter. Here is a sample blog post:
 
-      ---
-      layout: post
-      title: Blogging Like a Hacker
-      ---
+        ---
+        layout: post
+        title: Blogging Like a Hacker
+        ---
 
-      # Blogging Like a Hacker
+        # Blogging Like a Hacker
 
-      * I’m bloggin yo!
-      * ORLY?
-      * YARLY!
+        * I’m bloggin yo!
+        * ORLY?
+        * YARLY!
 
   The following fields are defined:
 
@@ -59,7 +59,7 @@ Now you can add the following directories:
   Any instance of `$relativeRoot` will be replaced with the relative root, so
   you can reference an image like this:
 
-      ![Amazing shark with lasers]($relativeRoot/shark.png)
+        ![Amazing shark with lasers]($relativeRoot/shark.png)
 
 In order to build the site, you can use the `balrog build` command:
 
