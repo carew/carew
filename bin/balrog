@@ -94,7 +94,7 @@ $console
             $contents = file_get_contents($file);
             $post = parsePost((string) $file, $contents);
 
-            $posts[$post['date_string']] = $post;
+            $posts[] = $post;
 
             $vars = array('post' => $post, 'relativeRoot' => '../../..');
             $rendered = $renderLayout($post['layout'].'.html.twig', $vars);
@@ -108,7 +108,9 @@ $console
             $output->writeln('Building index');
         }
 
-        ksort($posts);
+        usort($posts, function ($a, $b) {
+            return strcmp($a['date_string'], $b['date_string']);
+        });
         $posts = array_reverse($posts);
 
         $latest = reset($posts);
