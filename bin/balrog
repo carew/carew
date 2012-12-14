@@ -23,27 +23,26 @@ function parsePost($filename, $contents)
         throw new \RuntimeException(sprintf('Could not parse front matter in blog post %s', basename($filename)));
     }
 
-    list($_, $rawInfo, $rawBody) = $matches;
+    list(, $rawInfo, $rawBody) = $matches;
 
     $info = Yaml::parse($rawInfo);
-    $layout = isset($info['layout']) ? $info['layout'] : 'default';
 
     $markdownParser = new MarkdownParser();
     $body = $markdownParser->transformMarkdown($rawBody);
-    $body = str_replace('$relativeRoot', '../../..', $body);
 
     list($year, $month, $day, $slug) = explode('-', basename($filename, '.md'), 4);
 
     $date = "$year-$month-$day";
     $path = "$year/$month/$day/$slug.html";
 
-    $post = array_merge($info, array(
+    $post = array_replace(array(
         'url'           => $path, // deprecated
         'path'          => $path,
         'date_string'   => $date,
         'date'          => new DateTime($date),
         'body'          => $body,
-    ));
+        'layout'        => 'default',
+    ), $info);
 
     return $post;
 }
@@ -68,7 +67,9 @@ $console
                 },
                 'php'   => function ($filename, $vars) {
                     extract($vars);
-                    return include $baseDir.'/layouts'.$filename;
+                    ob_start();
+                    require $baseDir.'/layouts'.$filename;
+                    return ob_get_clean();
                 },
             );
 
@@ -105,7 +106,7 @@ $console
         }
 
         if ($input->getOption('verbose')) {
-            $output->writeln('Building index');
+            $output->writeln('Building <info>index</info>');
         }
 
         usort($posts, function ($a, $b) {
@@ -129,13 +130,7 @@ $console
         }
 
         if (is_dir($baseDir.'/assets')) {
-            $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($baseDir.'/assets'), RecursiveIteratorIterator::CHILD_FIRST);
-            foreach ($files as $file) {
-                if ($file->isFile()) {
-                    $relativeFilename = substr($file, strlen($baseDir.'/assets/'));
-                    $fs->copy($file, $baseDir.'/web/'.$relativeFilename);
-                }
-            }
+            $fs->mirror($baseDir.'/assets/', $baseDir.'/web/');
         }
     })
 ;
