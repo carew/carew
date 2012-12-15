@@ -68,8 +68,8 @@ Now you can add the following directories:
     otherwise.
 
   Other fields can be defined at will and used in the template.
-  `post` variable contains the data of the current post. A post has `title`,
-  `body` and any additional front-matter meta data.
+  `document` variable contains the data of the current post.
+  A post has `title`, `body` and any additional front-matter meta data.
   `body` contains the markdown body rendered as html.
 
 * **pages:** Markdown files representing pages. Each one must begin
