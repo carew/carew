@@ -15,139 +15,110 @@ if ((!@include __DIR__.'/../../../autoload.php') && (!@include __DIR__.'/../vend
         'php composer.phar install'.PHP_EOL);
 }
 
-function parseMetadata($contents)
-{
-    preg_match('#---\n(.+)---\n(.+)#s', $contents, $matches);
-    if (!$matches) {
-        throw new \RuntimeException(sprintf('Could not parse front matter in blog post %s', basename($filename)));
-    }
-
-    list(, $rawInfo, $rawBody) = $matches;
-
-    $info = Yaml::parse($rawInfo);
-
-    $markdownParser = new MarkdownParser();
-    $body = $markdownParser->transformMarkdown($rawBody);
-
-    return array($info, $body);
-}
-
-function parsePost(SplFileInfo $filename, $contents)
-{
-    list($info, $body) = parseMetadata($contents);
-
-    list($year, $month, $day, $slug) = explode('-', $filename->getBasename('.md'), 4);
-
-    $date = "$year-$month-$day";
-    $path = "$year/$month/$day/$slug.html";
-
-    $post = array_replace(array(
-        'path'          => $path,
-        'date_string'   => $date,
-        'date'          => new DateTime($date),
-        'body'          => $body,
-        'layout'        => 'default',
-    ), $info);
-
-    return $post;
-}
-
-function parsePage(SplFileInfo $filename, $contents)
-{
-    list($info, $body) = parseMetadata($contents);
-
-    $slug = $filename->getBasename('.md');
-    $path = $filename->getRelativePath() ?: '.';
-
-    $page = array_replace(array(
-        'path'          => "$path/$slug.html",
-        'body'          => $body,
-        'layout'        => 'default',
-    ), $info);
-
-    return $page;
-}
-
 $console = new Application();
 $console
     ->register('build')
     ->setDescription('Builds static html files from markdown source')
     ->setCode(function (InputInterface $input, OutputInterface $output) {
         $baseDir = getcwd();
+        $webDir = $baseDir.'/web';
+
+        $parse_metadata = function ($contents) {
+            preg_match('#---\n(.+)---\n(.+)#s', $contents, $matches);
+            if (!$matches) {
+                throw new \RuntimeException('Could not parse front matter in current document');
+            }
+
+            list(, $rawInfo, $rawBody) = $matches;
+
+            $info = Yaml::parse($rawInfo);
+
+            $markdownParser = new MarkdownParser();
+            $body = $markdownParser->transformMarkdown($rawBody);
+
+            return array($info, $body);
+        };
+
+        $parse_post = function (SplFileInfo $file, $contents) use ($parse_metadata) {
+            list($info, $body) = $parse_metadata($contents);
+
+            list($year, $month, $day, $slug) = explode('-', $file->getBasename('.md'), 4);
+
+            $date = "$year-$month-$day";
+            $path = "$year/$month/$day/$slug.html";
+
+            $post = array_replace(array(
+                'body'          => $body,
+                'path'          => $path,
+                'date'          => new DateTime($date),
+                'date_string'   => $date,
+            ), $info);
+
+            return $post;
+        };
+
+        $parse_page = function (SplFileInfo $file, $contents) use ($parse_metadata) {
+            list($info, $body) = $parse_metadata($contents);
+
+            $slug = $file->getBasename('.md');
+
+            $path = $file->getRelativePath()
+                ? sprintf('%s/%s.html', $file->getRelativePath(), $slug)
+                : $slug.'.html';
+
+            $page = array_replace(array(
+                'body'          => $body,
+                'path'          => $path,
+            ), $info);
+
+            return $page;
+        };
+
+        $process_document = function($dir, $parse_document, $filenamePattern = '.md') use($input, $output) {
+            $documents = array();
+            if (is_dir($dir)) {
+                $finder = new Finder();
+                foreach ($finder->in($dir)->files()->name($filenamePattern) as $file) {
+                    if ($input->getOption('verbose')) {
+                        $output->writeln(sprintf('Processing <info>%s</info>', $file->getRelativePathName()));
+                    }
+
+                    $contents = file_get_contents($file);
+
+                    try {
+                        $document = $parse_document($file, $contents);
+                    } catch (\Exception $e) {
+                        throw new \LogicException(sprintf('Could not process: "%s". Error: "%s"', (string) $file, $e->getMessage()));
+                    }
+
+                    $document = array_replace(array('layout' => 'default'), $document);
+                    $document['file'] = $file;
+
+                    $documents[$document['path']] = $document;
+                }
+            }
+
+            return $documents;
+        };
+
+
+        $posts = $process_document($baseDir.'/posts', $parse_post, '*-*-*-*.md');
+        $pages = $process_document($baseDir.'/pages', $parse_page, '*.md');
 
         $fs = new Filesystem();
-        $fs->remove($baseDir.'/web');
+        $fs->remove($webDir);
 
         $loader = new Twig_Loader_Filesystem($baseDir.'/layouts');
         $twig = new Twig_Environment($loader, array('strict_variables' => true));
 
-        $getEngine = function ($name) use ($twig) {
-            $engines = array(
-                'twig'  => function ($filename, $vars) use ($twig) {
-                    return $twig->render($filename, $vars);
-                },
-                'php'   => function ($filename, $vars) {
-                    extract($vars);
-                    ob_start();
-                    require $baseDir.'/layouts'.$filename;
+        foreach (array_merge($posts, $pages) as $document) {
+            $relativeRoot = rtrim(str_repeat('../', substr_count($document['path'], DIRECTORY_SEPARATOR) + 1), '/');
+            $vars = array('document' => $document, 'relativeRoot' => $relativeRoot);
+            $rendered = $twig->render($document['layout'].'.html.twig', $vars);
 
-                    return ob_get_clean();
-                },
-            );
-
-            return $engines[$name];
-        };
-
-        $renderLayout = function ($filename, $vars) use ($getEngine) {
-            list($layout, $format, $engineName) = explode('.', $filename);
-
-            $engine = $getEngine($engineName);
-
-            return $engine($filename, $vars);
-        };
-
-        $posts = array();
-        if (is_dir($baseDir.'/posts')) {
-            $finder = new Finder();
-            foreach ($finder->in($baseDir.'/posts')->files()->name('*-*-*-*.md') as $file) {
-                if ($input->getOption('verbose')) {
-                    $output->writeln(sprintf('Processing <info>%s</info>', $file->getBasename()));
-                }
-
-                $contents = file_get_contents($file);
-
-                $posts[] = $post = parsePost($file, $contents);
-
-                $vars = array('post' => $post, 'relativeRoot' => '../../..');
-                $rendered = $renderLayout($post['layout'].'.html.twig', $vars);
-
-                $target = $baseDir.'/web/'.$post['path'];
-                $fs->mkdir(dirname($target));
-                file_put_contents($target, $rendered);
-            }
-        }
-
-        $pages = array();
-        if (is_dir($baseDir.'/pages')) {
-            $finder = new Finder();
-            foreach ($finder->in($baseDir.'/pages')->files()->name('*.md') as $file) {
-                if ($input->getOption('verbose')) {
-                    $output->writeln(sprintf('Processing <info>%s</info>', $file->getBasename()));
-                }
-
-                $contents = file_get_contents($file);
-
-                $page = parsePage($file, $contents);
-                $pages[$page['path']] = $page;
-
-                $relativeRoot = rtrim(str_repeat('../', substr_count($file->getRelativePath(), DIRECTORY_SEPARATOR) + 1), '/');
-                $vars = array('page' => $page, 'relativeRoot' => $relativeRoot);
-                $rendered = $renderLayout($page['layout'].'.html.twig', $vars);
-
-                $target = $baseDir.'/web/'.$page['path'];
-                $fs->mkdir(dirname($target));
-                file_put_contents($target, $rendered);
-            }
+            $target = $webDir.'/'.$document['path'];
+            $fs->mkdir(dirname($target));
+            file_put_contents($target, $rendered);
         }
 
         if ($input->getOption('verbose')) {
@@ -155,9 +126,8 @@ $console
         }
 
         usort($posts, function ($a, $b) {
-            return strcmp($a['date_string'], $b['date_string']);
+            return !strcmp($a['date_string'], $b['date_string']);
         });
-        $posts = array_reverse($posts);
 
         $latest = reset($posts);
 
@@ -174,14 +144,14 @@ $console
                 'pages'        => $pages,
                 'relativeRoot' => '.',
             );
-            $rendered = $renderLayout($file, $vars);
 
-            $target = $baseDir.'/web/index.'.$format;
+            $rendered = $twig->render($file, $vars);
+            $target = $webDir.'/index.'.$format;
             file_put_contents($target, $rendered);
         }
 
         if (is_dir($baseDir.'/assets')) {
-            $fs->mirror($baseDir.'/assets/', $baseDir.'/web/');
+            $fs->mirror($baseDir.'/assets/', $webDir.'/');
         }
     })
 ;
