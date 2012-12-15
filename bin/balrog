@@ -152,7 +152,6 @@ $console
             file_put_contents($target, $rendered);
         }
 
-
         if ($input->getOption('verbose')) {
             $output->writeln('Building <info>Tags</info>');
         }
