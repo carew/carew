@@ -47,11 +47,16 @@ $console
             $date = "$year-$month-$day";
             $path = "$year/$month/$day/$slug.html";
 
+            if (isset($info['tags']) && !is_array($info['tags'])) {
+                $info['tags'] = array($info['tags']);
+            }
+
             $post = array_replace(array(
                 'body'          => $body,
                 'path'          => $path,
                 'date'          => new DateTime($date),
                 'date_string'   => $date,
+                'tags'          => array(),
             ), $info);
 
             return $post;
@@ -101,19 +106,45 @@ $console
             return $documents;
         };
 
-
         $posts = $process_document($baseDir.'/posts', $parse_post, '*-*-*-*.md');
+        usort($posts, function ($a, $b) {
+            return !strcmp($a['date_string'], $b['date_string']);
+        });
+        $latest = reset($posts);
+
         $pages = $process_document($baseDir.'/pages', $parse_page, '*.md');
+
+        $tags = array();
+        foreach ($posts as $post) {
+            foreach ($post['tags'] as $tag) {
+                if (!array_key_exists($tag, $tags)) {
+                    $tags[$tag] = array();
+                }
+
+                $tags[$tag][] = $post;
+            }
+        }
 
         $fs = new Filesystem();
         $fs->remove($webDir);
 
         $loader = new Twig_Loader_Filesystem($baseDir.'/layouts');
-        $twig = new Twig_Environment($loader, array('strict_variables' => true));
+        $twig = new Twig_Environment($loader, array('strict_variables' => true, 'debug' => true));
+        $twig->addExtension(new Twig_Extension_Debug());
+        $twig->addGlobal('latest', $latest);
+        $twig->addGlobal('pages', $pages);
+        $twig->addGlobal('posts', $posts);
+        $twig->addGlobal('tags', $tags);
 
         foreach (array_merge($posts, $pages) as $document) {
+            if ($input->getOption('verbose')) {
+                $output->writeln(sprintf('Building <info>%s</info>', $document['path']));
+            }
             $relativeRoot = rtrim(str_repeat('../', substr_count($document['path'], DIRECTORY_SEPARATOR) + 1), '/');
-            $vars = array('document' => $document, 'relativeRoot' => $relativeRoot);
+            $vars = array(
+                'document'     => $document,
+                'relativeRoot' => $relativeRoot,
+            );
             $rendered = $twig->render($document['layout'].'.html.twig', $vars);
 
             $target = $webDir.'/'.$document['path'];
@@ -121,16 +152,33 @@ $console
             file_put_contents($target, $rendered);
         }
 
+
         if ($input->getOption('verbose')) {
-            $output->writeln('Building <info>index</info>');
+            $output->writeln('Building <info>Tags</info>');
+        }
+        $finder = new Finder();
+        foreach ($finder->in($baseDir.'/layouts/')->files()->name('tags.*.twig') as $file) {
+            $file = $file->getBasename();
+
+            preg_match('#tags\.(.+?)\.twig$#', $file, $match);
+            $format = $match[1];
+
+            foreach ($tags as $tag => $posts) {
+                $vars = array(
+                    'relativeRoot' => '..',
+                    'posts'        => $posts,
+                    'tag'          => $tag
+                );
+                $rendered = $twig->render($file, $vars);
+                $target = sprintf('%s/tags/%s.%s',$webDir, $tag, $format);
+                $fs->mkdir(dirname($target));
+                file_put_contents($target, $rendered);
+            }
         }
 
-        usort($posts, function ($a, $b) {
-            return !strcmp($a['date_string'], $b['date_string']);
-        });
-
-        $latest = reset($posts);
-
+        if ($input->getOption('verbose')) {
+            $output->writeln('Building <info>Index</info>');
+        }
         $finder = new Finder();
         foreach ($finder->in($baseDir.'/layouts/')->files()->name('index.*.twig') as $file) {
             $file = $file->getBasename();
@@ -138,12 +186,7 @@ $console
             preg_match('#index\.(.+?)\.twig$#', $file, $match);
             $format = $match[1];
 
-            $vars = array(
-                'posts'        => $posts,
-                'latest'       => $latest,
-                'pages'        => $pages,
-                'relativeRoot' => '.',
-            );
+            $vars = array('relativeRoot' => '.');
 
             $rendered = $twig->render($file, $vars);
             $target = $webDir.'/index.'.$format;
