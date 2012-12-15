@@ -1,9 +1,13 @@
 {
-    "name": "igorw/balrog",
+    "name": "lyrixx/carew",
     "description": "The tiny static site generator.",
     "keywords": ["static-site-generator"],
     "license": "MIT",
     "authors": [
+        {
+            "name": "Grégoire Pineau",
+            "email": "lyrixx@lyrixx.info"
+        },
         {
             "name": "Igor Wiedler",
             "email": "igor@wiedler.ch"
@@ -15,7 +19,7 @@
         "symfony/filesystem": "2.1.*",
         "symfony/finder": "2.1.*",
         "symfony/yaml": "2.1.*",
-        "twig/twig": "1.9.*"
+        "twig/twig": "1.*"
     },
-    "bin": ["bin/balrog"]
+    "bin": ["bin/carew"]
 }

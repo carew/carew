@@ -1,12 +1,21 @@
-# Balrog
+Carew
+=====
 
 The tiny static site generator.
 
-## Usage
+**Note**: This application is based on the awesome
+[work](https://github.com/igorw/balrog/) of [igor](https://github.com/igorw/balrog/)
+
+Installation
+------------
 
 To start a new site, just add the dependency via composer:
 
-    $ composer init --require igorw/balrog:dev-master -n
+    $ composer init
+    $ composer require lyrixx/carew:dev-master
+
+Usage
+-----
 
 Now you can add the following directories:
 
@@ -15,15 +24,15 @@ Now you can add the following directories:
 
 * **layouts:** The layouts are used to render the pages. They have a
   `.html.twig` suffix. You can create base templates and have more specific
-  ones that extend them using the `extends` tag.
+  ones that extend them using the `extends` tag. The layouts are renderer
+  with [Twig](http://twig.sensiolabs.com)
 
   Layouts get access to following variables:
 
-  * **post:** Contains the data of the current post (it is not set on the index
-    page). A post has `title`, `body` and any additional front-matter meta data.
-    `body` contains the markdown body rendered as html.
-
   * **posts:** A listing of all posts in reverse order of publication.
+  * **latest:** The latest post.
+  * **tags:** A listint off all tags.
+  * **pages:** A listing of all pages.
 
   * **relativeRoot:** The relative path from the current page to the root.
     Useful for referencing assets. Must always be followed by a slash, e.g.:
@@ -31,6 +40,10 @@ Now you can add the following directories:
 
   Filenames that follow the `index.$format.twig` naming scheme will get compiled
   to an `index.$format` file.
+
+  Filenames that follow the `tags.$format.twig` naming scheme will get compiled
+  to `tags/$tagName.$format` files. Templates have access to `tag` and `posts`
+  variables. Here `posts` contains only Posts with current tag
 
 * **posts:** Markdown files representing blog posts. Must be in the format of
   `YYYY-mm-dd-slug.md`, e.g. `2012-09-20-like-a-hacker.md`. Each one must begin
@@ -55,19 +68,32 @@ Now you can add the following directories:
     otherwise.
 
   Other fields can be defined at will and used in the template.
+  `post` variable contains the data of the current post. A post has `title`,
+  `body` and any additional front-matter meta data.
+  `body` contains the markdown body rendered as html.
 
-  Any instance of `$relativeRoot` will be replaced with the relative root, so
-  you can reference an image like this:
+* **pages:** Markdown files representing pages. Each one must begin
+  with a YAML front matter. Here is a sample page:
 
-        ![Amazing shark with lasers]($relativeRoot/shark.png)
+        ---
+        layout: page
+        title: About
+        ---
 
-In order to build the site, you can use the `balrog build` command:
+        # About me
 
-    $ vendor/bin/balrog build
+        * I’m bloggin yo!
+        * ORLY?
+        * YARLY!
+
+In order to build the site, you can use the `carew build` command:
+
+    $ vendor/bin/carew build
 
 This will populate the `web` directory with a set of files that can be
 deployed onto any static web server.
 
-## Quote of the day
+Quote of the day
+----------------
 
 "Fly, you fools!" - Gandalf

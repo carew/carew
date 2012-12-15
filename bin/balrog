@@ -96,7 +96,10 @@ $console
                         throw new \LogicException(sprintf('Could not process: "%s". Error: "%s"', (string) $file, $e->getMessage()));
                     }
 
-                    $document = array_replace(array('layout' => 'default'), $document);
+                    $document = array_replace(array(
+                        'layout' => 'default',
+                        'title'  => $file->getBasename('.md'),
+                    ), $document);
                     $document['file'] = $file;
 
                     $documents[$document['path']] = $document;
