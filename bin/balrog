@@ -139,6 +139,12 @@ $console
         $twig->addGlobal('posts', $posts);
         $twig->addGlobal('tags', $tags);
 
+        if (file_exists($baseDir.'/config.yml')) {
+            foreach (Yaml::parse($baseDir.'/config.yml') as $key => $value) {
+                $twig->addGlobal($key, $value);
+            }
+        }
+
         foreach (array_merge($posts, $pages) as $document) {
             if ($input->getOption('verbose')) {
                 $output->writeln(sprintf('Building <info>%s</info>', $document['path']));

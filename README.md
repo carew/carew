@@ -86,6 +86,20 @@ Now you can add the following directories:
         * ORLY?
         * YARLY!
 
+* **config.yml:** Yaml file with some configuration. All variables will be
+  sent to twig templates. Here is a sample:
+
+        site:
+          author: Grégoire Pineau
+          title:  Foo
+          description: Bar
+
+  And in the template:
+
+        <html>
+          <head>
+            <title>{{ site.title }}</title>
+
 In order to build the site, you can use the `carew build` command:
 
     $ vendor/bin/carew build
