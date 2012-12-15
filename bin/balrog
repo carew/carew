@@ -4,10 +4,9 @@
 use dflydev\markdown\MarkdownParser;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
 if ((!@include __DIR__.'/../../../autoload.php') && (!@include __DIR__.'/../vendor/autoload.php')) {
@@ -16,7 +15,7 @@ if ((!@include __DIR__.'/../../../autoload.php') && (!@include __DIR__.'/../vend
         'php composer.phar install'.PHP_EOL);
 }
 
-function parsePost($filename, $contents)
+function parseMetadata($contents)
 {
     preg_match('#---\n(.+)---\n(.+)#s', $contents, $matches);
     if (!$matches) {
@@ -30,13 +29,19 @@ function parsePost($filename, $contents)
     $markdownParser = new MarkdownParser();
     $body = $markdownParser->transformMarkdown($rawBody);
 
-    list($year, $month, $day, $slug) = explode('-', basename($filename, '.md'), 4);
+    return array($info, $body);
+}
+
+function parsePost(SplFileInfo $filename, $contents)
+{
+    list($info, $body) = parseMetadata($contents);
+
+    list($year, $month, $day, $slug) = explode('-', $filename->getBasename('.md'), 4);
 
     $date = "$year-$month-$day";
     $path = "$year/$month/$day/$slug.html";
 
     $post = array_replace(array(
-        'url'           => $path, // deprecated
         'path'          => $path,
         'date_string'   => $date,
         'date'          => new DateTime($date),
@@ -45,6 +50,22 @@ function parsePost($filename, $contents)
     ), $info);
 
     return $post;
+}
+
+function parsePage(SplFileInfo $filename, $contents)
+{
+    list($info, $body) = parseMetadata($contents);
+
+    $slug = $filename->getBasename('.md');
+    $path = $filename->getRelativePath() ?: '.';
+
+    $page = array_replace(array(
+        'path'          => "$path/$slug.html",
+        'body'          => $body,
+        'layout'        => 'default',
+    ), $info);
+
+    return $page;
 }
 
 $console = new Application();
@@ -69,6 +90,7 @@ $console
                     extract($vars);
                     ob_start();
                     require $baseDir.'/layouts'.$filename;
+
                     return ob_get_clean();
                 },
             );
@@ -85,24 +107,47 @@ $console
         };
 
         $posts = array();
+        if (is_dir($baseDir.'/posts')) {
+            $finder = new Finder();
+            foreach ($finder->in($baseDir.'/posts')->files()->name('*-*-*-*.md') as $file) {
+                if ($input->getOption('verbose')) {
+                    $output->writeln(sprintf('Processing <info>%s</info>', $file->getBasename()));
+                }
 
-        $files = new \FilesystemIterator($baseDir.'/posts');
-        foreach ($files as $file) {
-            if ($input->getOption('verbose')) {
-                $output->writeln(sprintf('Processing <info>%s</info>', $file->getBasename()));
+                $contents = file_get_contents($file);
+
+                $posts[] = $post = parsePost($file, $contents);
+
+                $vars = array('post' => $post, 'relativeRoot' => '../../..');
+                $rendered = $renderLayout($post['layout'].'.html.twig', $vars);
+
+                $target = $baseDir.'/web/'.$post['path'];
+                $fs->mkdir(dirname($target));
+                file_put_contents($target, $rendered);
             }
+        }
 
-            $contents = file_get_contents($file);
-            $post = parsePost((string) $file, $contents);
+        $pages = array();
+        if (is_dir($baseDir.'/pages')) {
+            $finder = new Finder();
+            foreach ($finder->in($baseDir.'/pages')->files()->name('*.md') as $file) {
+                if ($input->getOption('verbose')) {
+                    $output->writeln(sprintf('Processing <info>%s</info>', $file->getBasename()));
+                }
 
-            $posts[] = $post;
+                $contents = file_get_contents($file);
 
-            $vars = array('post' => $post, 'relativeRoot' => '../../..');
-            $rendered = $renderLayout($post['layout'].'.html.twig', $vars);
+                $page = parsePage($file, $contents);
+                $pages[$page['path']] = $page;
 
-            $target = $baseDir.'/web/'.$post['path'];
-            $fs->mkdir(dirname($target));
-            file_put_contents($target, $rendered);
+                $relativeRoot = rtrim(str_repeat('../', substr_count($file->getRelativePath(), DIRECTORY_SEPARATOR) + 1), '/');
+                $vars = array('page' => $page, 'relativeRoot' => $relativeRoot);
+                $rendered = $renderLayout($page['layout'].'.html.twig', $vars);
+
+                $target = $baseDir.'/web/'.$page['path'];
+                $fs->mkdir(dirname($target));
+                file_put_contents($target, $rendered);
+            }
         }
 
         if ($input->getOption('verbose')) {
@@ -116,13 +161,19 @@ $console
 
         $latest = reset($posts);
 
-        foreach (glob($baseDir.'/layouts/index.*.twig') as $file) {
-            $file = basename($file);
+        $finder = new Finder();
+        foreach ($finder->in($baseDir.'/layouts/')->files()->name('index.*.twig') as $file) {
+            $file = $file->getBasename();
 
             preg_match('#index\.(.+?)\.twig$#', $file, $match);
             $format = $match[1];
 
-            $vars = array('posts' => $posts, 'relativeRoot' => '.', 'latest' => $latest);
+            $vars = array(
+                'posts'        => $posts,
+                'latest'       => $latest,
+                'pages'        => $pages,
+                'relativeRoot' => '.',
+            );
             $rendered = $renderLayout($file, $vars);
 
             $target = $baseDir.'/web/index.'.$format;
