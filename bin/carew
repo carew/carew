@@ -4,6 +4,7 @@
 use dflydev\markdown\MarkdownParser;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -19,9 +20,11 @@ $console = new Application();
 $console
     ->register('build')
     ->setDescription('Builds static html files from markdown source')
+    ->addOption('web-dir', null, InputOption::VALUE_REQUIRED, 'Where to write generated content', getcwd().'/web')
+    ->addOption('base-dir', null, InputOption::VALUE_REQUIRED, 'Where locate your content', getcwd())
     ->setCode(function (InputInterface $input, OutputInterface $output) {
-        $baseDir = getcwd();
-        $webDir = $baseDir.'/web';
+        $baseDir =$input->getOption('base-dir');
+        $webDir = $input->getOption('web-dir');
 
         $parse_metadata = function ($contents) {
             preg_match('#^---\n(.+)---\n(.+)$#sU', $contents, $matches);
