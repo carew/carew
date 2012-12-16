@@ -33,11 +33,12 @@ Now you can add the following directories:
   * **latest:** The latest post.
   * **tags:** A listing of all tags with theirs associated pages/posts collection.
   * **navigation:** A listing of all navigation groups with
-    theirs associated pages/posts collection.
+    theirs associated pages/posts collection. Useful in templates to build menu.
   * **pages:** A listing of all pages.
   * **relativeRoot:** The relative path from the current page to the root.
     Useful for referencing assets. Must always be followed by a slash, e.g.:
     `{{ relativeRoot }}/main.css`.
+  * **currentPath:** The current path, from the root to the current page.
 
   Filenames that follow the `index.$format.twig` naming scheme will get compiled
   to an `index.$format` file.

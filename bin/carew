@@ -99,9 +99,10 @@ $console
 
                     $document = array_replace(array(
                         'layout'     => 'default',
+                        'path'       => '.',
                         'title'      => $file->getBasename('.md'),
-                        'tags'       => array(),
                         'navigation' => array(),
+                        'tags'       => array(),
                     ), $document);
                     $document['file'] = $file;
 
@@ -112,12 +113,14 @@ $console
             return $documents;
         };
 
+        // Process Posts
         $posts = $process_document($baseDir.'/posts', $parse_post, '*-*-*-*.md');
         usort($posts, function ($a, $b) {
             return !strcmp($a['date_string'], $b['date_string']);
         });
         $latest = reset($posts);
 
+        // Process Pages
         $pages = $process_document($baseDir.'/pages', $parse_page, '*.md');
 
         $build_collection = function($documents, $key) {
@@ -138,6 +141,7 @@ $console
 
         $documents = array_merge($posts, $pages);
 
+        // Process Tags and navigation collections
         $tags       = $build_collection($documents, 'tags');
         $navigation = $build_collection($documents, 'navigation');
 
@@ -146,11 +150,14 @@ $console
 
         $loader = new Twig_Loader_Filesystem($baseDir.'/layouts');
         $twig = new Twig_Environment($loader, array('strict_variables' => true));
+        $twig->addGlobal('document', array('path' => '.'));
         $twig->addGlobal('latest', $latest);
         $twig->addGlobal('pages', $pages);
         $twig->addGlobal('posts', $posts);
         $twig->addGlobal('tags', $tags);
         $twig->addGlobal('navigation', $navigation);
+        $twig->addGlobal('relativeRoot', '.');
+        $twig->addGlobal('currentPath', '.');
 
         if (file_exists($baseDir.'/config.yml')) {
             foreach (Yaml::parse($baseDir.'/config.yml') as $key => $value) {
@@ -158,6 +165,7 @@ $console
             }
         }
 
+        // Build page and post documents
         foreach (array_merge($posts, $pages) as $document) {
             if ($input->getOption('verbose')) {
                 $output->writeln(sprintf('Building <info>%s</info>', $document['path']));
@@ -166,6 +174,7 @@ $console
             $vars = array(
                 'document'     => $document,
                 'relativeRoot' => $relativeRoot,
+                'currentPath'  => $document['path'],
             );
             $rendered = $twig->render($document['layout'].'.html.twig', $vars);
 
@@ -174,6 +183,7 @@ $console
             file_put_contents($target, $rendered);
         }
 
+        // Build Tags
         if ($input->getOption('verbose')) {
             $output->writeln('Building <info>Tags</info>');
         }
@@ -185,13 +195,19 @@ $console
             $format = $match[1];
 
             foreach ($tags as $tag => $posts) {
+                $path = sprintf('tags/%s.%s', $tag, $format);
                 $vars = array(
-                    'relativeRoot' => '..',
+                    'document'     => array(
+                        'path'  => $path,
+                        'title' => 'Tags: '.$tag,
+                    ),
                     'posts'        => $posts,
-                    'tag'          => $tag
+                    'tag'          => $tag,
+                    'relativeRoot' => '..',
+                    'currentPath'  => $path,
                 );
                 $rendered = $twig->render($file, $vars);
-                $target = sprintf('%s/tags/%s.%s',$webDir, $tag, $format);
+                $target = sprintf('%s/%s',$webDir, $path);
                 $fs->mkdir(dirname($target));
                 file_put_contents($target, $rendered);
             }
@@ -207,10 +223,17 @@ $console
             preg_match('#index\.(.+?)\.twig$#', $file, $match);
             $format = $match[1];
 
-            $vars = array('relativeRoot' => '.');
-
+            $path = 'index.'.$format;
+            $vars = array(
+                'document'     => array(
+                    'path'  => $path,
+                    'title' => 'Homepage',
+                ),
+                'relativeRoot' => '.',
+                'currentPath'  => $path,
+            );
             $rendered = $twig->render($file, $vars);
-            $target = $webDir.'/index.'.$format;
+            $target = "$webDir/$path";
             file_put_contents($target, $rendered);
         }
 
