@@ -33,6 +33,12 @@ $console
 
             $info = Yaml::parse($rawInfo);
 
+            foreach (array('tags', 'navigation') as $value) {
+                if (isset($info[$value]) && !is_array($info[$value])) {
+                    $info[$value] = array($info[$value]);
+                }
+            }
+
             $markdownParser = new MarkdownParser();
             $body = $markdownParser->transformMarkdown($rawBody);
 
@@ -47,16 +53,11 @@ $console
             $date = "$year-$month-$day";
             $path = "$year/$month/$day/$slug.html";
 
-            if (isset($info['tags']) && !is_array($info['tags'])) {
-                $info['tags'] = array($info['tags']);
-            }
-
             $post = array_replace(array(
-                'body'          => $body,
-                'path'          => $path,
-                'date'          => new DateTime($date),
-                'date_string'   => $date,
-                'tags'          => array(),
+                'body'        => $body,
+                'path'        => $path,
+                'date'        => new DateTime($date),
+                'date_string' => $date,
             ), $info);
 
             return $post;
@@ -97,8 +98,10 @@ $console
                     }
 
                     $document = array_replace(array(
-                        'layout' => 'default',
-                        'title'  => $file->getBasename('.md'),
+                        'layout'     => 'default',
+                        'title'      => $file->getBasename('.md'),
+                        'tags'       => array(),
+                        'navigation' => array(),
                     ), $document);
                     $document['file'] = $file;
 
@@ -117,16 +120,26 @@ $console
 
         $pages = $process_document($baseDir.'/pages', $parse_page, '*.md');
 
-        $tags = array();
-        foreach ($posts as $post) {
-            foreach ($post['tags'] as $tag) {
-                if (!array_key_exists($tag, $tags)) {
-                    $tags[$tag] = array();
-                }
+        $build_collection = function($documents, $key) {
+            $collection = array();
+            foreach ($documents as $document) {
+                foreach ($document[$key] as $item) {
+                    if (!array_key_exists($item, $collection)) {
+                        $collection[$item] = array();
+                    }
 
-                $tags[$tag][] = $post;
+                    $collection[$item][] = $document;
+                }
             }
-        }
+
+            return $collection;
+
+        };
+
+        $documents = array_merge($posts, $pages);
+
+        $tags       = $build_collection($documents, 'tags');
+        $navigation = $build_collection($documents, 'navigation');
 
         $fs = new Filesystem();
         $fs->remove($webDir);
@@ -137,6 +150,7 @@ $console
         $twig->addGlobal('pages', $pages);
         $twig->addGlobal('posts', $posts);
         $twig->addGlobal('tags', $tags);
+        $twig->addGlobal('navigation', $navigation);
 
         if (file_exists($baseDir.'/config.yml')) {
             foreach (Yaml::parse($baseDir.'/config.yml') as $key => $value) {

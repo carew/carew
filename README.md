@@ -31,7 +31,9 @@ Now you can add the following directories:
 
   * **posts:** A listing of all posts in reverse order of publication.
   * **latest:** The latest post.
-  * **tags:** A listint off all tags.
+  * **tags:** A listing of all tags with theirs associated pages/posts collection.
+  * **navigation:** A listing of all navigation groups with
+    theirs associated pages/posts collection.
   * **pages:** A listing of all pages.
   * **relativeRoot:** The relative path from the current page to the root.
     Useful for referencing assets. Must always be followed by a slash, e.g.:
