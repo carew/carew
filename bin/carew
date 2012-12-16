@@ -24,7 +24,7 @@ $console
         $webDir = $baseDir.'/web';
 
         $parse_metadata = function ($contents) {
-            preg_match('#---\n(.+)---\n(.+)#s', $contents, $matches);
+            preg_match('#^---\n(.+)---\n(.+)$#sU', $contents, $matches);
             if (!$matches) {
                 throw new \RuntimeException('Could not parse front matter in current document');
             }
@@ -132,7 +132,7 @@ $console
         $fs->remove($webDir);
 
         $loader = new Twig_Loader_Filesystem($baseDir.'/layouts');
-        $twig = new Twig_Environment($loader, array('strict_variables' => false));
+        $twig = new Twig_Environment($loader, array('strict_variables' => true));
         $twig->addGlobal('latest', $latest);
         $twig->addGlobal('pages', $pages);
         $twig->addGlobal('posts', $posts);
