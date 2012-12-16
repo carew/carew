@@ -151,6 +151,7 @@ $console
         $loader = new Twig_Loader_Filesystem($baseDir.'/layouts');
         $twig = new Twig_Environment($loader, array('strict_variables' => true));
         $twig->addGlobal('document', array('path' => '.'));
+        $twig->addGlobal('site', array());
         $twig->addGlobal('latest', $latest);
         $twig->addGlobal('pages', $pages);
         $twig->addGlobal('posts', $posts);
@@ -160,7 +161,7 @@ $console
         $twig->addGlobal('currentPath', '.');
 
         if (file_exists($baseDir.'/config.yml')) {
-            foreach (Yaml::parse($baseDir.'/config.yml') as $key => $value) {
+            foreach ($config = Yaml::parse($baseDir.'/config.yml') as $key => $value) {
                 $twig->addGlobal($key, $value);
             }
         }
@@ -227,7 +228,7 @@ $console
             $vars = array(
                 'document'     => array(
                     'path'  => $path,
-                    'title' => 'Homepage',
+                    'title' => isset($config['site']) ? (isset($config['site']['title']) ? $config['site']['title'] : '' ): '',
                 ),
                 'relativeRoot' => '.',
                 'currentPath'  => $path,
