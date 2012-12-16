@@ -26,7 +26,7 @@ $console
         $baseDir =$input->getOption('base-dir');
         $webDir = $input->getOption('web-dir');
 
-        $parse_metadata = function ($contents) {
+        $parse_metadata = function ($contents, $markdownify = true) {
             preg_match('#^---\n(.+)---\n(.+)$#sU', $contents, $matches);
             if (!$matches) {
                 throw new \RuntimeException('Could not parse front matter in current document');
@@ -42,8 +42,12 @@ $console
                 }
             }
 
-            $markdownParser = new MarkdownParser();
-            $body = $markdownParser->transformMarkdown($rawBody);
+            if ($markdownify) {
+                $markdownParser = new MarkdownParser();
+                $body = $markdownParser->transformMarkdown($rawBody);
+            } else {
+                $body = $rawBody;
+            }
 
             return array($info, $body);
         };
@@ -78,6 +82,26 @@ $console
             $page = array_replace(array(
                 'body'          => $body,
                 'path'          => $path,
+            ), $info);
+
+            return $page;
+        };
+
+        $parse_api = function (SplFileInfo $file, $contents) use ($parse_metadata) {
+            try {
+                list($info, $body) = $parse_metadata($contents, false);
+            } catch (\RuntimeException $e) {
+                $info = array(
+                    'layout' => false
+                );
+                $body = $contents;
+            }
+
+            $path = ltrim(sprintf('%s/%s',$file->getRelativePath(), $file->getBasename()), '/');
+
+            $page = array_replace(array(
+                'body' => $body,
+                'path' => 'api/'.$path,
             ), $info);
 
             return $page;
@@ -126,6 +150,9 @@ $console
         // Process Pages
         $pages = $process_document($baseDir.'/pages', $parse_page, '*.md');
 
+        // Process Api
+        $api = $process_document($baseDir.'/api', $parse_api, '*');
+
         $build_collection = function($documents, $key) {
             $collection = array();
             foreach ($documents as $document) {
@@ -142,7 +169,7 @@ $console
 
         };
 
-        $documents = array_merge($posts, $pages);
+        $documents = array_merge($posts, $pages, $api);
 
         // Process Tags and navigation collections
         $tags       = $build_collection($documents, 'tags');
@@ -169,8 +196,8 @@ $console
             }
         }
 
-        // Build page and post documents
-        foreach (array_merge($posts, $pages) as $document) {
+        // Build page, api and post documents
+        foreach ($documents as $document) {
             if ($input->getOption('verbose')) {
                 $output->writeln(sprintf('Building <info>%s</info>', $document['path']));
             }
@@ -180,7 +207,11 @@ $console
                 'relativeRoot' => $relativeRoot,
                 'currentPath'  => $document['path'],
             );
-            $rendered = $twig->render($document['layout'].'.html.twig', $vars);
+            if (false !== $document['layout']) {
+                $rendered = $twig->render($document['layout'].'.html.twig', $vars);
+            } else {
+                $rendered = $document['body'];
+            }
 
             $target = $webDir.'/'.$document['path'];
             $fs->mkdir(dirname($target));
