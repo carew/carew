@@ -19,7 +19,7 @@
         "symfony/filesystem": "2.1.*",
         "symfony/finder": "2.1.*",
         "symfony/yaml": "2.1.*",
-        "twig/twig": "1.*"
+        "twig/twig": "~1.10"
     },
     "bin": ["bin/carew"]
 }

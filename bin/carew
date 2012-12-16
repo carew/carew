@@ -178,10 +178,23 @@ $console
         $fs = new Filesystem();
         $fs->remove($webDir);
 
+        $config = array(
+            'site'   => array(),
+            'engine' => array(),
+        );
+        if (file_exists($baseDir.'/config.yml')) {
+            $config = array_replace_recursive($config, Yaml::parse($baseDir.'/config.yml'));
+        }
+
         $loader = new Twig_Loader_Filesystem($baseDir.'/layouts');
+        if (isset($config['engine']['theme_path'])) {
+            $themePath = str_replace('%dir%', $baseDir, $config['engine']['theme_path']);
+            $loader->addPath($themePath.'/layouts');
+            $loader->addPath($baseDir);
+        }
+
         $twig = new Twig_Environment($loader, array('strict_variables' => true));
         $twig->addGlobal('document', array('path' => '.'));
-        $twig->addGlobal('site', array());
         $twig->addGlobal('latest', $latest);
         $twig->addGlobal('pages', $pages);
         $twig->addGlobal('posts', $posts);
@@ -189,12 +202,7 @@ $console
         $twig->addGlobal('navigation', $navigation);
         $twig->addGlobal('relativeRoot', '.');
         $twig->addGlobal('currentPath', '.');
-
-        if (file_exists($baseDir.'/config.yml')) {
-            foreach ($config = Yaml::parse($baseDir.'/config.yml') as $key => $value) {
-                $twig->addGlobal($key, $value);
-            }
-        }
+        $twig->addGlobal('site', $config['site']);
 
         // Build page, api and post documents
         foreach ($documents as $document) {
@@ -272,8 +280,11 @@ $console
             file_put_contents($target, $rendered);
         }
 
+        if (isset($themePath) && is_dir($themePath.'/assets')) {
+            $fs->mirror($themePath.'/assets/', $webDir.'/');
+        }
         if (is_dir($baseDir.'/assets')) {
-            $fs->mirror($baseDir.'/assets/', $webDir.'/');
+            $fs->mirror($baseDir.'/assets/', $webDir.'/', null, array('override' => true));
         }
     })
 ;
