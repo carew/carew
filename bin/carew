@@ -175,8 +175,9 @@ $console
         $tags       = $build_collection($documents, 'tags');
         $navigation = $build_collection($documents, 'navigation');
 
+        $finder = new Finder();
         $fs = new Filesystem();
-        $fs->remove($webDir);
+        $fs->remove($finder->in($webDir)->exclude('_carew'));
 
         $config = array(
             'site'   => array(),
