@@ -1,5 +1,5 @@
 {
-    "hash": "1138624b8a8d20d26c29143cda60c8e5",
+    "hash": "6d252847ab8909af00739820067e7bdc",
     "packages": [
         {
             "name": "dflydev/markdown",
@@ -54,6 +54,56 @@
             "homepage": "http://github.com/dflydev/dflydev-markdown",
             "keywords": [
                 "markdown"
+            ]
+        },
+        {
+            "name": "kevinlebrun/slug.php",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kevinlebrun/slug.php",
+                "reference": "0.1.0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://github.com/kevinlebrun/slug.php/archive/0.1.0.zip",
+                "reference": "0.1.0",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*",
+                "squizlabs/php_codesniffer": "1.*"
+            },
+            "time": "2012-12-03 22:32:56",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-0": {
+                    "Slug": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kevin Le Brun",
+                    "email": "lebrun.k@gmail.com",
+                    "homepage": "http://kevinlebrun.fr",
+                    "role": "developer"
+                }
+            ],
+            "description": "Slug helpers",
+            "homepage": "https://github.com/kevinlebrun/slug.php",
+            "keywords": [
+                "util",
+                "slug",
+                "helper",
+                "generate"
             ]
         },
         {

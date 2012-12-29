@@ -1,11 +1,9 @@
 #!/usr/bin/env php
 <?php
 
-use dflydev\markdown\MarkdownParser;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\GenericEvent as BaseGenericEvent;
@@ -20,214 +18,6 @@ if ((!@include __DIR__.'/../../../autoload.php') && (!@include __DIR__.'/../vend
 }
 
 $container = new Pimple();
-
-$container['metadata_extraction'] = $container->protect(function(GenericEvent $event) {
-    $subject = $event->getSubject();
-    $file    = $subject['file'];
-
-    $content = file_get_contents($file);
-
-    preg_match('#^---\n(.+)---\n(.+)$#sU', $content, $matches);
-
-    if (!$matches) {
-        if (!$event['allowEmptyHeader']) {
-            throw new \RuntimeException('Could not parse front matter in current document');
-        }
-
-        $metadata['layout'] = false;
-        $body = $content;
-    } else {
-        list(, $metadata, $body) = $matches;
-        $metadata = Yaml::parse($metadata);
-    }
-
-    $subject['metadata'] = $metadata;
-    $subject['body']     = $body;
-
-    $event->setSubject($subject);
-});
-
-$container['metadata_normalization'] = $container->protect(function(GenericEvent $event) {
-    $subject = $event->getSubject();
-    $metadata = $subject['metadata'];
-
-    foreach (array('tags', 'navigation') as $value) {
-        if (isset($metadata[$value]) && !is_array($metadata[$value])) {
-            $metadata[$value] = array($metadata[$value]);
-        }
-    }
-
-    $metadata = array_replace(array(
-        'title'      => $subject['file']->getBasename('.md'),
-        'navigation' => array(),
-        'tags'       => array(),
-        'layout'     => 'default',
-    ), $metadata);
-
-    $subject = array_replace_recursive(array(
-        'metadata' => $metadata,
-        'body'     => '',
-        'layout'   => $metadata['layout'],
-        'path'     => '.',
-    ), $subject);
-
-    $event->setSubject($subject);
-});
-
-$container['body_markdownify'] = $container->protect(function(GenericEvent $event) {
-    $subject = $event->getSubject();
-    $body = $subject['body'];
-
-    $markdownParser = new MarkdownParser();
-    $subject['body'] = $markdownParser->transformMarkdown($subject['body']);
-
-    $event->setSubject($subject);
-});
-
-$container['body_toc_builder'] = $container->protect(function(GenericEvent $event) {
-    $subject = $event->getSubject();
-    $body = $subject['body'];
-
-    if (preg_match('/^(\s|\n)+$/', $body)) {
-        return;
-    }
-
-    $dom = new DOMDocument();
-    $dom->loadHtml($body);
-    $xpath = new DOMXPath($dom);
-
-    $toc = array();
-    $ids = array();
-
-    $isSpan = function ($node) {
-        return XML_ELEMENT_NODE === $node->nodeType && 'span' === $node->tagName;
-    };
-
-    $genId = function ($node) use (&$ids, $isSpan) {
-        $count = 0;
-        do {
-            if ($isSpan($node->lastChild)) {
-                $node = clone $node;
-                $node->removeChild($node->lastChild);
-            }
-
-            $id = preg_replace('{[^a-z0-9]}i', '-', strtolower(trim($node->nodeValue)));
-            $id = preg_replace('{-+}', '-', $id);
-            if ($count) {
-                $id .= '-'.($count+1);
-            }
-            $count++;
-        } while (isset($ids[$id]));
-        $ids[$id] = true;
-
-        return $id;
-    };
-
-    $getDesc = function ($node) use ($isSpan) {
-        if ($isSpan($node->lastChild)) {
-            return $node->lastChild->nodeValue;
-        }
-
-        return null;
-    };
-
-    $getTitle = function ($node) use ($isSpan) {
-        if ($isSpan($node->lastChild)) {
-            $node = clone $node;
-            $node->removeChild($node->lastChild);
-        }
-
-        return $node->nodeValue;
-    };
-
-    // build TOC & deep links
-    $h1 = $h2 = $h3 = $h4 = 0;
-    $nodes = $xpath->query('//*[self::h1 or self::h2 or self::h3 or self::h4]');
-    foreach ($nodes as $node) {
-        // set id and add anchor link
-        $id = $genId($node);
-        $title = $getTitle($node);
-
-        $desc = $getDesc($node);
-        $node->setAttribute('id', $id);
-        $link = $dom->createElement('a', '#');
-        $link->setAttribute('href', '#'.$id);
-        $link->setAttribute('class', 'anchor');
-        $node->appendChild($link);
-
-        // parse into a tree
-        switch ($node->nodeName) {
-            case 'h1':
-                $toc[++$h1] = array('title' => $title, 'id' => $id, 'desc' => $desc);
-            break;
-
-            case 'h2':
-                $toc[$h1][++$h2] = array('title' => $title, 'id' => $id, 'desc' => $desc);
-            break;
-
-            case 'h3':
-                $toc[$h1][$h2][++$h3] = array('title' => $title, 'id' => $id, 'desc' => $desc);
-            break;
-
-            case 'h4':
-                $toc[$h1][$h2][$h3][++$h4] = array('title' => $title, 'id' => $id, 'desc' => $desc);
-            break;
-        }
-    }
-
-    // save new body with IDs
-    $body = $dom->saveHtml();
-    $body = preg_replace('{.*<body>(.*)</body>.*}is', '$1', $body);
-
-    $subject['toc'] = $toc;
-    $subject['body'] = $body;
-
-    $event->setSubject($subject);
-});
-
-$container['metadata_post_optimization'] = $container->protect(function(GenericEvent $event) {
-    $subject  = $event->getSubject();
-    $file     = $subject['file'];
-    $metadata = $subject['metadata'];
-
-    list($year, $month, $day, $slug) = explode('-', $file->getBasename('.md'), 4);
-
-    $date = "$year-$month-$day";
-
-    $metadata = array_replace(array(
-        'date'        => new DateTime($date),
-        'date_string' => $date,
-    ), $metadata);
-
-    $path = "$year/$month/$day/$slug.html";
-
-    $subject['metadata'] = $metadata;
-    $subject['path']     = $path;
-
-    $event->setSubject($subject);
-});
-
-$container['metadata_page_optimization'] = $container->protect(function(GenericEvent $event) {
-    $subject = $event->getSubject();
-    $file    = $subject['file'];
-
-    $slug = $file->getBasename('.md');
-
-    $subject['path'] = $file->getRelativePath()
-        ? sprintf('%s/%s.html', $file->getRelativePath(), $slug)
-        : $slug.'.html';
-
-    $event->setSubject($subject);
-});
-
-$container['metadata_api_optimization'] = $container->protect(function(GenericEvent $event) {
-    $subject = $event->getSubject();
-    $file = $subject['file'];
-
-    $subject['path'] = sprintf('api/%s',$file->getRelativePathname());
-
-    $event->setSubject($subject);
-});
 
 $container['default.date'] = $container->protect(function() {
     $date = new DateTime();
@@ -298,8 +88,8 @@ $container['twig'] = $container->share(function($container) {
     return new Twig_Environment($container['twig.loader'], array('strict_variables' => true));
 });
 
-$console = new Application();
-$console
+$application = new Carew\Console\Application();
+$application
     ->register('carew:build')
     ->setDescription('Builds static html files from markdown source')
     ->addOption('web-dir', null, InputOption::VALUE_REQUIRED, 'Where to write generated content', getcwd().'/web')
@@ -310,15 +100,11 @@ $console
 
         $dispatcher = $container['event_dispatcher'];
 
-        $dispatcher->addListener('carew', $container['metadata_extraction']);
-        $dispatcher->addListener('carew', $container['metadata_normalization']);
-        $dispatcher->addListener('carew', $container['body_markdownify']);
-
-        $dispatcher->addListener('carew_page', $container['metadata_page_optimization']);
-        $dispatcher->addListener('carew_page', $container['body_toc_builder']);
-        $dispatcher->addListener('carew_post', $container['metadata_post_optimization']);
-        $dispatcher->addListener('carew_post', $container['body_toc_builder']);
-        $dispatcher->addListener('carew_api', $container['metadata_api_optimization']);
+        $dispatcher->addSubscriber(new Carew\EventSubscriber\Metadata\Extraction());
+        $dispatcher->addSubscriber(new Carew\EventSubscriber\Metadata\Normalization());
+        $dispatcher->addSubscriber(new Carew\EventSubscriber\Metadata\Optimization());
+        $dispatcher->addSubscriber(new Carew\EventSubscriber\Body\Markdown());
+        $dispatcher->addSubscriber(new Carew\EventSubscriber\Body\Toc());
 
         $process_document = function($dir, $filenamePattern = '.md', array $extraEvents = array(), $allowEmptyHeader = false) use ($input, $output, $dispatcher) {
             $documents = array();
@@ -332,7 +118,7 @@ $console
                     $document = array('file' => $file);
                     $event = new GenericEvent($document, array('allowEmptyHeader' => $allowEmptyHeader));
                     try {
-                        $event = $dispatcher->dispatch('carew', $event);
+                        $event = $dispatcher->dispatch(Carew\Event\Events::DOCUMENT, $event);
                         foreach ($extraEvents as $eventName) {
                             $event = $dispatcher->dispatch($eventName, $event);
                         }
@@ -349,17 +135,17 @@ $console
             return $documents;
         };
         // Process Posts
-        $posts = $process_document($baseDir.'/posts', '*-*-*-*.md', array('carew_post'));
+        $posts = $process_document($baseDir.'/posts', '*-*-*-*.md', array(Carew\Event\Events::POST));
         usort($posts, function ($a, $b) {
             return !strcmp($a['date_string'], $b['date_string']);
         });
         $latest = reset($posts);
 
         // Process Pages
-        $pages = $process_document($baseDir.'/pages', '*.md', array('carew_page'));
+        $pages = $process_document($baseDir.'/pages', '*.md', array(Carew\Event\Events::PAGE));
 
         // Process Api
-        $api = $process_document($baseDir.'/api', '*', array('carew_api'), true);
+        $api = $process_document($baseDir.'/api', '*', array(Carew\Event\Events::API), true);
 
         $build_collection = function($documents, $key) {
             $collection = array();
@@ -493,50 +279,6 @@ $console
     })
 ;
 
-$console
-    ->register('carew:generate:post')
-    ->setDescription('Generate a new post')
-    ->addArgument('title', InputArgument::REQUIRED, 'The title')
-    ->addOption('date', null, InputOption::VALUE_REQUIRED, 'Date (format: YYYY-MM-DD', $container['default.date']())
-    ->addOption('base-dir', null, InputOption::VALUE_REQUIRED, 'Where locate your content', getcwd())
-    ->setCode(function (InputInterface $input, OutputInterface $output) use ($container) {
-        $baseDir = $input->getOption('base-dir');
-        $date    = $input->getOption('date');
-        $title   = $input->getArgument('title');
-        $content = <<<EOL
----
-layout: post
-title:  {{ title }}
----
-
-
-EOL;
-
-        $content = strtr($content, array(
-            '{{ title }}' => $title,
-        ));
-
-        $slug = $container['slugify']($title);
-
-        $postDir = "$baseDir/posts";
-        if (!file_exists($postDir)) {
-            mkdir($postDir);
-        }
-
-        $filePath = sprintf('%s/%s-%s.md', $postDir, $date, $slug);
-
-        if (file_exists($filePath)) {
-            $output->writeln('<error>A blog post already exists</error>');
-
-            return 1;
-        }
-
-        file_put_contents($filePath, $content);
-
-        $output->writeln(sprintf('<info>New blog post:%s</info>', $filePath));
-    })
-;
-
 class GenericEvent extends BaseGenericEvent
 {
    public function setSubject($subject)
@@ -547,4 +289,4 @@ class GenericEvent extends BaseGenericEvent
     }
 }
 
-$console->run();
+$application->run();

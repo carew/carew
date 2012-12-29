@@ -21,7 +21,11 @@
         "symfony/yaml": "2.1.*",
         "twig/twig": "~1.10",
         "pimple/pimple": "dev-master",
-        "symfony/event-dispatcher": "dev-master"
+        "symfony/event-dispatcher": "dev-master",
+        "kevinlebrun/slug.php": "*"
+    },
+    "autoload": {
+        "psr-0": { "Carew": "" }
     },
     "bin": ["bin/carew"]
 }
