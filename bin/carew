@@ -88,6 +88,10 @@ $container['body_toc_builder'] = $container->protect(function(GenericEvent $even
     $subject = $event->getSubject();
     $body = $subject['body'];
 
+    if (preg_match('/^(\s|\n)+$/', $body)) {
+        return;
+    }
+
     $dom = new DOMDocument();
     $dom->loadHtml($body);
     $xpath = new DOMXPath($dom);
