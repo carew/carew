@@ -476,6 +476,8 @@ $console
 layout: post
 title:  {{ title }}
 ---
+
+
 EOL;
 
         $content = strtr($content, array(
