@@ -264,6 +264,40 @@ $container['slugify'] = $container->protect(function($text) {
     return $text;
 });
 
+$container['event_dispatcher'] = $container->share(function() {
+    return new EventDispatcher();
+});
+
+$container['web_dir'] = $container->share(function() {
+    return getcwd().'/web';
+});
+
+$container['base_dir'] = $container->share(function() {
+    return getcwd();
+});
+
+$container['config'] = array(
+    'site' => array(),
+    'enginre' => array(),
+);
+
+$container['twig.loader'] = $container->share(function($container) {
+    $loader = new Twig_Loader_Filesystem($container['base_dir'].'/layouts');
+
+    $config = $container['config'];
+    if (isset($config['engine']['theme_path'])) {
+        $themePath = str_replace('%dir%', $container['base_dir'], $config['engine']['theme_path']);
+        $loader->addPath($themePath.'/layouts');
+        $loader->addPath($container['base_dir']);
+    }
+
+    return $loader;
+});
+
+$container['twig'] = $container->share(function($container) {
+    return new Twig_Environment($container['twig.loader'], array('strict_variables' => true));
+});
+
 $console = new Application();
 $console
     ->register('carew:build')
@@ -271,10 +305,10 @@ $console
     ->addOption('web-dir', null, InputOption::VALUE_REQUIRED, 'Where to write generated content', getcwd().'/web')
     ->addOption('base-dir', null, InputOption::VALUE_REQUIRED, 'Where locate your content', getcwd())
     ->setCode(function (InputInterface $input, OutputInterface $output) use ($container) {
-        $baseDir =$input->getOption('base-dir');
-        $webDir = $input->getOption('web-dir');
+        $container['base_dir'] = $baseDir = $input->getOption('base-dir');
+        $container['web_dir'] = $webDir = $input->getOption('web-dir');
 
-        $dispatcher = new EventDispatcher();
+        $dispatcher = $container['event_dispatcher'];
 
         $dispatcher->addListener('carew', $container['metadata_extraction']);
         $dispatcher->addListener('carew', $container['metadata_normalization']);
@@ -350,26 +384,12 @@ $console
         $tags       = $build_collection($documents, 'tags');
         $navigation = $build_collection($documents, 'navigation');
 
-        $finder = new Finder();
-        $fs = new Filesystem();
-        $fs->remove($finder->in($webDir)->exclude(basename(realpath($baseDir))));
-
-        $config = array(
-            'site'   => array(),
-            'engine' => array(),
-        );
         if (file_exists($baseDir.'/config.yml')) {
-            $config = array_replace_recursive($config, Yaml::parse($baseDir.'/config.yml'));
+            $container['config'] = array_replace_recursive($container['config'], Yaml::parse($baseDir.'/config.yml'));
         }
 
-        $loader = new Twig_Loader_Filesystem($baseDir.'/layouts');
-        if (isset($config['engine']['theme_path'])) {
-            $themePath = str_replace('%dir%', $baseDir, $config['engine']['theme_path']);
-            $loader->addPath($themePath.'/layouts');
-            $loader->addPath($baseDir);
-        }
-
-        $twig = new Twig_Environment($loader, array('strict_variables' => true));
+        $config = $container['config'];
+        $twig = $container['twig'];
         $twig->addGlobal('document', array('path' => '.'));
         $twig->addGlobal('latest', $latest);
         $twig->addGlobal('pages', $pages);
@@ -379,6 +399,10 @@ $console
         $twig->addGlobal('relativeRoot', '.');
         $twig->addGlobal('currentPath', '.');
         $twig->addGlobal('site', $config['site']);
+
+        $finder = new Finder();
+        $fs = new Filesystem();
+        $fs->remove($finder->in($webDir)->exclude(basename(realpath($baseDir))));
 
         // Build page, api and post documents
         foreach ($documents as $document) {
@@ -456,9 +480,13 @@ $console
             file_put_content($target, $rendered);
         }
 
-        if (isset($themePath) && is_dir($themePath.'/assets')) {
-            $fs->mirror($themePath.'/assets/', $webDir.'/');
+        if (isset($config['engine']['theme_path'])) {
+            $themePath = str_replace('%dir%', $container['base_dir'], $config['engine']['theme_path']);
+            if (isset($themePath) && is_dir($themePath.'/assets')) {
+                $fs->mirror($themePath.'/assets/', $webDir.'/');
+            }
         }
+
         if (is_dir($baseDir.'/assets')) {
             $fs->mirror($baseDir.'/assets/', $webDir.'/', null, array('override' => true));
         }
