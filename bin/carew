@@ -352,7 +352,7 @@ $console
 
         $finder = new Finder();
         $fs = new Filesystem();
-        $fs->remove($finder->in($webDir)->exclude('_carew'));
+        $fs->remove($finder->in($webDir)->exclude(basename(realpath($baseDir))));
 
         $config = array(
             'site'   => array(),
