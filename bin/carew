@@ -5,6 +5,7 @@ use dflydev\markdown\MarkdownParser;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\GenericEvent as BaseGenericEvent;
@@ -224,9 +225,44 @@ $container['metadata_api_optimization'] = $container->protect(function(GenericEv
     $event->setSubject($subject);
 });
 
+$container['default.date'] = $container->protect(function() {
+    $date = new DateTime();
+
+    return $date->format('Y-m-d');
+});
+
+$container['slugify'] = $container->protect(function($text) {
+    /**
+     * From http://sourcecookbook.com/en/recipes/8/function-to-slugify-strings-in-php
+     */
+
+    // replace non letter or digits by -
+    $text = preg_replace('~[^\\pL\d]+~u', '-', $text);
+
+    // trim
+    $text = trim($text, '-');
+
+    // transliterate
+    if (function_exists('iconv')) {
+        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+    }
+
+    // lowercase
+    $text = strtolower($text);
+
+    // remove unwanted characters
+    $text = preg_replace('~[^-\w]+~', '', $text);
+
+    if (empty($text)) {
+        return 'n-a';
+    }
+
+    return $text;
+});
+
 $console = new Application();
 $console
-    ->register('build')
+    ->register('carew:build')
     ->setDescription('Builds static html files from markdown source')
     ->addOption('web-dir', null, InputOption::VALUE_REQUIRED, 'Where to write generated content', getcwd().'/web')
     ->addOption('base-dir', null, InputOption::VALUE_REQUIRED, 'Where locate your content', getcwd())
@@ -422,6 +458,48 @@ $console
         if (is_dir($baseDir.'/assets')) {
             $fs->mirror($baseDir.'/assets/', $webDir.'/', null, array('override' => true));
         }
+    })
+;
+
+$console
+    ->register('carew:generate:post')
+    ->setDescription('Generate a new post')
+    ->addArgument('title', InputArgument::REQUIRED, 'The title')
+    ->addOption('date', null, InputOption::VALUE_REQUIRED, 'Date (format: YYYY-MM-DD', $container['default.date']())
+    ->addOption('base-dir', null, InputOption::VALUE_REQUIRED, 'Where locate your content', getcwd())
+    ->setCode(function (InputInterface $input, OutputInterface $output) use ($container) {
+        $baseDir = $input->getOption('base-dir');
+        $date    = $input->getOption('date');
+        $title   = $input->getArgument('title');
+        $content = <<<EOL
+---
+layout: post
+title:  {{ title }}
+---
+EOL;
+
+        $content = strtr($content, array(
+            '{{ title }}' => $title,
+        ));
+
+        $slug = $container['slugify']($title);
+
+        $postDir = "$baseDir/posts";
+        if (!file_exists($postDir)) {
+            mkdir($postDir);
+        }
+
+        $filePath = sprintf('%s/%s-%s.md', $postDir, $date, $slug);
+
+        if (file_exists($filePath)) {
+            $output->writeln('<error>A blog post already exists</error>');
+
+            return 1;
+        }
+
+        file_put_contents($filePath, $content);
+
+        $output->writeln(sprintf('<info>New blog post:%s</info>', $filePath));
     })
 ;
 
