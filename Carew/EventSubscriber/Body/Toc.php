@@ -19,7 +19,7 @@ class Toc extends EventSubscriber
     public function buildToc($event)
     {
         $subject = $event->getSubject();
-        $body = $subject['body'];
+        $body = $subject->getBody();
 
         if (preg_match('/^(\s|\n)+$/', $body)) {
             return;
@@ -112,10 +112,8 @@ class Toc extends EventSubscriber
         $body = $dom->saveHtml();
         $body = preg_replace('{.*<body>(.*)</body>.*}is', '$1', $body);
 
-        $subject['toc'] = $toc;
-        $subject['body'] = $body;
-
-        $event->setSubject($subject);
+        $subject->setToc($toc);
+        $subject->setBody($body);
     }
 
     public static function getPriority()

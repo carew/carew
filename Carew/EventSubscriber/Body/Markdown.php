@@ -18,9 +18,7 @@ class Markdown extends EventSubscriber
     {
         $subject = $event->getSubject();
 
-        $subject['body'] = $this->markdownParser->transformMarkdown($subject['body']);
-
-        $event->setSubject($subject);
+        $subject->setBody($this->markdownParser->transformMarkdown($subject->getBody()));
     }
 
     public static function getPriority()

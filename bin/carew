@@ -6,7 +6,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\GenericEvent as BaseGenericEvent;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
@@ -17,51 +16,10 @@ if ((!@include __DIR__.'/../../../autoload.php') && (!@include __DIR__.'/../vend
         'php composer.phar install'.PHP_EOL);
 }
 
-$container = new Pimple();
-
-$container['default.date'] = $container->protect(function() {
-    $date = new DateTime();
-
-    return $date->format('Y-m-d');
-});
-
-$container['event_dispatcher'] = $container->share(function() {
-    return new EventDispatcher();
-});
-
-$container['web_dir'] = $container->share(function() {
-    return getcwd().'/web';
-});
-
-$container['base_dir'] = $container->share(function() {
-    return getcwd();
-});
-
-$container['config'] = array(
-    'site' => array(),
-    'enginre' => array(),
-);
-
-$container['twig.loader'] = $container->share(function($container) {
-    $loader = new Twig_Loader_Filesystem($container['base_dir'].'/layouts');
-
-    $config = $container['config'];
-    if (isset($config['engine']['theme_path'])) {
-        $themePath = str_replace('%dir%', $container['base_dir'], $config['engine']['theme_path']);
-        $loader->addPath($themePath.'/layouts');
-        $loader->addPath($container['base_dir']);
-    }
-
-    return $loader;
-});
-
-$container['twig'] = $container->share(function($container) {
-    return new Twig_Environment($container['twig.loader'], array('strict_variables' => true));
-});
-
-$application = new Carew\Console\Application();
+$application = new Carew\Carew();
+$container = $application->getContainer();
 $application
-    ->register('carew:build')
+    ->register2('carew:build')
     ->setDescription('Builds static html files from markdown source')
     ->addOption('web-dir', null, InputOption::VALUE_REQUIRED, 'Where to write generated content', getcwd().'/web')
     ->addOption('base-dir', null, InputOption::VALUE_REQUIRED, 'Where locate your content', getcwd())
@@ -69,60 +27,33 @@ $application
         $container['base_dir'] = $baseDir = $input->getOption('base-dir');
         $container['web_dir'] = $webDir = $input->getOption('web-dir');
 
-        $dispatcher = $container['event_dispatcher'];
+        $extractor = new \Carew\Extractor\Extractor($input, $output, $container['event_dispatcher']);
 
-        $dispatcher->addSubscriber(new Carew\EventSubscriber\Metadata\Extraction());
-        $dispatcher->addSubscriber(new Carew\EventSubscriber\Metadata\Normalization());
-        $dispatcher->addSubscriber(new Carew\EventSubscriber\Metadata\Optimization());
-        $dispatcher->addSubscriber(new Carew\EventSubscriber\Body\Markdown());
-        $dispatcher->addSubscriber(new Carew\EventSubscriber\Body\Toc());
-
-        $process_document = function($dir, $filenamePattern = '.md', array $extraEvents = array(), $allowEmptyHeader = false) use ($input, $output, $dispatcher) {
-            $documents = array();
-            if (is_dir($dir)) {
-                $finder = new Finder();
-                foreach ($finder->in($dir)->files()->name($filenamePattern) as $file) {
-                    if ($input->getOption('verbose')) {
-                        $output->writeln(sprintf('Processing <info>%s</info>', $file->getRelativePathName()));
-                    }
-
-                    $document = array('file' => $file);
-                    $event = new GenericEvent($document, array('allowEmptyHeader' => $allowEmptyHeader));
-                    try {
-                        $event = $dispatcher->dispatch(Carew\Event\Events::DOCUMENT, $event);
-                        foreach ($extraEvents as $eventName) {
-                            $event = $dispatcher->dispatch($eventName, $event);
-                        }
-
-                        $document = $event->getSubject();
-                    } catch (\Exception $e) {
-                        throw new \LogicException(sprintf('Could not process: "%s". Error: "%s"', (string) $file, $e->getMessage()));
-                    }
-
-                    $documents[$document['path']] = $document;
-                }
+        // Extract Posts
+        $posts = $extractor->extract($baseDir.'/posts', '*-*-*-*.md', array(Carew\Event\Events::POST));
+        uasort($posts, function ($a, $b) {
+            $aMetadatas = $a->getMetadatas;
+            $bMetadatas = $b->getMetadatas;
+            if ($aMetadatas['date'] == $bMetadatas['date']) {
+                return 0;
             }
 
-            return $documents;
-        };
-        // Process Posts
-        $posts = $process_document($baseDir.'/posts', '*-*-*-*.md', array(Carew\Event\Events::POST));
-        usort($posts, function ($a, $b) {
-            return !strcmp($a['date_string'], $b['date_string']);
+            return ($aMetadatas['date'] > $bMetadatas['date']) ? -1 : 1;
         });
         $latest = reset($posts);
 
-        // Process Pages
-        $pages = $process_document($baseDir.'/pages', '*.md', array(Carew\Event\Events::PAGE));
+        // Extract Pages
+        $pages = $extractor->extract($baseDir.'/pages', '*.md', array(Carew\Event\Events::PAGE));
 
-        // Process Api
-        $api = $process_document($baseDir.'/api', '*', array(Carew\Event\Events::API), true);
+        // Extract Api
+        $api = $extractor->extract($baseDir.'/api', '*', array(Carew\Event\Events::API), true);
 
         $build_collection = function($documents, $key) {
             $collection = array();
             foreach ($documents as $document) {
-                if (isset($document['metadata'][$key])) {
-                    foreach ($document['metadata'][$key] as $item) {
+                $metadatas = $document->getMetadatas();
+                if (isset($metadatas[$key]) && is_array($metadatas[$key])) {
+                    foreach ($metadatas[$key] as $item) {
                         if (!array_key_exists($item, $collection)) {
                             $collection[$item] = array();
                         }
@@ -135,7 +66,7 @@ $application
             return $collection;
         };
 
-        $documents = array_merge($posts, $pages, $api);
+        $documents = array_replace($posts, $pages, $api);
 
         // Process Tags and navigation collections
         $tags       = $build_collection($documents, 'tags');
@@ -162,23 +93,21 @@ $application
         $fs->remove($finder->in($webDir)->exclude(basename(realpath($baseDir))));
 
         // Build page, api and post documents
-        foreach ($documents as $document) {
+        foreach ($documents as $key => $document) {
             if ($input->getOption('verbose')) {
-                $output->writeln(sprintf('Building <info>%s</info>', $document['path']));
+                $output->writeln(sprintf('Building <info>%s</info>', $document->getPath()));
             }
-            $relativeRoot = rtrim(str_repeat('../', substr_count($document['path'], DIRECTORY_SEPARATOR) + 1), '/');
-            $vars = array(
-                'document'     => $document,
-                'relativeRoot' => $relativeRoot,
-                'currentPath'  => $document['path'],
-            );
-            if (false !== $document['layout']) {
-                $rendered = $twig->render($document['layout'].'.html.twig', $vars);
+            if (false === $document->getLayout()) {
+                $rendered = $document->body;
             } else {
-                $rendered = $document['body'];
+                $rendered = $twig->render($document->getLayout().'.html.twig', array(
+                    'document'     => $document,
+                    'relativeRoot' => $document->getRootPath(),
+                    'currentPath'  => $document->getPath(),
+                ));
             }
 
-            $target = $webDir.'/'.$document['path'];
+            $target = $webDir.'/'.$document->getPath();
             $fs->mkdir(dirname($target));
             file_put_contents($target, $rendered);
         }
@@ -249,15 +178,5 @@ $application
         }
     })
 ;
-
-class GenericEvent extends BaseGenericEvent
-{
-   public function setSubject($subject)
-    {
-        $this->subject = $subject;
-
-        return $this;
-    }
-}
 
 $application->run();

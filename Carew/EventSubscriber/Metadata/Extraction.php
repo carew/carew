@@ -9,29 +9,41 @@ class Extraction extends EventSubscriber
 {
     public function onDocumentProcess($event)
     {
-        $subject = $event->getSubject();
-        $file    = $subject['file'];
+        $document = $event->getSubject();
 
-        $content = file_get_contents($file);
+        $document->setTitle($document->getFile()->getBasename('.md'));
 
+        $document->setPath(ltrim(sprintf('%s/%s.html', $document->getFile()->getRelativePath(), $document->getFile()->getBasename('.md')), '/'));
+
+        $content = file_get_contents($document->getFile());
         preg_match('#^---\n(.+)---\n(.+)$#sU', $content, $matches);
+        if ($matches) {
+            list(, $metadatas, $body) = $matches;
 
-        if (!$matches) {
+            $metadatas = Yaml::parse($metadatas);
+            foreach (array('title', 'layout') as $key) {
+                if (isset($metadatas[$key])) {
+                    $method = 'set'.ucfirst($key);
+                    $document->{$method}($metadatas[$key]);
+                    unset($metadatas[$key]);
+                }
+            }
+            foreach (array('tags', 'navigation') as $value) {
+                if (isset($metadatas[$value]) && !is_array($metadatas[$value])) {
+                    $metadatas[$value] = array($metadatas[$value]);
+                }
+            }
+            $document->setMetadatas($metadatas);
+
+            $document->setBody($body);
+        } else {
             if (!$event['allowEmptyHeader']) {
-                throw new \RuntimeException('Could not parse front matter in current document');
+                throw new \RuntimeException('Could not parse front matter');
             }
 
-            $metadata['layout'] = false;
-            $body = $content;
-        } else {
-            list(, $metadata, $body) = $matches;
-            $metadata = Yaml::parse($metadata);
+            $document->setLayout(false);
+            $document->setBody($content);
         }
-
-        $subject['metadata'] = $metadata;
-        $subject['body']     = $body;
-
-        $event->setSubject($subject);
     }
 
     public static function getPriority()
