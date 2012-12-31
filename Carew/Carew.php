@@ -22,7 +22,9 @@ class Carew
         $this->register(new CoreExtension());
 
         $this->application = new Application('Carew', static::VERSION);
+
         $this->addCommand(new Commands\GeneratePost());
+        $this->addCommand(new Commands\Build($this->container));
     }
 
     public function register(ExtensionInterface $extension)
@@ -45,12 +47,6 @@ class Carew
         $this->application->add($command);
 
         return $this;
-    }
-
-    // To delete
-    public function register2($name)
-    {
-        return $this->application->register($name);
     }
 
     public function run()

@@ -2,19 +2,51 @@
 
 namespace Carew\Extension;
 
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Twig_Loader_Filesystem;
-use Twig_Environment;
 use Carew\EventSubscriber;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Yaml\Yaml;
+use Twig_Environment;
+use Twig_Loader_Filesystem;
 
 class Core implements ExtensionInterface
 {
     public function register(\Pimple $container)
     {
+        $this->registerConfig($container);
+        $this->registerEventDispatcher($container);
+        $this->registerTwig($container);
+    }
+
+    private function registerConfig(\Pimple $container)
+    {
+        $container['web_dir'] = $container->share(function() {
+            return getcwd().'/web';
+        });
+
+        $container['base_dir'] = $container->share(function() {
+            return getcwd();
+        });
+
         $container['default.date'] = $container->protect(function() {
             return date('Y-m-d');
         });
 
+        $container['config'] = $container->share(function($container) {
+            $config = array(
+                'site'   => array(),
+                'engine' => array(),
+            );
+
+            if (file_exists($container['base_dir'].'/config.yml')) {
+                $config = array_replace_recursive($config, Yaml::parse($container['base_dir'].'/config.yml'));
+            }
+
+            return $config;
+        });
+    }
+
+    private function registerEventDispatcher(\Pimple $container)
+    {
         $container['event_dispatcher'] = $container->share(function() {
             $dispatcher =  new EventDispatcher();
             $dispatcher->addSubscriber(new EventSubscriber\Metadata\Extraction());
@@ -24,20 +56,10 @@ class Core implements ExtensionInterface
 
             return $dispatcher;
         });
+    }
 
-        $container['web_dir'] = $container->share(function() {
-            return getcwd().'/web';
-        });
-
-        $container['base_dir'] = $container->share(function() {
-            return getcwd();
-        });
-
-        $container['config'] = array(
-            'site' => array(),
-            'enginre' => array(),
-        );
-
+    private function registerTwig(\Pimple $container)
+    {
         $container['twig.loader'] = $container->share(function($container) {
             $loader = new Twig_Loader_Filesystem($container['base_dir'].'/layouts');
 
@@ -58,6 +80,5 @@ class Core implements ExtensionInterface
 
             return $twig;
         });
-
     }
 }

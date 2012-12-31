@@ -1,0 +1,187 @@
+<?php
+
+namespace Carew\Console\Command;
+
+use Symfony\Component\Console\Command\Command as BaseCommand;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Filesystem\Filesystem;
+use Carew\Extractor\Extractor;
+use Carew\Event\Events;
+
+class Build extends BaseCommand
+{
+    private $container;
+
+    public function __construct(\Pimple $container)
+    {
+        $this->container = $container;
+
+        parent::__construct();
+    }
+
+    protected function configure()
+    {
+        $this
+            ->setName('carew:build')
+            ->setDescription('Builds static html files from markdown source')
+            ->setDefinition(array(
+                new InputOption('web-dir', null, InputOption::VALUE_REQUIRED, 'Where to write generated content', $this->container['web_dir']),
+                new InputOption('base-dir', null, InputOption::VALUE_REQUIRED, 'Where locate your content', $this->container['base_dir']),
+            ))
+        ;
+    }
+
+    public function execute(InputInterface $input, OutputInterface $output)
+    {
+        $this->container['base_dir'] = $baseDir = $input->getOption('base-dir');
+        $this->container['web_dir'] = $webDir = $input->getOption('web-dir');
+
+        $extractor = new Extractor($input, $output, $this->container['event_dispatcher']);
+
+        // Extract Posts
+        $posts = $extractor->extract($baseDir.'/posts', '*-*-*-*.md', array(Events::POST));
+        uasort($posts, function ($a, $b) {
+            $aMetadatas = $a->getMetadatas;
+            $bMetadatas = $b->getMetadatas;
+            if ($aMetadatas['date'] == $bMetadatas['date']) {
+                return 0;
+            }
+
+            return ($aMetadatas['date'] > $bMetadatas['date']) ? -1 : 1;
+        });
+        $latest = reset($posts);
+
+        // Extract Pages
+        $pages = $extractor->extract($baseDir.'/pages', '*.md', array(Events::PAGE));
+
+        // Extract Api
+        $api = $extractor->extract($baseDir.'/api', '*', array(Events::API), true);
+
+        $build_collection = function($documents, $key) {
+            $collection = array();
+            foreach ($documents as $document) {
+                $metadatas = $document->getMetadatas();
+                if (isset($metadatas[$key]) && is_array($metadatas[$key])) {
+                    foreach ($metadatas[$key] as $item) {
+                        if (!array_key_exists($item, $collection)) {
+                            $collection[$item] = array();
+                        }
+
+                        $collection[$item][] = $document;
+                    }
+                }
+            }
+
+            return $collection;
+        };
+
+        $documents = array_replace($posts, $pages, $api);
+
+        // Process Tags and navigation collections
+        $tags       = $build_collection($documents, 'tags');
+        $navigation = $build_collection($documents, 'navigation');
+
+        $twig = $this->container['twig'];
+        $twig->addGlobal('document', array('path' => '.'));
+        $twig->addGlobal('latest', $latest);
+        $twig->addGlobal('pages', $pages);
+        $twig->addGlobal('posts', $posts);
+        $twig->addGlobal('tags', $tags);
+        $twig->addGlobal('navigation', $navigation);
+        $twig->addGlobal('relativeRoot', '.');
+        $twig->addGlobal('currentPath', '.');
+        $twig->addGlobal('site', $this->container['config']['site']);
+
+        $finder = new Finder();
+        $fs = new Filesystem();
+        $fs->remove($finder->in($webDir)->exclude(basename(realpath($baseDir))));
+
+        // Build page, api and post documents
+        foreach ($documents as $key => $document) {
+            if ($input->getOption('verbose')) {
+                $output->writeln(sprintf('Building <info>%s</info>', $document->getPath()));
+            }
+            if (false === $document->getLayout()) {
+                $rendered = $document->body;
+            } else {
+                $rendered = $twig->render($document->getLayout().'.html.twig', array(
+                    'document'     => $document,
+                    'relativeRoot' => $document->getRootPath(),
+                    'currentPath'  => $document->getPath(),
+                ));
+            }
+
+            $target = $webDir.'/'.$document->getPath();
+            $fs->mkdir(dirname($target));
+            file_put_contents($target, $rendered);
+        }
+
+        // Build Tags
+        if ($input->getOption('verbose')) {
+            $output->writeln('Building <info>Tags</info>');
+        }
+        $finder = new Finder();
+        foreach ($finder->in($baseDir.'/layouts/')->files()->name('tags.*.twig') as $file) {
+            $file = $file->getBasename();
+
+            preg_match('#tags\.(.+?)\.twig$#', $file, $match);
+            $format = $match[1];
+
+            foreach ($tags as $tag => $posts) {
+                $path = sprintf('tags/%s.%s', $tag, $format);
+                $vars = array(
+                    'document'     => array(
+                        'path'  => $path,
+                        'title' => 'Tags: '.$tag,
+                    ),
+                    'posts'        => $posts,
+                    'tag'          => $tag,
+                    'relativeRoot' => '..',
+                    'currentPath'  => $path,
+                );
+                $rendered = $twig->render($file, $vars);
+                $target = sprintf('%s/%s',$webDir, $path);
+                $fs->mkdir(dirname($target));
+                file_put_content($target, $rendered);
+            }
+        }
+
+        if ($input->getOption('verbose')) {
+            $output->writeln('Building <info>Index</info>');
+        }
+        $finder = new Finder();
+        foreach ($finder->in($baseDir.'/layouts/')->files()->name('index.*.twig') as $file) {
+            $file = $file->getBasename();
+
+            preg_match('#index\.(.+?)\.twig$#', $file, $match);
+            $format = $match[1];
+
+            $path = 'index.'.$format;
+            $vars = array(
+                'document'     => array(
+                    'path'  => $path,
+                    'title' => isset($this->container['config']['site']) ? (isset($this->container['config']['site']['title']) ? $this->container['config']['site']['title'] : '' ): '',
+                ),
+                'relativeRoot' => '.',
+                'currentPath'  => $path,
+            );
+            $rendered = $twig->render($file, $vars);
+            $target = "$webDir/$path";
+            file_put_content($target, $rendered);
+        }
+
+        if (isset($this->container['config']['engine']['theme_path'])) {
+            $themePath = str_replace('%dir%', $baseDir, $this->container['config']['engine']['theme_path']);
+            if (isset($themePath) && is_dir($themePath.'/assets')) {
+                $fs->mirror($themePath.'/assets/', $webDir.'/');
+            }
+        }
+
+        if (is_dir($baseDir.'/assets')) {
+            $fs->mirror($baseDir.'/assets/', $webDir.'/', null, array('override' => true));
+        }
+    }
+}
