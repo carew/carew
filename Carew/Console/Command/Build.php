@@ -39,7 +39,7 @@ class Build extends BaseCommand
         $this->container['base_dir'] = $baseDir = $input->getOption('base-dir');
         $this->container['web_dir'] = $webDir = $input->getOption('web-dir');
 
-        $extractor = new Extractor($input, $output, $this->container['event_dispatcher']);
+        $extractor = new Extractor($this->container['event_dispatcher'], $input, $output);
 
         // Extract Posts
         $posts = $extractor->extract($baseDir.'/posts', '*-*-*-*.md', array(Events::POST));

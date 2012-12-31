@@ -13,11 +13,15 @@ use Symfony\Component\Finder\Finder;
 
 class Extractor
 {
-    public function __construct(InputInterface $input, OutputInterface $output, EventDispatcherInterface $eventDispatcher)
+    private $eventDispatcher;
+    private $input;
+    private $output;
+
+    public function __construct(EventDispatcherInterface $eventDispatcher, InputInterface $input = null, OutputInterface $output = null)
     {
+        $this->eventDispatcher = $eventDispatcher;
         $this->input           = $input;
         $this->output          = $output;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function extract($dir, $filenamePattern = '.md', array $extraEvents = array(), $allowEmptyHeader = false)
@@ -29,7 +33,7 @@ class Extractor
         $documents = array();
         $finder = new Finder();
         foreach ($finder->in($dir)->files()->name($filenamePattern) as $file) {
-            if ($this->input->getOption('verbose')) {
+            if ($this->input && $this->output && $this->input->getOption('verbose')) {
                 $this->output->writeln(sprintf('Processing <info>%s</info>', $file->getRelativePathName()));
             }
 
