@@ -41,15 +41,8 @@ class Build extends BaseCommand
 
         // Extract Posts
         $posts = $processor->process($baseDir.'/posts', '*-*-*-*.md', array(Events::POST));
-        uasort($posts, function ($a, $b) {
-            $aMetadatas = $a->getMetadatas;
-            $bMetadatas = $b->getMetadatas;
-            if ($aMetadatas['date'] == $bMetadatas['date']) {
-                return 0;
-            }
+        $posts = $processor->sortByDate($posts);
 
-            return ($aMetadatas['date'] > $bMetadatas['date']) ? -1 : 1;
-        });
         $latest = reset($posts);
 
         // Extract Pages

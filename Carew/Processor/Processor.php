@@ -42,9 +42,9 @@ class Processor
             $event = new GenericEvent($document, array('allowEmptyHeader' => $allowEmptyHeader));
 
             try {
-                $event = $this->eventDispatcher->dispatch(Events::DOCUMENT, $event);
+                $this->eventDispatcher->dispatch(Events::DOCUMENT, $event);
                 foreach ($extraEvents as $eventName) {
-                    $event = $this->eventDispatcher->dispatch($eventName, $event);
+                    $this->eventDispatcher->dispatch($eventName, $event);
                 }
 
                 $document = $event->getSubject();
@@ -54,6 +54,21 @@ class Processor
 
             $documents[$document->getPath()] = $document;
         }
+
+        return $documents;
+    }
+
+    public function sortByDate($documents)
+    {
+        uasort($documents, function ($a, $b) {
+            $aMetadatas = $a->getMetadatas();
+            $bMetadatas = $b->getMetadatas();
+            if ($aMetadatas['date'] == $bMetadatas['date']) {
+                return 0;
+            }
+
+            return ($aMetadatas['date'] > $bMetadatas['date']) ? -1 : 1;
+        });
 
         return $documents;
     }
