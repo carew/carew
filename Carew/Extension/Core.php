@@ -95,9 +95,9 @@ class Core implements ExtensionInterface
             return array(
                 'currentPath'  => '.',
                 'document'     => new Document(),
+                'documents'    => array(),
                 'latest'       => false,
                 'navigation'   => array(),
-                'pages'        => array(),
                 'posts'        => array(),
                 'relativeRoot' => '.',
                 'site'         => $container['config']['site'],

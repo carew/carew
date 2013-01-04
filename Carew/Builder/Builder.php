@@ -24,11 +24,13 @@ class Builder
         if (false === $document->getLayout()) {
             $rendered = $document->body;
         } else {
-            $rendered = $this->twig->render($document->getLayout().'.html.twig', array(
+            $layout = $document->getLayout();
+            $layout .= false === strpos($layout, '.twig') ? '.html.twig' : '';
+            $rendered = $this->twig->render($layout, array_replace($document->getVars(), array(
                 'document'     => $document,
                 'relativeRoot' => $document->getRootPath(),
                 'currentPath'  => $document->getPath(),
-            ));
+            )));
         }
 
         $target = $this->webDir.'/'.$document->getPath();

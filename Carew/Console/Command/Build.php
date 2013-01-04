@@ -49,14 +49,24 @@ class Build extends BaseCommand
         $tags       = $processor->buildCollection($documents, 'tags');
         $navigation = $processor->buildCollection($documents, 'navigation');
 
+        if ($input->getOption('verbose')) {
+            $output->writeln('Building <info>Tags</info>');
+        }
+        $documents = array_merge($documents, $processor->processTags($tags, $baseDir));
+
+        if ($input->getOption('verbose')) {
+            $output->writeln('Building <info>Index</info>');
+        }
+        $documents = array_merge($documents, $processor->processIndex($baseDir));
+
         $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));
 
         $this->container['twigGlobales'] = array_replace($this->container['twigGlobales'], array(
-            'latest'       => reset($posts),
-            'navigation'   => $navigation,
-            'pages'        => $pages,
-            'posts'        => $posts,
-            'tags'         => $tags,
+            'latest'     => reset($posts),
+            'navigation' => $navigation,
+            'documents'  => $documents,
+            'posts'      => $posts,
+            'tags'       => $tags,
         ));
 
         $builder = $this->container['builder'];
@@ -65,60 +75,6 @@ class Build extends BaseCommand
                 $output->writeln(sprintf('Building <info>%s</info>', $document->getPath()));
             }
             $builder->buildDocument($document);
-        }
-
-        // Build Tags
-        if ($input->getOption('verbose')) {
-            $output->writeln('Building <info>Tags</info>');
-        }
-
-        foreach ($this->container['finder']->in($baseDir.'/layouts/')->files()->name('tags.*.twig') as $file) {
-            $file = $file->getBasename();
-
-            preg_match('#tags\.(.+?)\.twig$#', $file, $match);
-            $format = $match[1];
-
-            foreach ($tags as $tag => $posts) {
-                $path = sprintf('tags/%s.%s', $tag, $format);
-                $vars = array(
-                    'document'     => array(
-                        'path'  => $path,
-                        'title' => 'Tags: '.$tag,
-                    ),
-                    'posts'        => $posts,
-                    'tag'          => $tag,
-                    'relativeRoot' => '..',
-                    'currentPath'  => $path,
-                );
-                $rendered = $twig->render($file, $vars);
-                $target = sprintf('%s/%s',$webDir, $path);
-                $this->container['filesystem']->mkdir(dirname($target));
-                file_put_content($target, $rendered);
-            }
-        }
-
-        if ($input->getOption('verbose')) {
-            $output->writeln('Building <info>Index</info>');
-        }
-
-        foreach ($this->container['finder']->in($baseDir.'/layouts/')->files()->name('index.*.twig') as $file) {
-            $file = $file->getBasename();
-
-            preg_match('#index\.(.+?)\.twig$#', $file, $match);
-            $format = $match[1];
-
-            $path = 'index.'.$format;
-            $vars = array(
-                'document'     => array(
-                    'path'  => $path,
-                    'title' => isset($this->container['config']['site']) ? (isset($this->container['config']['site']['title']) ? $this->container['config']['site']['title'] : '' ): '',
-                ),
-                'relativeRoot' => '.',
-                'currentPath'  => $path,
-            );
-            $rendered = $twig->render($file, $vars);
-            $target = "$webDir/$path";
-            file_put_content($target, $rendered);
         }
 
         if (isset($this->container['config']['engine']['theme_path'])) {

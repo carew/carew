@@ -58,6 +58,56 @@ class Processor
         return $documents;
     }
 
+    public function processTags($tags, $baseDir)
+    {
+        $documents = array();
+        $finder = new Finder();
+
+        foreach ($finder->in($baseDir.'/layouts/')->files()->name('tags.*.twig') as $file) {
+            $file = $file->getBasename();
+
+            preg_match('#tags\.(.+?)\.twig$#', $file, $match);
+            $format = $match[1];
+
+            foreach ($tags as $tag => $posts) {
+                $document = new Document();
+                $document->setLayout((string) $file);
+                $document->setPath(sprintf('tags/%s.%s', $tag, $format));
+                $document->setTitle('Tags: '.$tag);
+                $document->setVars(array(
+                    'tag'   => $tag,
+                    'posts' => $posts,
+                ));
+
+                $documents[$document->getPath()] = $document;
+            }
+        }
+
+        return $documents;
+    }
+
+    public function processIndex($baseDir)
+    {
+        $documents = array();
+        $finder = new Finder();
+
+        foreach ($finder->in($baseDir.'/layouts/')->files()->name('index.*.twig') as $file) {
+            $file = $file->getBasename();
+
+            preg_match('#index\.(.+?)\.twig$#', $file, $match);
+            $format = $match[1];
+
+            $document = new Document();
+            $document->setLayout((string) $file);
+            $document->setPath(sprintf('index.%s', $format));
+            $document->setTitle(false);
+
+            $documents[$document->getPath()] = $document;
+        }
+
+        return $documents;
+    }
+
     public function sortByDate($documents)
     {
         uasort($documents, function ($a, $b) {
@@ -73,7 +123,8 @@ class Processor
         return $documents;
     }
 
-    public function buildCollection($documents, $key) {
+    public function buildCollection($documents, $key)
+    {
         $collection = array();
         foreach ($documents as $document) {
             $metadatas = $document->getMetadatas();

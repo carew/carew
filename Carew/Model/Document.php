@@ -14,6 +14,7 @@ class Document
     private $rootPath;
     private $title;
     private $toc;
+    private $vars;
 
     public function __construct(SplFileInfo $file = null)
     {
@@ -25,6 +26,7 @@ class Document
         $this->rootPath  = '.';
         $this->title     = $file ? $file->getBaseName() : '.';
         $this->toc       = array();
+        $this->vars      = array();
     }
 
     public function getBody()
@@ -94,7 +96,11 @@ class Document
 
     public function getRootPath()
     {
-        return rtrim(str_repeat('../', substr_count($this->path, DIRECTORY_SEPARATOR) + 1), '/');
+        if (0 === $nb = substr_count($this->path, DIRECTORY_SEPARATOR)) {
+            return '.';
+        }
+
+        return rtrim(str_repeat('../', $nb + 1), '/');
     }
 
     public function getTitle()
@@ -117,6 +123,18 @@ class Document
     public function setToc($toc)
     {
         $this->toc = $toc;
+
+        return $this;
+    }
+
+    public function getVars()
+    {
+        return $this->vars;
+    }
+
+    public function setVars($vars)
+    {
+        $this->vars = $vars;
 
         return $this;
     }
