@@ -39,44 +39,20 @@ class Build extends BaseCommand
 
         $processor = new Processor($this->container['event_dispatcher'], $input, $output);
 
-        // Extract Posts
         $posts = $processor->process($baseDir.'/posts', '*-*-*-*.md', array(Events::POST));
         $posts = $processor->sortByDate($posts);
-
-        $latest = reset($posts);
-
-        // Extract Pages
         $pages = $processor->process($baseDir.'/pages', '*.md', array(Events::PAGE));
-
-        // Extract Api
         $api = $processor->process($baseDir.'/api', '*', array(Events::API), true);
 
-        $build_collection = function($documents, $key) {
-            $collection = array();
-            foreach ($documents as $document) {
-                $metadatas = $document->getMetadatas();
-                if (isset($metadatas[$key]) && is_array($metadatas[$key])) {
-                    foreach ($metadatas[$key] as $item) {
-                        if (!array_key_exists($item, $collection)) {
-                            $collection[$item] = array();
-                        }
+        $documents = array_merge($posts, $pages, $api);
 
-                        $collection[$item][] = $document;
-                    }
-                }
-            }
+        $tags       = $processor->buildCollection($documents, 'tags');
+        $navigation = $processor->buildCollection($documents, 'navigation');
 
-            return $collection;
-        };
-
-        $documents = array_replace($posts, $pages, $api);
-
-        // Process Tags and navigation collections
-        $tags       = $build_collection($documents, 'tags');
-        $navigation = $build_collection($documents, 'navigation');
+        $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));
 
         $this->container['twigGlobales'] = array_replace($this->container['twigGlobales'], array(
-            'latest'       => $latest,
+            'latest'       => reset($posts),
             'navigation'   => $navigation,
             'pages'        => $pages,
             'posts'        => $posts,
@@ -84,16 +60,11 @@ class Build extends BaseCommand
         ));
 
         $builder = $this->container['builder'];
-
-        $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));
-
-        // Build page, api and post documents
         foreach ($documents as $document) {
             if ($input->getOption('verbose')) {
                 $output->writeln(sprintf('Building <info>%s</info>', $document->getPath()));
             }
             $builder->buildDocument($document);
-
         }
 
         // Build Tags

@@ -72,4 +72,22 @@ class Processor
 
         return $documents;
     }
+
+    public function buildCollection($documents, $key) {
+        $collection = array();
+        foreach ($documents as $document) {
+            $metadatas = $document->getMetadatas();
+            if (isset($metadatas[$key]) && is_array($metadatas[$key])) {
+                foreach ($metadatas[$key] as $item) {
+                    if (!array_key_exists($item, $collection)) {
+                        $collection[$item] = array();
+                    }
+
+                    $collection[$item][] = $document;
+                }
+            }
+        }
+
+        return $collection;
+    }
 }
