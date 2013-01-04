@@ -10,7 +10,7 @@ use Symfony\Component\Console\Command\Command;
 
 class Carew
 {
-    const VERSION = '0.1-dev';
+    const VERSION = '1.0.0-dev';
 
     private $container;
     private $application;
@@ -19,9 +19,9 @@ class Carew
     {
         $this->container = new \Pimple();
 
-        $this->register(new CoreExtension());
-
         $this->application = new Application('Carew', static::VERSION);
+
+        $this->register(new CoreExtension());
 
         $this->addCommand(new Commands\GeneratePost());
         $this->addCommand(new Commands\Build($this->container));
@@ -30,6 +30,8 @@ class Carew
     public function register(ExtensionInterface $extension)
     {
         $extension->register($this->getContainer());
+
+        return $this;
     }
 
     public function getContainer()
