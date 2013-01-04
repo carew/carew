@@ -6,8 +6,6 @@ use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Filesystem\Filesystem;
 use Carew\Extractor\Extractor;
 use Carew\Event\Events;
 
@@ -84,47 +82,33 @@ class Build extends BaseCommand
         $tags       = $build_collection($documents, 'tags');
         $navigation = $build_collection($documents, 'navigation');
 
-        $twig = $this->container['twig'];
-        $twig->addGlobal('document', array('path' => '.'));
-        $twig->addGlobal('latest', $latest);
-        $twig->addGlobal('pages', $pages);
-        $twig->addGlobal('posts', $posts);
-        $twig->addGlobal('tags', $tags);
-        $twig->addGlobal('navigation', $navigation);
-        $twig->addGlobal('relativeRoot', '.');
-        $twig->addGlobal('currentPath', '.');
-        $twig->addGlobal('site', $this->container['config']['site']);
+        $this->container['twigGlobales'] = array_replace($this->container['twigGlobales'], array(
+            'latest'       => $latest,
+            'navigation'   => $navigation,
+            'pages'        => $pages,
+            'posts'        => $posts,
+            'tags'         => $tags,
+        ));
 
-        $finder = new Finder();
-        $fs = new Filesystem();
-        $fs->remove($finder->in($webDir)->exclude(basename(realpath($baseDir))));
+        $builder = $this->container['builder'];
+
+        $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));
 
         // Build page, api and post documents
-        foreach ($documents as $key => $document) {
+        foreach ($documents as $document) {
             if ($input->getOption('verbose')) {
                 $output->writeln(sprintf('Building <info>%s</info>', $document->getPath()));
             }
-            if (false === $document->getLayout()) {
-                $rendered = $document->body;
-            } else {
-                $rendered = $twig->render($document->getLayout().'.html.twig', array(
-                    'document'     => $document,
-                    'relativeRoot' => $document->getRootPath(),
-                    'currentPath'  => $document->getPath(),
-                ));
-            }
+            $builder->buildDocument($document);
 
-            $target = $webDir.'/'.$document->getPath();
-            $fs->mkdir(dirname($target));
-            file_put_contents($target, $rendered);
         }
 
         // Build Tags
         if ($input->getOption('verbose')) {
             $output->writeln('Building <info>Tags</info>');
         }
-        $finder = new Finder();
-        foreach ($finder->in($baseDir.'/layouts/')->files()->name('tags.*.twig') as $file) {
+
+        foreach ($this->container['finder']->in($baseDir.'/layouts/')->files()->name('tags.*.twig') as $file) {
             $file = $file->getBasename();
 
             preg_match('#tags\.(.+?)\.twig$#', $file, $match);
@@ -144,7 +128,7 @@ class Build extends BaseCommand
                 );
                 $rendered = $twig->render($file, $vars);
                 $target = sprintf('%s/%s',$webDir, $path);
-                $fs->mkdir(dirname($target));
+                $this->container['filesystem']->mkdir(dirname($target));
                 file_put_content($target, $rendered);
             }
         }
@@ -152,8 +136,8 @@ class Build extends BaseCommand
         if ($input->getOption('verbose')) {
             $output->writeln('Building <info>Index</info>');
         }
-        $finder = new Finder();
-        foreach ($finder->in($baseDir.'/layouts/')->files()->name('index.*.twig') as $file) {
+
+        foreach ($this->container['finder']->in($baseDir.'/layouts/')->files()->name('index.*.twig') as $file) {
             $file = $file->getBasename();
 
             preg_match('#index\.(.+?)\.twig$#', $file, $match);
@@ -176,12 +160,12 @@ class Build extends BaseCommand
         if (isset($this->container['config']['engine']['theme_path'])) {
             $themePath = str_replace('%dir%', $baseDir, $this->container['config']['engine']['theme_path']);
             if (isset($themePath) && is_dir($themePath.'/assets')) {
-                $fs->mirror($themePath.'/assets/', $webDir.'/');
+                $this->container['filesystem']->mirror($themePath.'/assets/', $webDir.'/');
             }
         }
 
         if (is_dir($baseDir.'/assets')) {
-            $fs->mirror($baseDir.'/assets/', $webDir.'/', null, array('override' => true));
+            $this->container['filesystem']->mirror($baseDir.'/assets/', $webDir.'/', null, array('override' => true));
         }
     }
 }

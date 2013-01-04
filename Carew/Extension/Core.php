@@ -2,8 +2,12 @@
 
 namespace Carew\Extension;
 
+use Carew\Builder\Builder;
 use Carew\EventSubscriber;
+use Carew\Model\Document;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
@@ -15,6 +19,19 @@ class Core implements ExtensionInterface
         $this->registerConfig($container);
         $this->registerEventDispatcher($container);
         $this->registerTwig($container);
+
+        $container['builder'] = $container->share(function($container) {
+            return new Builder($container['twig'], $container['web_dir'], $container['filesystem']);
+        });
+
+        $container['filesystem'] = $container->share(function($container) {
+            return new Filesystem();
+        });
+
+        $container['finder'] = function($container) {
+            return new Finder();
+        };
+
     }
 
     private function registerConfig(\Pimple $container)
@@ -74,9 +91,27 @@ class Core implements ExtensionInterface
             return $loader;
         });
 
+        $container['twigGlobales'] = $container->share(function($container) {
+            return array(
+                'currentPath'  => '.',
+                'document'     => new Document(),
+                'latest'       => false,
+                'navigation'   => array(),
+                'pages'        => array(),
+                'posts'        => array(),
+                'relativeRoot' => '.',
+                'site'         => $container['config']['site'],
+                'tags'         => array(),
+            );
+        });
+
         $container['twig'] = $container->share(function($container) {
-            $twig = new Twig_Environment($container['twig.loader'], array('strict_variables' => true, 'debug' => true));
+            $twig = new Twig_Environment($container['twig.loader'], array('strict_variables' => false, 'debug' => true));
             $twig->addExtension(new \Twig_Extension_Debug());
+
+            foreach ($container['twigGlobales'] as $key => $value) {
+                $twig->addGlobal($key, $value);
+            }
 
             return $twig;
         });

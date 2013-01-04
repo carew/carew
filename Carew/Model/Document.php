@@ -15,15 +15,15 @@ class Document
     private $title;
     private $toc;
 
-    public function __construct(SplFileInfo $file)
+    public function __construct(SplFileInfo $file = null)
     {
         $this->body      = '';
         $this->file      = $file;
         $this->layout    = 'default';
         $this->metadatas = array('tags' => array(), 'navigation' => array());
-        $this->path      = $file->getBaseName();
+        $this->path      = $file ? $file->getBaseName() : '.';
         $this->rootPath  = '.';
-        $this->title     = $file->getBaseName();
+        $this->title     = $file ? $file->getBaseName() : '.';
         $this->toc       = array();
     }
 
