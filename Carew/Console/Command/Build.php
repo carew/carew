@@ -6,7 +6,7 @@ use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Carew\Extractor\Extractor;
+use Carew\Processor\Processor;
 use Carew\Event\Events;
 
 class Build extends BaseCommand
@@ -37,10 +37,10 @@ class Build extends BaseCommand
         $this->container['base_dir'] = $baseDir = $input->getOption('base-dir');
         $this->container['web_dir'] = $webDir = $input->getOption('web-dir');
 
-        $extractor = new Extractor($this->container['event_dispatcher'], $input, $output);
+        $processor = new Processor($this->container['event_dispatcher'], $input, $output);
 
         // Extract Posts
-        $posts = $extractor->extract($baseDir.'/posts', '*-*-*-*.md', array(Events::POST));
+        $posts = $processor->process($baseDir.'/posts', '*-*-*-*.md', array(Events::POST));
         uasort($posts, function ($a, $b) {
             $aMetadatas = $a->getMetadatas;
             $bMetadatas = $b->getMetadatas;
@@ -53,10 +53,10 @@ class Build extends BaseCommand
         $latest = reset($posts);
 
         // Extract Pages
-        $pages = $extractor->extract($baseDir.'/pages', '*.md', array(Events::PAGE));
+        $pages = $processor->process($baseDir.'/pages', '*.md', array(Events::PAGE));
 
         // Extract Api
-        $api = $extractor->extract($baseDir.'/api', '*', array(Events::API), true);
+        $api = $processor->process($baseDir.'/api', '*', array(Events::API), true);
 
         $build_collection = function($documents, $key) {
             $collection = array();

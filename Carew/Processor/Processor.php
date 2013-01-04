@@ -1,6 +1,6 @@
 <?php
 
-namespace Carew\Extractor;
+namespace Carew\Processor;
 
 use Carew\Event\Events;
 use Carew\Model\Document;
@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\Finder\Finder;
 
-class Extractor
+class Processor
 {
     private $eventDispatcher;
     private $input;
@@ -24,7 +24,7 @@ class Extractor
         $this->output          = $output;
     }
 
-    public function extract($dir, $filenamePattern = '.md', array $extraEvents = array(), $allowEmptyHeader = false)
+    public function process($dir, $filenamePattern = '.md', array $extraEvents = array(), $allowEmptyHeader = false)
     {
         if (!is_dir($dir)) {
             return array();
