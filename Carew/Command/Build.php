@@ -37,8 +37,15 @@ class Build extends BaseCommand
         $startAt = microtime(true);
         $memoryUsage = memory_get_usage();
 
-        $this->container['base_dir'] = $baseDir = $input->getOption('base-dir');
+        $this->container['base_dir'] = $baseDir = realpath($input->getOption('base-dir'));
+        if (false === $baseDir) {
+            throw new \InvalidArgumentException('Could not find base dir path');
+        }
+
         $this->container['web_dir'] = $webDir = $input->getOption('web-dir');
+        if (!is_dir($webDir)) {
+            $this->container['filesystem']->mkdir($webDir);
+        }
 
         $this->container['carew']->loadExtensions();
 
