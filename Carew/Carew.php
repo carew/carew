@@ -29,7 +29,7 @@ class Carew
     public function loadExtensions()
     {
         $config = $this->container['config'];
-        if (array_key_exists('extensions', $config['engine'])) {
+        if (isset($config['engine']['extensions'])) {
             if (!is_array($extensions = $config['engine']['extensions'])) {
                 $extensions = array($extensions);
             }
