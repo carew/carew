@@ -37,11 +37,16 @@ class Build extends BaseCommand
         $this->container['base_dir'] = $baseDir = $input->getOption('base-dir');
         $this->container['web_dir'] = $webDir = $input->getOption('web-dir');
 
-        $processor = new Processor($this->container['event_dispatcher'], $input, $output);
+        $processor = $this->container['processor'];
 
+        $input->getOption('verbose') and $output->writeln('Processing <comment>Posts</comment>');
         $posts = $processor->process($baseDir.'/posts', '*-*-*-*.md', array(Events::POST));
         $posts = $processor->sortByDate($posts);
+
+        $input->getOption('verbose') and $output->writeln('Processing <comment>Pages</comment>');
         $pages = $processor->process($baseDir.'/pages', '*.md', array(Events::PAGE));
+
+        $input->getOption('verbose') and $output->writeln('Processing <comment>Api</comment>');
         $api = $processor->process($baseDir.'/api', '*', array(Events::API), true);
 
         $documents = array_merge($posts, $pages, $api);
@@ -49,16 +54,13 @@ class Build extends BaseCommand
         $tags       = $processor->buildCollection($documents, 'tags');
         $navigation = $processor->buildCollection($documents, 'navigation');
 
-        if ($input->getOption('verbose')) {
-            $output->writeln('Building <info>Tags</info>');
-        }
+        $input->getOption('verbose') and $output->writeln('Processing <comment>Tags page</comment>');
         $documents = array_merge($documents, $processor->processTags($tags, $baseDir));
 
-        if ($input->getOption('verbose')) {
-            $output->writeln('Building <info>Index</info>');
-        }
+        $input->getOption('verbose') and $output->writeln('Processing <comment>Index page</comment>');
         $documents = array_merge($documents, $processor->processIndex($baseDir));
 
+        $input->getOption('verbose') and $output->writeln('<comment>Cleaned target folder</comment>');
         $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));
 
         $this->container['twigGlobales'] = array_replace($this->container['twigGlobales'], array(
@@ -71,13 +73,12 @@ class Build extends BaseCommand
 
         $builder = $this->container['builder'];
         foreach ($documents as $document) {
-            if ($input->getOption('verbose')) {
-                $output->writeln(sprintf('Building <info>%s</info>', $document->getPath()));
-            }
+            $input->getOption('verbose') and $output->writeln(sprintf('Render <comment>%s</comment>', $document->getPath()));
             $builder->buildDocument($document);
         }
 
         if (isset($this->container['config']['engine']['theme_path'])) {
+            $input->getOption('verbose') and $output->writeln('<comment>Copy theme assets</comment>');
             $themePath = str_replace('%dir%', $baseDir, $this->container['config']['engine']['theme_path']);
             if (isset($themePath) && is_dir($themePath.'/assets')) {
                 $this->container['filesystem']->mirror($themePath.'/assets/', $webDir.'/');
@@ -85,7 +86,10 @@ class Build extends BaseCommand
         }
 
         if (is_dir($baseDir.'/assets')) {
+            $input->getOption('verbose') and $output->writeln('<comment>Copy assets</comment>');
             $this->container['filesystem']->mirror($baseDir.'/assets/', $webDir.'/', null, array('override' => true));
         }
+
+        $output->writeln('<info>Build finished</info>');
     }
 }

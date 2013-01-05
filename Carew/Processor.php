@@ -12,14 +12,10 @@ use Symfony\Component\Finder\Finder;
 class Processor
 {
     private $eventDispatcher;
-    private $input;
-    private $output;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher, InputInterface $input = null, OutputInterface $output = null)
+    public function __construct(EventDispatcherInterface $eventDispatcher)
     {
         $this->eventDispatcher = $eventDispatcher;
-        $this->input           = $input;
-        $this->output          = $output;
     }
 
     public function process($dir, $filenamePattern = '.md', array $extraEvents = array(), $allowEmptyHeader = false)
@@ -31,10 +27,6 @@ class Processor
         $documents = array();
         $finder = new Finder();
         foreach ($finder->in($dir)->files()->name($filenamePattern) as $file) {
-            if ($this->input && $this->output && $this->input->getOption('verbose')) {
-                $this->output->writeln(sprintf('Processing <info>%s</info>', $file->getRelativePathName()));
-            }
-
             $document = new Document($file);
 
             $event = new GenericEvent($document, array('allowEmptyHeader' => $allowEmptyHeader));
