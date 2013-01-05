@@ -1,6 +1,6 @@
 <?php
 
-namespace Carew\Console\Command;
+namespace Carew\Command;
 
 use Slug\Slugifier;
 use Symfony\Component\Console\Command\Command as BaseCommand;

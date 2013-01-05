@@ -1,6 +1,6 @@
 <?php
 
-namespace Carew\Event;
+namespace Carew;
 
 final class Events
 {

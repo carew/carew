@@ -1,6 +1,6 @@
 <?php
 
-namespace Carew\Extension;
+namespace Carew;
 
 interface ExtensionInterface
 {

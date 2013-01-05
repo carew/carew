@@ -3,7 +3,7 @@
 namespace Carew\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Carew\Event\Events;
+use Carew\Events;
 
 class EventSubscriber implements EventSubscriberInterface
 {

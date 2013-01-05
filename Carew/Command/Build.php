@@ -1,13 +1,13 @@
 <?php
 
-namespace Carew\Console\Command;
+namespace Carew\Command;
 
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Carew\Processor\Processor;
-use Carew\Event\Events;
+use Carew\Processor;
+use Carew\Events;
 
 class Build extends BaseCommand
 {

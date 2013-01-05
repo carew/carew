@@ -1,9 +1,7 @@
 <?php
 
-namespace Carew\Processor;
+namespace Carew;
 
-use Carew\Event\Events;
-use Carew\Model\Document;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;

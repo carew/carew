@@ -1,6 +1,6 @@
 <?php
 
-namespace Carew\Model;
+namespace Carew;
 
 use Symfony\Component\Finder\SplFileInfo;
 

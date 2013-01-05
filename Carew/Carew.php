@@ -2,9 +2,7 @@
 
 namespace Carew;
 
-use Carew\Console\Command as Commands;
-use Carew\Extension\ExtensionInterface;
-use Carew\Extension\Core as CoreExtension;
+use Carew\Command as Commands;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 

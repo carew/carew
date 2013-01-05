@@ -1,10 +1,8 @@
 <?php
 
-namespace Carew\Extension;
+namespace Carew;
 
-use Carew\Builder\Builder;
 use Carew\EventSubscriber;
-use Carew\Model\Document;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -12,7 +10,7 @@ use Symfony\Component\Yaml\Yaml;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 
-class Core implements ExtensionInterface
+class CoreExtension implements ExtensionInterface
 {
     public function register(\Pimple $container)
     {

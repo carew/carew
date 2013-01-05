@@ -1,8 +1,7 @@
 <?php
 
-namespace Carew\Builder;
+namespace Carew;
 
-use Carew\Model\Document;
 use Symfony\Component\Filesystem\Filesystem;
 use Twig_Environment;
 
