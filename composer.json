@@ -1,8 +1,9 @@
 {
     "name": "carew/carew",
     "description": "The tiny static site generator.",
-    "keywords": ["static-site-generator"],
     "license": "MIT",
+    "homepage": "http://carew.github.com/",
+    "keywords": ["static-site-generator", "carew"],
     "authors": [
         {
             "name": "Grégoire Pineau",
