@@ -12,8 +12,10 @@ use Twig_Loader_Filesystem;
 
 class CoreExtension implements ExtensionInterface
 {
-    public function register(\Pimple $container)
+    public function register(Carew $carew)
     {
+        $container = $carew->getContainer();
+
         $this->registerConfig($container);
         $this->registerEventDispatcher($container);
         $this->registerTwig($container);

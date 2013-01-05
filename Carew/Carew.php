@@ -48,7 +48,7 @@ class Carew
 
     public function register(ExtensionInterface $extension)
     {
-        $extension->register($this->getContainer());
+        $extension->register($this);
 
         return $this;
     }

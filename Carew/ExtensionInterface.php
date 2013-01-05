@@ -4,5 +4,5 @@ namespace Carew;
 
 interface ExtensionInterface
 {
-    public function register(\Pimple $container);
+    public function register(Carew $container);
 }
