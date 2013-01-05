@@ -16,6 +16,7 @@ class Carew
     public function __construct()
     {
         $this->container = new \Pimple();
+        $this->container['carew'] = $this;
 
         $this->application = new Application('Carew', static::VERSION);
 
@@ -23,6 +24,26 @@ class Carew
 
         $this->addCommand(new Commands\GeneratePost());
         $this->addCommand(new Commands\Build($this->container));
+    }
+
+    public function loadExtensions()
+    {
+        $config = $this->container['config'];
+        if (array_key_exists('extensions', $config['engine'])) {
+            if (!is_array($extensions = $config['engine']['extensions'])) {
+                $extensions = array($extensions);
+            }
+            foreach ($extensions as $extension) {
+                if (!class_exists($extension)) {
+                    throw new \LogicException(sprintf('The class (in your config.yml) "%s" does not exists', $extension));
+                }
+                $extension = new $extension();
+                if (!$extension instanceof ExtensionInterface) {
+                    throw new \LogicException(sprintf('The class "%s" does not implements ExtensionInterface', get_class($extension)));
+                }
+                $this->register($extension);
+            }
+        }
     }
 
     public function register(ExtensionInterface $extension)

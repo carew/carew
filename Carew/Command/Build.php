@@ -40,6 +40,8 @@ class Build extends BaseCommand
         $this->container['base_dir'] = $baseDir = $input->getOption('base-dir');
         $this->container['web_dir'] = $webDir = $input->getOption('web-dir');
 
+        $this->container['carew']->loadExtensions();
+
         $processor = $this->container['processor'];
 
         $input->getOption('verbose') and $output->writeln('Processing <comment>Posts</comment>');

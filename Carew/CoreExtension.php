@@ -33,7 +33,6 @@ class CoreExtension implements ExtensionInterface
         $container['finder'] = function($container) {
             return new Finder();
         };
-
     }
 
     private function registerConfig(\Pimple $container)
