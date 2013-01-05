@@ -34,6 +34,9 @@ class Build extends BaseCommand
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $startAt = microtime(true);
+        $memoryUsage = memory_get_usage();
+
         $this->container['base_dir'] = $baseDir = $input->getOption('base-dir');
         $this->container['web_dir'] = $webDir = $input->getOption('web-dir');
 
@@ -91,5 +94,6 @@ class Build extends BaseCommand
         }
 
         $output->writeln('<info>Build finished</info>');
+        $input->getOption('verbose') and $output->writeln(sprintf('Time: %.2f seconds, Memory: %.2fMb', (microtime(true) - $startAt), (memory_get_usage() - $memoryUsage)/(1024 * 1024)));
     }
 }
