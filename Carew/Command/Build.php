@@ -63,7 +63,7 @@ class Build extends BaseCommand
         $documents = array_merge($documents, $processor->processTags($tags, $baseDir));
 
         $input->getOption('verbose') and $output->writeln('Processing <comment>Index page</comment>');
-        $documents = array_merge($documents, $processor->processIndex($baseDir));
+        $documents = array_merge($documents, $processor->processIndex($pages, $baseDir));
 
         $input->getOption('verbose') and $output->writeln('<comment>Cleaned target folder</comment>');
         $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));

@@ -74,7 +74,7 @@ class Processor
         return $documents;
     }
 
-    public function processIndex($baseDir)
+    public function processIndex($pages, $baseDir)
     {
         $documents = array();
         $finder = new Finder();
@@ -89,6 +89,7 @@ class Processor
             $document->setLayout((string) $file);
             $document->setPath(sprintf('index.%s', $format));
             $document->setTitle(false);
+            $document->setVars(array('pages' => $pages));
 
             $documents[$document->getPath()] = $document;
         }
