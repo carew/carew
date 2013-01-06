@@ -75,6 +75,7 @@ class CoreExtension implements ExtensionInterface
             $dispatcher =  new EventDispatcher();
             $dispatcher->addSubscriber(new EventSubscriber\Metadata\Extraction());
             $dispatcher->addSubscriber(new EventSubscriber\Metadata\Optimization());
+            $dispatcher->addSubscriber(new EventSubscriber\Body\UrlRewriter());
             $dispatcher->addSubscriber(new EventSubscriber\Body\Markdown());
 
             return $dispatcher;
