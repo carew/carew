@@ -4,6 +4,7 @@ namespace Carew\EventSubscriber\Body;
 
 use Carew\EventSubscriber\EventSubscriber;
 use dflydev\markdown\MarkdownParser;
+use dflydev\markdown\MarkdownExtraParser;
 
 class Markdown extends EventSubscriber
 {
@@ -11,7 +12,7 @@ class Markdown extends EventSubscriber
 
     public function __construct($markdownParser = null)
     {
-        $this->markdownParser = $markdownParser ?: new MarkdownParser();
+        $this->markdownParser = $markdownParser ?: new MarkdownExtraParser();
     }
 
     public function onDocumentProcess($event)
