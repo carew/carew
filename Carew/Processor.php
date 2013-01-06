@@ -48,9 +48,12 @@ class Processor
 
     public function processTags($tags, $baseDir)
     {
+        if (!is_dir($baseDir.'/layouts/')) {
+            return array();
+        }
+
         $documents = array();
         $finder = new Finder();
-
         foreach ($finder->in($baseDir.'/layouts/')->files()->name('tags.*.twig') as $file) {
             $file = $file->getBasename();
 
@@ -76,9 +79,12 @@ class Processor
 
     public function processIndex($pages, $baseDir)
     {
+        if (!is_dir($baseDir.'/layouts/')) {
+            return array();
+        }
+
         $documents = array();
         $finder = new Finder();
-
         foreach ($finder->in($baseDir.'/layouts/')->files()->name('index.*.twig') as $file) {
             $file = $file->getBasename();
 
