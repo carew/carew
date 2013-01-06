@@ -63,6 +63,10 @@ class CoreExtension implements ExtensionInterface
 
             return $config;
         });
+
+        $container['themes'] = $container->share(function($container) {
+            return array($container['base_dir']);
+        });
     }
 
     private function registerEventDispatcher(\Pimple $container)
@@ -80,15 +84,15 @@ class CoreExtension implements ExtensionInterface
     private function registerTwig(\Pimple $container)
     {
         $container['twig.loader'] = $container->share(function($container) {
-            $loader = new Twig_Loader_Filesystem($container['base_dir'].'/layouts');
+            $loader = new Twig_Loader_Filesystem(array());
 
-            $config = $container['config'];
-
-            if (isset($config['engine']['theme_path'])) {
-                $themePath = str_replace('%dir%', $container['base_dir'], $config['engine']['theme_path']);
-                $loader->addPath($themePath.'/layouts');
-                $loader->addPath($container['base_dir']);
+            foreach ($container['themes'] as $theme) {
+                $path = $theme.'/layouts';
+                if (is_dir($path)) {
+                    $loader->addPath($path);
+                }
             }
+            $loader->addPath($container['base_dir']);
 
             return $loader;
         });

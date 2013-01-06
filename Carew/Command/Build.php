@@ -48,6 +48,7 @@ class Build extends BaseCommand
         }
 
         $this->container['carew']->loadExtensions();
+        $this->container['carew']->loadThemes();
 
         $processor = $this->container['processor'];
 
@@ -89,17 +90,12 @@ class Build extends BaseCommand
             $builder->buildDocument($document);
         }
 
-        if (isset($this->container['config']['engine']['theme_path'])) {
-            $input->getOption('verbose') and $output->writeln('<comment>Copy theme assets</comment>');
-            $themePath = str_replace('%dir%', $baseDir, $this->container['config']['engine']['theme_path']);
-            if (isset($themePath) && is_dir($themePath.'/assets')) {
-                $this->container['filesystem']->mirror($themePath.'/assets/', $webDir.'/');
+        $input->getOption('verbose') and $output->writeln('<comment>Copy assets</comment>');
+        foreach ($this->container['themes'] as $theme) {
+            $path = $theme.'/assets/';
+            if (is_dir($path)) {
+                $this->container['filesystem']->mirror($path, $webDir.'/', null, array('override' => true));
             }
-        }
-
-        if (is_dir($baseDir.'/assets')) {
-            $input->getOption('verbose') and $output->writeln('<comment>Copy assets</comment>');
-            $this->container['filesystem']->mirror($baseDir.'/assets/', $webDir.'/', null, array('override' => true));
         }
 
         $output->writeln('<info>Build finished</info>');

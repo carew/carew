@@ -29,6 +29,7 @@ class Carew
     public function loadExtensions()
     {
         $config = $this->container['config'];
+
         if (isset($config['engine']['extensions'])) {
             if (!is_array($extensions = $config['engine']['extensions'])) {
                 $extensions = array($extensions);
@@ -44,6 +45,23 @@ class Carew
                 $this->register($extension);
             }
         }
+    }
+
+    public function loadThemes()
+    {
+        $this->container['themes'] = $this->container->share($this->container->extend('themes', function($themesPath, $container) {
+            $config = $container['config'];
+            if (isset($config['engine']['themes'])) {
+                if (!is_array($themes = $config['engine']['themes'])) {
+                    $themes = array($themes);
+                }
+                foreach ($themes as $theme) {
+                    $themesPath[] = str_replace('%dir%', $container['base_dir'], $theme);
+                }
+            }
+
+            return $themesPath;
+        }));
     }
 
     public function register(ExtensionInterface $extension)
