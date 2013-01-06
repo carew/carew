@@ -3,7 +3,6 @@
 namespace Carew\EventSubscriber\Body;
 
 use Carew\EventSubscriber\EventSubscriber;
-use dflydev\markdown\MarkdownParser;
 use dflydev\markdown\MarkdownExtraParser;
 
 class Markdown extends EventSubscriber
