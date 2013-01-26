@@ -98,7 +98,7 @@ class CoreExtension implements ExtensionInterface
             return $loader;
         });
 
-        $container['twigGlobales'] = $container->share(function($container) {
+        $container['twig.globales'] = $container->share(function($container) {
             return array(
                 'currentPath'  => '.',
                 'document'     => new Document(),
@@ -116,7 +116,7 @@ class CoreExtension implements ExtensionInterface
             $twig = new Twig_Environment($container['twig.loader'], array('strict_variables' => false, 'debug' => true));
             $twig->addExtension(new \Twig_Extension_Debug());
 
-            foreach ($container['twigGlobales'] as $key => $value) {
+            foreach ($container['twig.globales'] as $key => $value) {
                 $twig->addGlobal($key, $value);
             }
 

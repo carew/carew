@@ -72,7 +72,7 @@ class Build extends BaseCommand
         $input->getOption('verbose') and $output->writeln('<comment>Cleaned target folder</comment>');
         $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));
 
-        $this->container['twigGlobales'] = array_replace($this->container['twigGlobales'], array(
+        $this->container['twig.globales'] = array_replace($this->container['twig.globales'], array(
             'latest'     => reset($posts),
             'navigation' => $navigation,
             'documents'  => $documents,
