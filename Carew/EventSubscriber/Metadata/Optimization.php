@@ -23,6 +23,6 @@ class Optimization extends EventSubscriber
     {
         $subject = $event->getSubject();
 
-        $subject->setPath(sprintf('api/%s', $subject->path));
+        $subject->setPath(preg_replace('/(.html)$/', '', sprintf('api/%s', $subject->getPath())));
     }
 }

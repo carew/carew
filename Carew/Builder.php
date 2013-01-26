@@ -21,7 +21,7 @@ class Builder
     public function buildDocument(Document $document)
     {
         if (false === $document->getLayout()) {
-            $rendered = $document->body;
+            $rendered = $document->getBody();
         } else {
             $layout = $document->getLayout();
             $layout .= false === strpos($layout, '.twig') ? '.html.twig' : '';
