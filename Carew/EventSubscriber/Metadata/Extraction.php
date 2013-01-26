@@ -11,12 +11,12 @@ class Extraction implements EventSubscriberInterface
     public function onDocumentProcess($event)
     {
         $document = $event->getSubject();
+        $file = $document->getFile();
 
-        $document->setTitle($document->getFile()->getBasename('.md'));
+        $document->setTitle($file->getBasename($file->getExtension()));
+        $document->setPath(ltrim(sprintf('%s/%s.html', $file->getRelativePath(), $document->getTitle()), '/'));
 
-        $document->setPath(ltrim(sprintf('%s/%s.html', $document->getFile()->getRelativePath(), $document->getFile()->getBasename('.md')), '/'));
-
-        $content = file_get_contents($document->getFile());
+        $content = file_get_contents($file);
         preg_match('#^---\n(.+)---\n(.+)$#sU', $content, $matches);
         if ($matches) {
             list(, $metadatas, $body) = $matches;
@@ -34,8 +34,8 @@ class Extraction implements EventSubscriberInterface
                     $metadatas[$value] = array($metadatas[$value]);
                 }
             }
-            $document->setMetadatas($metadatas);
 
+            $document->setMetadatas($metadatas);
             $document->setBody($body);
         } else {
             if (!$event['allowEmptyHeader']) {
