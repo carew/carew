@@ -2,27 +2,12 @@
 
 namespace Carew\EventSubscriber\Body;
 
-use Carew\EventSubscriber\EventSubscriber;
+use Carew\Events;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class UrlRewriter extends EventSubscriber
+class UrlRewriter implements EventSubscriberInterface
 {
-
-    public function onPageProcess($event)
-    {
-        $this->onProcess($event);
-    }
-
-    public function onPostProcess($event)
-    {
-        $this->onProcess($event);
-    }
-
-    public function onApiProcess($event)
-    {
-        $this->onProcess($event);
-    }
-
-    public function onProcess($event)
+    public function process($event)
     {
         $subject = $event->getSubject();
 
@@ -31,8 +16,18 @@ class UrlRewriter extends EventSubscriber
         )));
     }
 
-    public static function getPriority()
+    public static function getSubscribedEvents()
     {
-        return 0;
+        return array(
+            Events::PAGE => array(
+                array('process', 0),
+            ),
+            Events::POST => array(
+                array('process', 0),
+            ),
+            Events::API => array(
+                array('process', 0),
+            ),
+        );
     }
 }

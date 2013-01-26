@@ -2,10 +2,11 @@
 
 namespace Carew\EventSubscriber\Metadata;
 
-use Carew\EventSubscriber\EventSubscriber;
+use Carew\Events;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Yaml\Yaml;
 
-class Extraction extends EventSubscriber
+class Extraction implements EventSubscriberInterface
 {
     public function onDocumentProcess($event)
     {
@@ -46,8 +47,12 @@ class Extraction extends EventSubscriber
         }
     }
 
-    public static function getPriority()
+    public static function getSubscribedEvents()
     {
-        return 1024;
+        return array(
+            Events::DOCUMENT => array(
+                array('onDocumentProcess', 1024),
+            ),
+        );
     }
 }

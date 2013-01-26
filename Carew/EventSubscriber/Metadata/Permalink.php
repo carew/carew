@@ -2,27 +2,12 @@
 
 namespace Carew\EventSubscriber\Metadata;
 
-use Carew\EventSubscriber\EventSubscriber;
+use Carew\Events;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class Permalink extends EventSubscriber
+class Permalink implements EventSubscriberInterface
 {
-
-    public function onPageProcess($event)
-    {
-        $this->onProcess($event);
-    }
-
-    public function onPostProcess($event)
-    {
-        $this->onProcess($event);
-    }
-
-    public function onApiProcess($event)
-    {
-        $this->onProcess($event);
-    }
-
-    public function onProcess($event)
+    public function process($event)
     {
         $metadatas = $event->getSubject()->getMetadatas();
         if (isset($metadatas['permalink'])) {
@@ -30,8 +15,18 @@ class Permalink extends EventSubscriber
         }
     }
 
-    public static function getPriority()
+    public static function getSubscribedEvents()
     {
-        return 2;
+        return array(
+            Events::PAGE => array(
+                array('process', 0),
+            ),
+            Events::POST => array(
+                array('process', 0),
+            ),
+            Events::API => array(
+                array('process', 0),
+            ),
+        );
     }
 }

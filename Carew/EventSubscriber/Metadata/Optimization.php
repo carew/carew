@@ -2,9 +2,10 @@
 
 namespace Carew\EventSubscriber\Metadata;
 
-use Carew\EventSubscriber\EventSubscriber;
+use Carew\Events;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class Optimization extends EventSubscriber
+class Optimization implements EventSubscriberInterface
 {
     public function onPostProcess($event)
     {
@@ -26,9 +27,15 @@ class Optimization extends EventSubscriber
         $subject->setPath(preg_replace('/(.html)$/', '', sprintf('api/%s', $subject->getPath())));
     }
 
-    public static function getPriority()
+    public static function getSubscribedEvents()
     {
-        return 1024;
+        return array(
+            Events::POST => array(
+                array('onPostProcess', 1024),
+            ),
+            Events::API => array(
+                array('onApiProcess', 1024),
+            ),
+        );
     }
-
 }

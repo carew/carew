@@ -2,10 +2,11 @@
 
 namespace Carew\EventSubscriber\Body;
 
-use Carew\EventSubscriber\EventSubscriber;
+use Carew\Events;
 use dflydev\markdown\MarkdownExtraParser;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class Markdown extends EventSubscriber
+class Markdown implements EventSubscriberInterface
 {
     private $markdownParser;
 
@@ -14,17 +15,7 @@ class Markdown extends EventSubscriber
         $this->markdownParser = $markdownParser ?: new MarkdownExtraParser();
     }
 
-    public function onPageProcess($event)
-    {
-        $this->process($event);
-    }
-
-    public function onPostProcess($event)
-    {
-        $this->process($event);
-    }
-
-    private function process($event)
+    public function process($event)
     {
         $subject = $event->getSubject();
 
@@ -35,8 +26,12 @@ class Markdown extends EventSubscriber
         $subject->setBody($this->markdownParser->transformMarkdown($subject->getBody()));
     }
 
-    public static function getPriority()
+    public static function getSubscribedEvents()
     {
-        return 256;
+        return array(
+            Events::DOCUMENT => array(
+                array('process', 128),
+            ),
+        );
     }
 }
