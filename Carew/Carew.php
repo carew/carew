@@ -7,7 +7,7 @@ use Symfony\Component\Console\Command\Command;
 
 class Carew
 {
-    const VERSION = '1.3.1';
+    const VERSION = '1.4.0-dev';
 
     private $container;
     private $application;
