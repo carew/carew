@@ -3,7 +3,6 @@
 namespace Carew;
 
 use Carew\Command as Commands;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 
 class Carew
@@ -18,12 +17,11 @@ class Carew
         $this->container = new \Pimple();
         $this->container['carew'] = $this;
 
-        $this->application = new Application('Carew', static::VERSION);
-
         $this->register(new CoreExtension());
 
-        $this->addCommand(new Commands\GeneratePost());
-        $this->addCommand(new Commands\Build($this->container));
+        $this->application = new Application($this->container);
+
+        $this->loadExtensions();
     }
 
     public function loadExtensions()

@@ -32,8 +32,7 @@ class GeneratePost extends BaseCommand
             ->setDescription('Generate a new post')
             ->setDefinition(array(
                 new InputArgument('title', InputArgument::REQUIRED, 'The title'),
-                new InputOption('date', null, InputOption::VALUE_REQUIRED, 'Date (format: YYYY-MM-DD', $this->defaultDate),
-                new InputOption('base-dir', null, InputOption::VALUE_REQUIRED, 'Where locate your content', getcwd()),
+                new InputOption('--date', null, InputOption::VALUE_REQUIRED, 'Date (format: YYYY-MM-DD', $this->defaultDate),
             ))
         ;
     }

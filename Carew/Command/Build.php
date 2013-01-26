@@ -26,8 +26,7 @@ class Build extends BaseCommand
             ->setName('carew:build')
             ->setDescription('Builds static html files from markdown source')
             ->setDefinition(array(
-                new InputOption('web-dir', null, InputOption::VALUE_REQUIRED, 'Where to write generated content', $this->container['web_dir']),
-                new InputOption('base-dir', null, InputOption::VALUE_REQUIRED, 'Where locate your content', $this->container['base_dir']),
+                new InputOption('--web-dir', null, InputOption::VALUE_REQUIRED, 'Where to write generated content', $this->container['web_dir']),
             ))
         ;
     }
