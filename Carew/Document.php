@@ -11,7 +11,6 @@ class Document
     private $layout;
     private $metadatas;
     private $path;
-    private $rootPath;
     private $title;
     private $toc;
     private $vars;
@@ -23,7 +22,6 @@ class Document
         $this->layout    = 'default';
         $this->metadatas = array('tags' => array(), 'navigation' => array());
         $this->path      = $file ? $file->getBaseName() : '.';
-        $this->rootPath  = '.';
         $this->title     = $file ? $file->getBaseName() : '.';
         $this->toc       = array();
         $this->vars      = array();
