@@ -25,4 +25,10 @@ class Optimization extends EventSubscriber
 
         $subject->setPath(preg_replace('/(.html)$/', '', sprintf('api/%s', $subject->getPath())));
     }
+
+    public static function getPriority()
+    {
+        return 1024;
+    }
+
 }
