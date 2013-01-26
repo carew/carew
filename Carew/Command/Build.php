@@ -46,9 +46,6 @@ class Build extends BaseCommand
             $this->container['filesystem']->mkdir($webDir);
         }
 
-        $this->container['carew']->loadExtensions();
-        $this->container['carew']->loadThemes();
-
         $processor = $this->container['processor'];
 
         $input->getOption('verbose') and $output->writeln('Processing <comment>Posts</comment>');

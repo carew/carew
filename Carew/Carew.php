@@ -7,7 +7,7 @@ use Symfony\Component\Console\Command\Command;
 
 class Carew
 {
-    const VERSION = '1.4.0-dev';
+    const VERSION = '1.3.1';
 
     private $container;
     private $application;
@@ -21,6 +21,7 @@ class Carew
 
         $this->application = new Application($this->container);
 
+        $this->loadThemes();
         $this->loadExtensions();
     }
 
