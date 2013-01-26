@@ -74,7 +74,6 @@ class CoreExtension implements ExtensionInterface
         $container['event_dispatcher'] = $container->share(function() {
             $dispatcher =  new EventDispatcher();
             $dispatcher->addSubscriber(new EventSubscriber\Metadata\Extraction());
-            $dispatcher->addSubscriber(new EventSubscriber\Metadata\Permalink());
             $dispatcher->addSubscriber(new EventSubscriber\Metadata\Optimization());
             $dispatcher->addSubscriber(new EventSubscriber\Body\UrlRewriter());
             $dispatcher->addSubscriber(new EventSubscriber\Body\Markdown());

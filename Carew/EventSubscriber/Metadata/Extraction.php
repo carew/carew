@@ -35,6 +35,10 @@ class Extraction implements EventSubscriberInterface
                 }
             }
 
+            if (isset($metadatas['permalink'])) {
+                $document->setPath(trim($metadatas['permalink'], '/').'.html');
+            }
+
             $document->setMetadatas($metadatas);
             $document->setBody($body);
         } else {
