@@ -2,7 +2,6 @@
 
 namespace Carew;
 
-use Carew\Command as Commands;
 use Symfony\Component\Console\Command\Command;
 
 class Carew
