@@ -70,6 +70,10 @@ class Processor
                     'posts' => $posts,
                 ));
 
+                $event = new GenericEvent($document);
+                $this->eventDispatcher->dispatch(Events::TAG, $event);
+                $document = $event->getSubject();
+
                 $documents[$document->getPath()] = $document;
             }
         }
@@ -96,6 +100,10 @@ class Processor
             $document->setPath(sprintf('index.%s', $format));
             $document->setTitle(false);
             $document->setVars(array('pages' => $pages));
+
+            $event = new GenericEvent($document);
+            $this->eventDispatcher->dispatch(Events::INDEX, $event);
+            $document = $event->getSubject();
 
             $documents[$document->getPath()] = $document;
         }
