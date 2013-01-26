@@ -17,7 +17,11 @@ class Optimization implements EventSubscriberInterface
             'date' => new \DateTime("$year-$month-$day"),
         ));
 
-        $subject->setPath("$year/$month/$day/$slug.html");
+        $metadatas = $subject->getMetadatas();
+
+        if (!isset($metadatas['permalink'])) {
+            $subject->setPath("$year/$month/$day/$slug.html");
+        }
     }
 
     public function onApiProcess($event)

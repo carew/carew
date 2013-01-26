@@ -18,14 +18,8 @@ class Permalink implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            Events::PAGE => array(
-                array('process', 0),
-            ),
-            Events::POST => array(
-                array('process', 0),
-            ),
-            Events::API => array(
-                array('process', 0),
+            Events::DOCUMENT => array(
+                array('process', 1022),
             ),
         );
     }

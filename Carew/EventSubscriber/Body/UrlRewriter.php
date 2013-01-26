@@ -19,13 +19,7 @@ class UrlRewriter implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            Events::PAGE => array(
-                array('process', 0),
-            ),
-            Events::POST => array(
-                array('process', 0),
-            ),
-            Events::API => array(
+            Events::DOCUMENT => array(
                 array('process', 0),
             ),
         );
