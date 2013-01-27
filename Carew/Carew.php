@@ -85,7 +85,7 @@ class Carew extends Application
     // Kept for BC
     public function addCommand(Command $command)
     {
-        $this->application->add($command);
+        $this->add($command);
 
         return $this;
     }

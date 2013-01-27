@@ -8,13 +8,23 @@ use Symfony\Component\Yaml\Yaml;
 
 class Extraction implements EventSubscriberInterface
 {
+    private $extensionsToRewrite = array(
+        'html',
+        'md',
+        'rst',
+    );
+
     public function onDocumentProcess($event)
     {
         $document = $event->getSubject();
         $file = $document->getFile();
 
         $document->setTitle($file->getBasename('.'.$file->getExtension()));
-        $document->setPath(ltrim(sprintf('%s/%s.html', $file->getRelativePath(), $document->getTitle()), '/'));
+        if (in_array(strtolower($file->getExtension()), $this->extensionsToRewrite)) {
+            $document->setPath(ltrim(sprintf('%s/%s.html', $file->getRelativePath(), $document->getTitle()), '/'));
+        } else {
+            $document->setPath(ltrim(sprintf('%s/%s', $file->getRelativePath(), $file->getBasename()), '/'));
+        }
 
         $content = file_get_contents($file);
         preg_match('#^---\n(.+)---\n(.+)$#sU', $content, $matches);

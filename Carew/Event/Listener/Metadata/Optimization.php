@@ -28,7 +28,7 @@ class Optimization implements EventSubscriberInterface
     {
         $subject = $event->getSubject();
 
-        $subject->setPath(preg_replace('/(.html)$/', '', sprintf('api/%s', $subject->getPath())));
+        $subject->setPath(sprintf('api/%s', $subject->getPath()));
     }
 
     public static function getSubscribedEvents()
