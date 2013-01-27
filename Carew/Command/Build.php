@@ -64,7 +64,7 @@ class Build extends BaseCommand
         $navigation = $processor->buildCollection($documents, 'navigation');
 
         $input->getOption('verbose') and $output->writeln('Processing <comment>Tags page</comment>');
-        $documents = array_merge($documents, $processor->processTags($tags, $baseDir));
+        $documents = array_merge($documents, $tags = $processor->processTags($tags, $baseDir));
 
         $input->getOption('verbose') and $output->writeln('Processing <comment>Index page</comment>');
         $documents = array_merge($documents, $processor->processIndex($pages, $posts, $baseDir));
@@ -72,13 +72,16 @@ class Build extends BaseCommand
         $input->getOption('verbose') and $output->writeln('<comment>Cleaned target folder</comment>');
         $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));
 
-        $this->container['twig.globales'] = array_replace($this->container['twig.globales'], array(
+        $twigGlobales = array(
             'latest'     => reset($posts),
             'navigation' => $navigation,
             'documents'  => $documents,
             'posts'      => $posts,
             'tags'       => $tags,
-        ));
+        );
+        foreach ($twigGlobales as $key => $global) {
+            $this->container['twig']->addGlobal($key, $global);
+        }
 
         $builder = $this->container['builder'];
         foreach ($documents as $document) {

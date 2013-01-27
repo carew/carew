@@ -98,8 +98,11 @@ class CoreExtension implements ExtensionInterface
             return $loader;
         });
 
-        $container['twig.globales'] = $container->share(function($container) {
-            return array(
+        $container['twig'] = $container->share(function($container) {
+            $twig = new Twig_Environment($container['twig.loader'], array('strict_variables' => false, 'debug' => true));
+            $twig->addExtension(new \Twig_Extension_Debug());
+
+            $twigGlobales = array(
                 'currentPath'  => '.',
                 'document'     => new Document(),
                 'documents'    => array(),
@@ -110,13 +113,8 @@ class CoreExtension implements ExtensionInterface
                 'site'         => $container['config']['site'],
                 'tags'         => array(),
             );
-        });
 
-        $container['twig'] = $container->share(function($container) {
-            $twig = new Twig_Environment($container['twig.loader'], array('strict_variables' => false, 'debug' => true));
-            $twig->addExtension(new \Twig_Extension_Debug());
-
-            foreach ($container['twig.globales'] as $key => $value) {
+            foreach ($twigGlobales as $key => $value) {
                 $twig->addGlobal($key, $value);
             }
 
