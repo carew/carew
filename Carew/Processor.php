@@ -17,15 +17,15 @@ class Processor
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function process($dir, $filenamePattern = '.md', array $extraEvents = array(), $allowEmptyHeader = false)
+    public function process($baseDir, $filenamePattern = '.md', array $extraEvents = array(), $allowEmptyHeader = false)
     {
-        if (!is_dir($dir)) {
+        if (!is_dir($baseDir)) {
             return array();
         }
 
         $documents = array();
         $finder = new Finder();
-        foreach ($finder->in($dir)->files()->name($filenamePattern) as $file) {
+        foreach ($finder->in($baseDir)->files()->name($filenamePattern) as $file) {
             $document = new Document($file);
 
             $event = new CarewEvent($document, array('allowEmptyHeader' => $allowEmptyHeader));
