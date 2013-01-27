@@ -13,7 +13,7 @@ class Extraction implements EventSubscriberInterface
         $document = $event->getSubject();
         $file = $document->getFile();
 
-        $document->setTitle($file->getBasename($file->getExtension()));
+        $document->setTitle($file->getBasename('.'.$file->getExtension()));
         $document->setPath(ltrim(sprintf('%s/%s.html', $file->getRelativePath(), $document->getTitle()), '/'));
 
         $content = file_get_contents($file);
