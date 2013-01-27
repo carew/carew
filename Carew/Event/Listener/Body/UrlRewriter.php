@@ -11,9 +11,7 @@ class UrlRewriter implements EventSubscriberInterface
     {
         $subject = $event->getSubject();
 
-        $subject->setBody(strtr($subject->getBody(), array(
-            '{{ relativeRoot }}' => $subject->getRootPath(),
-        )));
+        $subject->setBody(preg_replace('/{{\s*relativeRoot\s*}}/mU', $subject->getRootPath(), $subject->getBody()));
     }
 
     public static function getSubscribedEvents()
