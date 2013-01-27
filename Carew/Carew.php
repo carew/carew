@@ -2,9 +2,12 @@
 
 namespace Carew;
 
+use Carew\Command as Commands;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputOption;
 
-class Carew
+class Carew extends Application
 {
     const VERSION = '1.4.0-dev';
 
@@ -16,9 +19,12 @@ class Carew
         $this->container = new \Pimple();
         $this->container['carew'] = $this;
 
-        $this->register(new CoreExtension());
+        parent::__construct('Carew', static::VERSION);
 
-        $this->application = new Application($this->container);
+        $this->add(new Commands\GeneratePost());
+        $this->add(new Commands\Build($this->container));
+
+        $this->registerExtension(new CoreExtension());
 
         $this->loadThemes();
         $this->loadExtensions();
@@ -40,7 +46,7 @@ class Carew
                 if (!$extension instanceof ExtensionInterface) {
                     throw new \LogicException(sprintf('The class "%s" does not implements ExtensionInterface', get_class($extension)));
                 }
-                $this->register($extension);
+                $this->registerExtension($extension);
             }
         }
     }
@@ -62,7 +68,7 @@ class Carew
         }));
     }
 
-    public function register(ExtensionInterface $extension)
+    public function registerExtension(ExtensionInterface $extension)
     {
         $extension->register($this);
 
@@ -79,6 +85,7 @@ class Carew
         return $this->container['event_dispatcher'];
     }
 
+    // Kept for BC
     public function addCommand(Command $command)
     {
         $this->application->add($command);
@@ -86,8 +93,14 @@ class Carew
         return $this;
     }
 
-    public function run()
+    protected function getDefaultInputDefinition()
     {
-        return $this->application->run();
+        $inputDefinition = parent::getDefaultInputDefinition();
+
+        $inputDefinition->addOptions(array(
+            new InputOption('--base-dir', null, InputOption::VALUE_REQUIRED, 'Where locate your content', getcwd()),
+        ));
+
+        return $inputDefinition;
     }
 }
