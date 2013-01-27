@@ -39,17 +39,11 @@ class CoreExtension implements ExtensionInterface
 
     private function registerConfig(\Pimple $container)
     {
-        $container['web_dir'] = $container->share(function() {
-            return getcwd().'/web';
-        });
-
-        $container['base_dir'] = $container->share(function() {
-            return getcwd();
-        });
-
         $container['default.date'] = $container->protect(function() {
             return date('Y-m-d');
         });
+
+        $container['web_dir'] = $container['base_dir'].'/web';
 
         $container['config'] = $container->share(function($container) {
             $config = array(

@@ -6,6 +6,8 @@ use Carew\Command as Commands;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Carew extends Application
 {
@@ -23,11 +25,6 @@ class Carew extends Application
 
         $this->add(new Commands\GeneratePost());
         $this->add(new Commands\Build($this->container));
-
-        $this->registerExtension(new CoreExtension());
-
-        $this->loadThemes();
-        $this->loadExtensions();
     }
 
     public function loadExtensions()
@@ -102,5 +99,23 @@ class Carew extends Application
         ));
 
         return $inputDefinition;
+    }
+
+    public function doRun(InputInterface $input, OutputInterface $output)
+    {
+        $baseDir = realpath($input->getParameterOption('--base-dir'));
+
+        if (!file_exists($baseDir) || !is_dir($baseDir)) {
+            throw new \InvalidArgumentException(sprintf('Base dir doest not exists or it is not a directory: "%s"', $baseDir));
+        }
+
+        $this->container['base_dir'] = $baseDir;
+
+        $this->registerExtension(new CoreExtension());
+
+        $this->loadThemes();
+        $this->loadExtensions();
+
+        parent::doRun($input, $output);
     }
 }
