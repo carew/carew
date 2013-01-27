@@ -20,7 +20,7 @@ class UrlRewriter implements EventSubscriberInterface
     {
         return array(
             Events::DOCUMENT => array(
-                array('process', 0),
+                array('process', 256),
             ),
         );
     }
