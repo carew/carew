@@ -1,8 +1,8 @@
 <?php
 
-namespace Carew\EventSubscriber\Body;
+namespace Carew\Event\Listener\Body;
 
-use Carew\Events;
+use Carew\Event\Events;
 use dflydev\markdown\MarkdownExtraParser;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

@@ -2,7 +2,7 @@
 
 namespace Carew;
 
-use Carew\EventSubscriber;
+use Carew\Event\Listener;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -73,10 +73,10 @@ class CoreExtension implements ExtensionInterface
     {
         $container['event_dispatcher'] = $container->share(function() {
             $dispatcher =  new EventDispatcher();
-            $dispatcher->addSubscriber(new EventSubscriber\Metadata\Extraction());
-            $dispatcher->addSubscriber(new EventSubscriber\Metadata\Optimization());
-            $dispatcher->addSubscriber(new EventSubscriber\Body\UrlRewriter());
-            $dispatcher->addSubscriber(new EventSubscriber\Body\Markdown());
+            $dispatcher->addSubscriber(new Listener\Metadata\Extraction());
+            $dispatcher->addSubscriber(new Listener\Metadata\Optimization());
+            $dispatcher->addSubscriber(new Listener\Body\UrlRewriter());
+            $dispatcher->addSubscriber(new Listener\Body\Markdown());
 
             return $dispatcher;
         });

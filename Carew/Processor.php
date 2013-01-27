@@ -2,9 +2,10 @@
 
 namespace Carew;
 
+use Carew\Event\CarewEvent;
+use Carew\Event\Events;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\Finder\Finder;
 
 class Processor
@@ -27,7 +28,7 @@ class Processor
         foreach ($finder->in($dir)->files()->name($filenamePattern) as $file) {
             $document = new Document($file);
 
-            $event = new GenericEvent($document, array('allowEmptyHeader' => $allowEmptyHeader));
+            $event = new CarewEvent($document, array('allowEmptyHeader' => $allowEmptyHeader));
 
             try {
                 $this->eventDispatcher->dispatch(Events::DOCUMENT, $event);
@@ -42,6 +43,10 @@ class Processor
 
             $documents[$document->getPath()] = $document;
         }
+
+        $event = new CarewEvent($documents);
+        $this->eventDispatcher->dispatch(Events::DOCUMENTS, $event);
+        $documents = $event->getSubject();
 
         return $documents;
     }
@@ -70,7 +75,7 @@ class Processor
                     'posts' => $posts,
                 ));
 
-                $event = new GenericEvent($document);
+                $event = new CarewEvent($document);
                 $this->eventDispatcher->dispatch(Events::TAG, $event);
                 $document = $event->getSubject();
 
@@ -78,10 +83,14 @@ class Processor
             }
         }
 
+        $event = new CarewEvent($documents);
+        $this->eventDispatcher->dispatch(Events::TAGS, $event);
+        $documents = $event->getSubject();
+
         return $documents;
     }
 
-    public function processIndex($pages, $baseDir)
+    public function processIndex($pages, $posts, $baseDir)
     {
         if (!is_dir($baseDir.'/layouts/')) {
             return array();
@@ -99,14 +108,18 @@ class Processor
             $document->setLayout((string) $file);
             $document->setPath(sprintf('index.%s', $format));
             $document->setTitle(false);
-            $document->setVars(array('pages' => $pages));
+            $document->setVars(array('pages' => $pages, 'posts' => $posts));
 
-            $event = new GenericEvent($document);
+            $event = new CarewEvent($document);
             $this->eventDispatcher->dispatch(Events::INDEX, $event);
             $document = $event->getSubject();
 
             $documents[$document->getPath()] = $document;
         }
+
+        $event = new CarewEvent($documents);
+        $this->eventDispatcher->dispatch(Events::INDEXES, $event);
+        $documents = $event->getSubject();
 
         return $documents;
     }

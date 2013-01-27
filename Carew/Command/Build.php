@@ -2,12 +2,12 @@
 
 namespace Carew\Command;
 
+use Carew\Event\Events;
+use Carew\Processor;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Carew\Processor;
-use Carew\Events;
 
 class Build extends BaseCommand
 {
@@ -67,7 +67,7 @@ class Build extends BaseCommand
         $documents = array_merge($documents, $processor->processTags($tags, $baseDir));
 
         $input->getOption('verbose') and $output->writeln('Processing <comment>Index page</comment>');
-        $documents = array_merge($documents, $processor->processIndex($pages, $baseDir));
+        $documents = array_merge($documents, $processor->processIndex($pages, $posts, $baseDir));
 
         $input->getOption('verbose') and $output->writeln('<comment>Cleaned target folder</comment>');
         $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));

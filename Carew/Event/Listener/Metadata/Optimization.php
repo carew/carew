@@ -1,8 +1,8 @@
 <?php
 
-namespace Carew\EventSubscriber\Metadata;
+namespace Carew\Event\Listener\Metadata;
 
-use Carew\Events;
+use Carew\Event\Events;;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class Optimization implements EventSubscriberInterface

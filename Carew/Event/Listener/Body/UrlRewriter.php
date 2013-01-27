@@ -1,8 +1,8 @@
 <?php
 
-namespace Carew\EventSubscriber\Body;
+namespace Carew\Event\Listener\Body;
 
-use Carew\Events;
+use Carew\Event\Events;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class UrlRewriter implements EventSubscriberInterface
