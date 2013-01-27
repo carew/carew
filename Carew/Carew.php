@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Carew extends Application
 {
-    const VERSION = '1.5.0';
+    const VERSION = '1.6.0-dev';
 
     private $container;
     private $application;
