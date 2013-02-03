@@ -7,6 +7,7 @@ use Carew\Event\Events;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class Processor
 {
@@ -26,7 +27,7 @@ class Processor
         $documents = array();
         $finder = new Finder();
         foreach ($finder->in($baseDir)->files()->name($filenamePattern) as $file) {
-            $document = new Document($file);
+            $document = new Document($file, basename($baseDir).'/'.$file->getRelativePathname());
 
             $event = new CarewEvent($document, array('allowEmptyHeader' => $allowEmptyHeader));
 

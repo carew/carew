@@ -8,6 +8,7 @@ class Document
 {
     private $body;
     private $file;
+    private $filePath;
     private $layout;
     private $metadatas;
     private $path;
@@ -15,10 +16,11 @@ class Document
     private $toc;
     private $vars;
 
-    public function __construct(SplFileInfo $file = null)
+    public function __construct(SplFileInfo $file = null, $filePath = null)
     {
         $this->body      = '';
         $this->file      = $file;
+        $this->filePath  = $filePath;
         $this->layout    = 'default';
         $this->metadatas = array('tags' => array(), 'navigation' => array());
         $this->path      = $file ? $file->getBaseName() : '.';
@@ -133,6 +135,18 @@ class Document
     public function setVars($vars)
     {
         $this->vars = $vars;
+
+        return $this;
+    }
+
+    public function getFilePath()
+    {
+        return $this->filePath;
+    }
+
+    public function setFilePath($filePath)
+    {
+        $this->filePath = $filePath;
 
         return $this;
     }
