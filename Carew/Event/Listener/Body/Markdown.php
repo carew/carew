@@ -15,7 +15,7 @@ class Markdown implements EventSubscriberInterface
         $this->markdownParser = $markdownParser ?: new MarkdownExtraParser();
     }
 
-    public function process($event)
+    public function onDocument($event)
     {
         $subject = $event->getSubject();
 
@@ -30,7 +30,7 @@ class Markdown implements EventSubscriberInterface
     {
         return array(
             Events::DOCUMENT => array(
-                array('process', 128),
+                array('onDocument', 512),
             ),
         );
     }

@@ -17,7 +17,7 @@ class Processor
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function process($baseDir, $filenamePattern = '.md', array $extraEvents = array(), $allowEmptyHeader = false)
+    public function process($baseDir, $filenamePattern = '.md', $type, $allowEmptyHeader = false)
     {
         if (!is_dir($baseDir)) {
             return array();
@@ -26,15 +26,12 @@ class Processor
         $documents = array();
         $finder = new Finder();
         foreach ($finder->in($baseDir)->files()->name($filenamePattern) as $file) {
-            $document = new Document($file, basename($baseDir).'/'.$file->getRelativePathname());
+            $document = new Document($file, basename($baseDir).'/'.$file->getRelativePathname(), $type);
 
             $event = new CarewEvent($document, array('allowEmptyHeader' => $allowEmptyHeader));
 
             try {
                 $this->eventDispatcher->dispatch(Events::DOCUMENT, $event);
-                foreach ($extraEvents as $eventName) {
-                    $this->eventDispatcher->dispatch($eventName, $event);
-                }
 
                 $document = $event->getSubject();
             } catch (\Exception $e) {

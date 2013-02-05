@@ -7,7 +7,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class UrlRewriter implements EventSubscriberInterface
 {
-    public function process($event)
+    public function onDocument($event)
     {
         $subject = $event->getSubject();
 
@@ -18,7 +18,7 @@ class UrlRewriter implements EventSubscriberInterface
     {
         return array(
             Events::DOCUMENT => array(
-                array('process', 256),
+                array('onDocument', 960),
             ),
         );
     }

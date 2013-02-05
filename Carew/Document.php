@@ -6,6 +6,11 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class Document
 {
+    const TYPE_POST    = 'post';
+    const TYPE_PAGE    = 'page';
+    const TYPE_API     = 'api';
+    const TYPE_UNKNOWN = 'unknown';
+
     private $body;
     private $file;
     private $filePath;
@@ -14,9 +19,10 @@ class Document
     private $path;
     private $title;
     private $toc;
+    private $type;
     private $vars;
 
-    public function __construct(SplFileInfo $file = null, $filePath = null)
+    public function __construct(SplFileInfo $file = null, $filePath = null, $type = self::TYPE_UNKNOWN)
     {
         $this->body      = '';
         $this->file      = $file;
@@ -26,6 +32,7 @@ class Document
         $this->path      = $file ? $file->getBaseName() : '.';
         $this->title     = $file ? $file->getBaseName() : '.';
         $this->toc       = array();
+        $this->type      = $type;
         $this->vars      = array();
     }
 
@@ -125,6 +132,11 @@ class Document
         $this->toc = $toc;
 
         return $this;
+    }
+
+    public function getType()
+    {
+        return $this->type;
     }
 
     public function getVars()

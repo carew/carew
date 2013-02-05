@@ -3,6 +3,7 @@
 namespace Carew\Command;
 
 use Carew\Event\Events;
+use Carew\Document;
 use Carew\Processor;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -49,14 +50,14 @@ class Build extends BaseCommand
         $processor = $this->container['processor'];
 
         $input->getOption('verbose') and $output->writeln('Processing <comment>Posts</comment>');
-        $posts = $processor->process($baseDir.'/posts', '*-*-*-*.md', array(Events::POST));
+        $posts = $processor->process($baseDir.'/posts', '*-*-*-*.md', Document::TYPE_POST);
         $posts = $processor->sortByDate($posts);
 
         $input->getOption('verbose') and $output->writeln('Processing <comment>Pages</comment>');
-        $pages = $processor->process($baseDir.'/pages', '*.md', array(Events::PAGE));
+        $pages = $processor->process($baseDir.'/pages', '*.md', Document::TYPE_PAGE);
 
         $input->getOption('verbose') and $output->writeln('Processing <comment>Api</comment>');
-        $api = $processor->process($baseDir.'/api', '*', array(Events::API), true);
+        $api = $processor->process($baseDir.'/api', '*', Document::TYPE_API, true);
 
         $documents = array_merge($posts, $pages, $api);
 
