@@ -2,7 +2,6 @@
 
 namespace Carew\Command;
 
-use Carew\Event\Events;
 use Carew\Document;
 use Carew\Processor;
 use Symfony\Component\Console\Command\Command as BaseCommand;
