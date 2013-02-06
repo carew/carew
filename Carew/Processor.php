@@ -38,7 +38,7 @@ class Processor
                 throw new \LogicException(sprintf('Could not process: "%s". Error: "%s"', (string) $file, $e->getMessage()));
             }
 
-            $documents[$document->getPath()] = $document;
+            $documents[$document->getFilePath()] = $document;
         }
 
         $event = new CarewEvent($documents);
