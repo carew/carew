@@ -103,11 +103,12 @@ class Document
 
     public function getRootPath()
     {
-        if (0 === $nb = substr_count($this->path, DIRECTORY_SEPARATOR)) {
+        $path = ltrim($this->path, '/');
+        if (0 === $nb = substr_count($path, DIRECTORY_SEPARATOR)) {
             return '.';
         }
 
-        return rtrim(str_repeat('../', $nb + 1), '/');
+        return rtrim(str_repeat('../', $nb), '/');
     }
 
     public function getTitle()
