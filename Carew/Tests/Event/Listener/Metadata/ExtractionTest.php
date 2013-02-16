@@ -9,7 +9,7 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class ExtractionTest extends \PHPUnit_Framework_TestCase
 {
-    public function getTestOnDocumentProcessWithSimpleFile()
+    public function getTestOnDocumentWithSimpleFile()
     {
         return array(
             array('simple.html', 'simple.md', ''),
@@ -18,15 +18,15 @@ class ExtractionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider getTestOnDocumentProcessWithSimpleFile
+     * @dataProvider getTestOnDocumentWithSimpleFile
      */
-    public function testOnDocumentProcessWithSimpleFile($expected, $file, $relativePath)
+    public function testOnDocumentWithSimpleFile($expected, $file, $relativePath)
     {
         $document = $this->createDocument($file, $relativePath);
         $event = new CarewEvent($document);
 
         $extraction = new Extraction();
-        $extraction->onDocumentProcess($event);
+        $extraction->onDocument($event);
 
         $this->assertSame('title', $document->getTitle());
         $this->assertSame('body', $document->getBody());
@@ -34,7 +34,7 @@ class ExtractionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $document->getPath());
     }
 
-    public function getOnDocumentProcessWithTagsTests()
+    public function getOnDocumentWithTagsTests()
     {
         return array(
             array(array(), 'tags-empty.md'),
@@ -44,27 +44,27 @@ class ExtractionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider getOnDocumentProcessWithTagsTests
+     * @dataProvider getOnDocumentWithTagsTests
      */
-    public function testOnDocumentProcessWithTags($expected, $file)
+    public function testOnDocumentWithTags($expected, $file)
     {
         $document = $this->createDocument($file);
         $event = new CarewEvent($document);
 
         $extraction = new Extraction();
-        $extraction->onDocumentProcess($event);
+        $extraction->onDocument($event);
 
         $metadatas = $document->getMetadatas();
         $this->assertSame($expected, $metadatas['tags']);
     }
 
-    public function testOnDocumentProcessWithExtraMetadatas()
+    public function testOnDocumentWithExtraMetadatas()
     {
         $document = $this->createDocument('extra-metadatas.md');
         $event = new CarewEvent($document);
 
         $extraction = new Extraction();
-        $extraction->onDocumentProcess($event);
+        $extraction->onDocument($event);
 
         $metadatas = $document->getMetadatas();
         $this->assertSame('v1', $metadatas['k1']);
@@ -75,29 +75,29 @@ class ExtractionTest extends \PHPUnit_Framework_TestCase
      * @expectedException RuntimeException
      * @expectedExceptionMessage Could not parse front matter
      */
-    public function testOnDocumentProcessWithNoHeaderAndException()
+    public function testOnDocumentWithNoHeaderAndException()
     {
         $document = $this->createDocument('other-format.js');
         $event = new CarewEvent($document);
 
         $extraction = new Extraction();
-        $extraction->onDocumentProcess($event);
+        $extraction->onDocument($event);
     }
 
-    public function testOnDocumentProcessWithNoHeader()
+    public function testOnDocumentWithNoHeader()
     {
         $document = $this->createDocument('other-format.js');
         $event = new CarewEvent($document, array('allowEmptyHeader' => true));
 
         $extraction = new Extraction();
-        $extraction->onDocumentProcess($event);
+        $extraction->onDocument($event);
 
         $this->assertSame("body\n", $document->getBody());
         $this->assertSame(false, $document->getLayout());
         $this->assertSame('other-format.js', $document->getPath());
     }
 
-    public function getOnDocumentProcessWithPermalink()
+    public function getOnDocumentWithPermalink()
     {
         return array(
             array('foo.html', 'permalink-with-html-extension.md'),
@@ -108,15 +108,15 @@ class ExtractionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider getOnDocumentProcessWithPermalink
+     * @dataProvider getOnDocumentWithPermalink
      */
-    public function testOnDocumentProcessWithPermalink($expected, $file)
+    public function testOnDocumentWithPermalink($expected, $file)
     {
         $document = $this->createDocument($file);
         $event = new CarewEvent($document);
 
         $extraction = new Extraction();
-        $extraction->onDocumentProcess($event);
+        $extraction->onDocument($event);
 
         $this->assertSame($expected, $document->getPath());
     }

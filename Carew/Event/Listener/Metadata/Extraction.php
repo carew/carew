@@ -15,7 +15,7 @@ class Extraction implements EventSubscriberInterface
         'rst',
     );
 
-    public function onDocumentProcess(CarewEvent $event)
+    public function onDocument(CarewEvent $event)
     {
         $document = $event->getSubject();
         $file = $document->getFile();
@@ -64,7 +64,7 @@ class Extraction implements EventSubscriberInterface
     {
         return array(
             Events::DOCUMENT => array(
-                array('onDocumentProcess', 1024),
+                array('onDocument', 1024),
             ),
         );
     }
