@@ -19,19 +19,16 @@ class Extraction implements EventSubscriberInterface
         $document = $event->getSubject();
         $file = $document->getFile();
 
-        $document->setTitle($file->getBasename('.'.$file->getExtension()));
-        if (in_array(strtolower($file->getExtension()), $this->extensionsToRewrite)) {
-            $document->setPath(ltrim(sprintf('%s/%s.html', $file->getRelativePath(), $document->getTitle()), '/'));
-        } else {
-            $document->setPath(ltrim(sprintf('%s/%s', $file->getRelativePath(), $file->getBasename()), '/'));
-        }
+        $document->setPath($this->extractPath($file->getRelativePathName()));
 
         $content = file_get_contents($file);
+
         preg_match('#^---\n(.+)---\n(.+)$#sU', $content, $matches);
         if ($matches) {
             list(, $metadatas, $body) = $matches;
 
             $metadatas = Yaml::parse($metadatas);
+
             foreach (array('title', 'layout') as $key) {
                 if (isset($metadatas[$key])) {
                     $method = 'set'.ucfirst($key);
@@ -39,6 +36,7 @@ class Extraction implements EventSubscriberInterface
                     unset($metadatas[$key]);
                 }
             }
+
             foreach (array('tags', 'navigation') as $value) {
                 if (isset($metadatas[$value]) && !is_array($metadatas[$value])) {
                     $metadatas[$value] = array($metadatas[$value]);
@@ -46,13 +44,13 @@ class Extraction implements EventSubscriberInterface
             }
 
             if (isset($metadatas['permalink'])) {
-                $document->setPath(trim($metadatas['permalink'], '/').'.html');
+                $document->setPath($this->extractPath($metadatas['permalink']));
             }
 
             $document->setMetadatas($metadatas);
             $document->setBody($body);
         } else {
-            if (!$event['allowEmptyHeader']) {
+            if (!$event->hasArgument('allowEmptyHeader') || !$event['allowEmptyHeader']) {
                 throw new \RuntimeException('Could not parse front matter');
             }
 
@@ -68,5 +66,26 @@ class Extraction implements EventSubscriberInterface
                 array('onDocumentProcess', 1024),
             ),
         );
+    }
+
+    private function extractPath($path)
+    {
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+
+        if ('/' === substr($path, -1)) {
+            return ltrim($path, '/').'index.html';
+        }
+
+        if ('' === $extension) {
+            return ltrim($path, '/').'.html';
+        }
+
+        if (in_array(strtolower($extension), $this->extensionsToRewrite)) {
+            $path = substr($path, 0, - (strlen($extension) + 1));
+
+            return ltrim($path, '/').'.html';
+        }
+
+        return ltrim($path, '/');
     }
 }
