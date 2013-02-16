@@ -126,7 +126,7 @@ class ExtractionTest extends \PHPUnit_Framework_TestCase
         if ($relativePath) {
             $file = $relativePath.'/'.$file;
         }
-        $file = new SplFileInfo(__DIR__.'/../../../fixtures/'.$file, $relativePath, $file);
+        $file = new SplFileInfo(__DIR__.'/../../../fixtures/extraction/'.$file, $relativePath, $file);
 
         return new Document($file);
     }
