@@ -2,6 +2,7 @@
 
 namespace Carew\Event\Listener\Metadata;
 
+use Carew\Event\CarewEvent;
 use Carew\Event\Events;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Yaml\Yaml;
@@ -14,7 +15,7 @@ class Extraction implements EventSubscriberInterface
         'rst',
     );
 
-    public function onDocumentProcess($event)
+    public function onDocumentProcess(CarewEvent $event)
     {
         $document = $event->getSubject();
         $file = $document->getFile();

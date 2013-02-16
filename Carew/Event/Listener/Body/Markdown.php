@@ -3,6 +3,7 @@
 namespace Carew\Event\Listener\Body;
 
 use Carew\Event\Events;
+use Carew\Event\CarewEvent;
 use dflydev\markdown\MarkdownExtraParser;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -15,7 +16,7 @@ class Markdown implements EventSubscriberInterface
         $this->markdownParser = $markdownParser ?: new MarkdownExtraParser();
     }
 
-    public function onDocument($event)
+    public function onDocument(CarewEvent $event)
     {
         $subject = $event->getSubject();
 

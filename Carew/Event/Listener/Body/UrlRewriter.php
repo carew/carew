@@ -2,12 +2,13 @@
 
 namespace Carew\Event\Listener\Body;
 
+use Carew\Event\CarewEvent;
 use Carew\Event\Events;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class UrlRewriter implements EventSubscriberInterface
 {
-    public function onDocument($event)
+    public function onDocument(CarewEvent $event)
     {
         $subject = $event->getSubject();
 

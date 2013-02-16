@@ -2,13 +2,14 @@
 
 namespace Carew\Event\Listener\Metadata;
 
-use Carew\Event\Events;
 use Carew\Document;
+use Carew\Event\CarewEvent;
+use Carew\Event\Events;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class Optimization implements EventSubscriberInterface
 {
-    public function onDocument($event)
+    public function onDocument(CarewEvent $event)
     {
         $document  = $event->getSubject();
 
