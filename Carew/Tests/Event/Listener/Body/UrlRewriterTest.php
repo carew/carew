@@ -34,7 +34,6 @@ class UrlRewriterTest extends \PHPUnit_Framework_TestCase
         $document->setBody($body);
         $event = new CarewEvent($document);
 
-
         $extraction = new UrlRewriter();
         $extraction->onDocument($event);
 
@@ -42,4 +41,3 @@ class UrlRewriterTest extends \PHPUnit_Framework_TestCase
 
     }
 }
-
