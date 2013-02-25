@@ -4,27 +4,28 @@ namespace Carew;
 
 use Carew\Event\CarewEvent;
 use Carew\Event\Events;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Finder;
 
 class Processor
 {
     private $eventDispatcher;
+    private $finder;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher)
+    public function __construct(EventDispatcherInterface $eventDispatcher, Finder $finder = null)
     {
         $this->eventDispatcher = $eventDispatcher;
+        $this->finder          = $finder ?: new Finder();
     }
 
-    public function process($baseDir, $filenamePattern = '.md', $type, $allowEmptyHeader = false)
+    public function process($baseDir, $filenamePattern = '.md', $type = Document::TYPE_UNKNOWN, $allowEmptyHeader = false)
     {
         if (!is_dir($baseDir)) {
             return array();
         }
 
         $documents = array();
-        $finder = new Finder();
+        $finder = $this->finder->create();
         foreach ($finder->in($baseDir)->files()->name($filenamePattern) as $file) {
             $document = new Document($file, basename($baseDir).'/'.$file->getRelativePathname(), $type);
 
@@ -55,7 +56,7 @@ class Processor
         }
 
         $documents = array();
-        $finder = new Finder();
+        $finder = $this->finder->create();
         foreach ($finder->in($baseDir.'/layouts/')->files()->name('tags.*.twig') as $file) {
             $file = $file->getBasename();
 
@@ -94,7 +95,7 @@ class Processor
         }
 
         $documents = array();
-        $finder = new Finder();
+        $finder = $this->finder->create();
         foreach ($finder->in($baseDir.'/layouts/')->files()->name('index.*.twig') as $file) {
             $file = $file->getBasename();
 
