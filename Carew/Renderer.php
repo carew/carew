@@ -8,14 +8,16 @@ use Twig_Environment;
 class Renderer
 {
     private $filesystem;
-    private $webDir;
+    private $target;
     private $twig;
 
-    public function __construct(Twig_Environment $twig, $webDir, Filesystem $filesystem = null)
+    public function __construct(Twig_Environment $twig, $target, Filesystem $filesystem = null)
     {
         $this->filesystem = $filesystem ?: new Filesystem();
-        $this->webDir     = $webDir;
+        $this->target     = $target;
         $this->twig       = $twig;
+
+        $this->filesystem->mkdir($target);
     }
 
     public function buildDocument(Document $document)
@@ -32,7 +34,7 @@ class Renderer
             )));
         }
 
-        $target = $this->webDir.'/'.$document->getPath();
+        $target = $this->target.'/'.$document->getPath();
         $this->filesystem->mkdir(dirname($target));
         file_put_contents($target, $rendered);
     }

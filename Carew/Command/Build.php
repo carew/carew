@@ -42,9 +42,6 @@ class Build extends BaseCommand
         }
 
         $this->container['web_dir'] = $webDir = $input->getOption('web-dir');
-        if (!is_dir($webDir)) {
-            $this->container['filesystem']->mkdir($webDir);
-        }
 
         $processor = $this->container['processor'];
 
@@ -69,8 +66,10 @@ class Build extends BaseCommand
         $input->getOption('verbose') and $output->writeln('Processing <comment>Index page</comment>');
         $documents = array_merge($documents, $processor->processIndex($pages, $posts, $baseDir));
 
-        $input->getOption('verbose') and $output->writeln('<comment>Cleaned target folder</comment>');
-        $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));
+        if (is_dir($webDir)) {
+            $input->getOption('verbose') and $output->writeln('<comment>Cleaned target folder</comment>');
+            $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));
+        }
 
         $twigGlobales = array(
             'latest'     => reset($posts),
