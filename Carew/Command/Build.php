@@ -36,7 +36,7 @@ class Build extends BaseCommand
         $startAt = microtime(true);
         $memoryUsage = memory_get_usage();
 
-        $this->container['base_dir'] = $baseDir = realpath($input->getOption('base-dir'));
+        $baseDir = $this->container['base_dir'];
         if (false === $baseDir) {
             throw new \InvalidArgumentException('Could not find base dir path');
         }
