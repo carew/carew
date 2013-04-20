@@ -96,7 +96,7 @@ class CoreExtension implements ExtensionInterface
             $twig = new Twig_Environment($container['twig.loader'], array('strict_variables' => false, 'debug' => true));
             $twig->addExtension(new \Twig_Extension_Debug());
 
-            $twigGlobales = array(
+            foreach (array(
                 'currentPath'  => '.',
                 'document'     => new Document(),
                 'documents'    => array(),
@@ -106,9 +106,7 @@ class CoreExtension implements ExtensionInterface
                 'relativeRoot' => '.',
                 'site'         => $container['config']['site'],
                 'tags'         => array(),
-            );
-
-            foreach ($twigGlobales as $key => $value) {
+            ) as $key => $value) {
                 $twig->addGlobal($key, $value);
             }
 
