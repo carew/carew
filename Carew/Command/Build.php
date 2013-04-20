@@ -83,10 +83,10 @@ class Build extends BaseCommand
             $this->container['twig']->addGlobal($key, $global);
         }
 
-        $builder = $this->container['builder'];
+        $renderer = $this->container['renderer'];
         foreach ($documents as $document) {
             $input->getOption('verbose') and $output->writeln(sprintf('Render <comment>%s</comment>', $document->getPath()));
-            $builder->buildDocument($document);
+            $renderer->buildDocument($document);
         }
 
         $input->getOption('verbose') and $output->writeln('<comment>Copy assets</comment>');

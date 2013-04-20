@@ -24,8 +24,8 @@ class CoreExtension implements ExtensionInterface
             return new Processor($container['event_dispatcher']);
         });
 
-        $container['builder'] = $container->share(function($container) {
-            return new Builder($container['twig'], $container['web_dir'], $container['filesystem']);
+        $container['renderer'] = $container->share(function($container) {
+            return new Renderer($container['twig'], $container['web_dir'], $container['filesystem']);
         });
 
         $container['filesystem'] = $container->share(function($container) {

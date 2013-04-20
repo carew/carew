@@ -5,7 +5,7 @@ namespace Carew;
 use Symfony\Component\Filesystem\Filesystem;
 use Twig_Environment;
 
-class Builder
+class Renderer
 {
     private $filesystem;
     private $webDir;
