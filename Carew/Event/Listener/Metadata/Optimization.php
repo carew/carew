@@ -24,7 +24,7 @@ class Optimization implements EventSubscriberInterface
     {
         list($year, $month, $day, $slug) = explode('-', $document->getFile()->getBasename('.md'), 4);
 
-        $document->setMetadatas(array(
+        $document->addMetadatas(array(
             'date' => new \DateTime("$year-$month-$day"),
         ));
 
@@ -43,7 +43,7 @@ class Optimization implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            Events::DOCUMENT => array(
+            Events::DOCUMENT_HEADER => array(
                 array('onDocument', 992),
             ),
         );

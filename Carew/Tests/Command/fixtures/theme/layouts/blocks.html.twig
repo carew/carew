@@ -1,0 +1,7 @@
+{% use '@default_theme/blocks.html.twig' %}
+
+{% block document_title %}
+{% spaceless -%}
+title:{{ parent() }}
+{%- endspaceless %}
+{% endblock %}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>{{ carew.site.title|default('') }}</title>
+    <subtitle>{{ carew.site.description|default('') }}</subtitle>
+    <link href="{{ carew.site.url_absolute|default('') }}/index.atom" rel="self" />
+    <link href="{{ carew.site.url_absolute|default('') }}/" />
+    {% if carew.site.url_absolute %}
+    <id>{{carew.site.url_absolute}}/</id>
+    {% endif %}
+    {% if latest %}
+    <updated>{{ (carew.posts|slice(0, 1)).metadatas.date|date('Y-m-d\\TH:i:sP') }}</updated>
+    {% endif %}
+    {% for post in carew.posts %}
+    <entry>
+        <title>{{ post.title }}</title>
+        {% if carew.site.url_absolute %}
+        <id>{{carew.site.url_absolute}}/{{ post.path }}</id>
+        {% endif %}
+        <updated>{{ post.metadatas.date|date('Y-m-d\\TH:i:sP') }}</updated>
+        <author>
+            <name>{{ post.metadatas.author_name|default(carew.site.author_name|default('')) }}</name>
+            <email>{{ post.metadatas.author_name|default(carew.site.author_email|default('')) }}</email>
+        </author>
+        <link rel="alternate" type="text/html" href="{{ carew.site.url_absolute|default('') }}/{{ post.path }}"/>
+        <content type="html" xml:lang="en"><![CDATA[{{ post.body|raw }}]]></content>
+    </entry>
+    {% endfor %}
+</feed>

@@ -10,7 +10,6 @@ use Symfony\Component\Yaml\Yaml;
 class Extraction implements EventSubscriberInterface
 {
     private $extensionsToRewrite = array(
-        'html',
         'md',
         'rst',
     );
@@ -22,14 +21,13 @@ class Extraction implements EventSubscriberInterface
 
         $document->setPath($this->extractPath($file->getRelativePathName()));
 
-        $content = file_get_contents($file);
-
-        preg_match('#^---\n(.+)---\n(.+)$#sU', $content, $matches);
+        preg_match('#^---\n(.+)---\n(.+)$#sU', $document->getBody(), $matches);
         if ($matches) {
             list(, $metadatas, $body) = $matches;
 
             $metadatas = Yaml::parse($metadatas);
 
+            $document->setLayout('default');
             foreach (array('title', 'layout') as $key) {
                 if (isset($metadatas[$key])) {
                     $method = 'set'.ucfirst($key);
@@ -48,22 +46,15 @@ class Extraction implements EventSubscriberInterface
                 $document->setPath($this->extractPath($metadatas['permalink']));
             }
 
-            $document->setMetadatas($metadatas);
+            $document->addMetadatas($metadatas);
             $document->setBody($body);
-        } else {
-            if (!$event->hasArgument('allowEmptyHeader') || !$event['allowEmptyHeader']) {
-                throw new \RuntimeException('Could not parse front matter');
-            }
-
-            $document->setLayout(false);
-            $document->setBody($content);
         }
     }
 
     public static function getSubscribedEvents()
     {
         return array(
-            Events::DOCUMENT => array(
+            Events::DOCUMENT_HEADER => array(
                 array('onDocument', 1024),
             ),
         );
@@ -71,10 +62,15 @@ class Extraction implements EventSubscriberInterface
 
     private function extractPath($path)
     {
-        $extension = pathinfo($path, PATHINFO_EXTENSION);
-
         if ('/' === substr($path, -1)) {
             return ltrim($path, '/').'index.html';
+        }
+
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+
+        if ('twig' === $extension) {
+            $path = substr($path, 0, - (strlen($extension) + 1));
+            $extension = pathinfo($path, PATHINFO_EXTENSION);
         }
 
         if ('' === $extension) {

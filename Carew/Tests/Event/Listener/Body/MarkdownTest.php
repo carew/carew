@@ -1,6 +1,6 @@
 <?php
 
-namespace Carew\Tests\Event\Listener\Metadata\Extraction;
+namespace Carew\Tests\Event\Listener\Body;
 
 use Carew\Document;
 use Carew\Event\CarewEvent;
@@ -13,7 +13,9 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array(1, 'simple.md'),
-            array(0, 'other-format.js'),
+            array(1, 'simple.md.twig'),
+            array(0, 'simple.js'),
+            array(0, 'simple.js.twig'),
         );
     }
 
@@ -36,13 +38,21 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
 
     }
 
-    private function createDocument($file, $relativePath = '')
+    public function testParseTwigLink()
     {
-        if ($relativePath) {
-            $file = $relativePath.'/'.$file;
-        }
-        $file = new SplFileInfo(__DIR__.'/../../../fixtures/extraction/'.$file, $relativePath, $file);
+        $document = $this->createDocument('simple.md.twig');
+        $document->setBody('[homepage](<{{ carew.relativeRoot }}>)');
+        $event = new CarewEvent($document);
 
-        return new Document($file);
+        $extraction = new Markdown();
+        $extraction->onDocument($event);
+
+        $this->assertSame('<p><a href="{{ carew.relativeRoot }}">homepage</a></p>'."\n", $document->getBody());
+
+    }
+
+    private function createDocument($file)
+    {
+        return new Document(new SplFileInfo(__DIR__.'/../../../fixtures/'.$file, $file, ''), $file);
     }
 }

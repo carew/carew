@@ -20,8 +20,16 @@ class Markdown implements EventSubscriberInterface
     {
         $subject = $event->getSubject();
 
-        if ('md' !== $subject->getFile()->getExtension()) {
-            return;
+        $extension = $subject->getFile()->getExtension();
+        if ('md' !== $extension) {
+            if ('twig' !== $extension) {
+                return;
+            }
+
+            $extension = pathinfo(str_replace('.twig', '', $subject->getFilePath()), PATHINFO_EXTENSION);
+            if ('md' !== $extension) {
+                return;
+            }
         }
 
         $subject->setBody($this->markdownParser->transform($subject->getBody()));
@@ -30,7 +38,7 @@ class Markdown implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            Events::DOCUMENT => array(
+            Events::DOCUMENT_BODY => array(
                 array('onDocument', 512),
             ),
         );

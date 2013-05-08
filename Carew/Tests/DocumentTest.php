@@ -4,7 +4,7 @@ namespace Carew\Tests;
 
 use Carew\Document;
 
-class DocumentTestTest extends \PHPUnit_Framework_TestCase
+class DocumentTest extends \PHPUnit_Framework_TestCase
 {
     public function getGetRootPathTests()
     {
@@ -32,5 +32,17 @@ class DocumentTestTest extends \PHPUnit_Framework_TestCase
         $document->setPath($path);
         $this->assertSame($expected, $document->getRootPath());
     }
+
+    public function testSetMetadatas()
+    {
+        $document = new Document();
+
+        $document->addMetadatas(array('foo' => 'bar'));
+        $this->assertSame(array('tags' => array(), 'navigation' => array(), 'foo' => 'bar'), $document->getMetadatas());
+
+        $document->addMetadatas(array('foo2' => 'bar2'));
+        $this->assertSame(array('tags' => array(), 'navigation' => array(), 'foo' => 'bar', 'foo2' => 'bar2'), $document->getMetadatas());
+    }
+
 
 }

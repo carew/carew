@@ -24,16 +24,20 @@ class Document
 
     public function __construct(SplFileInfo $file = null, $filePath = null, $type = self::TYPE_UNKNOWN)
     {
-        $this->body      = '';
         $this->file      = $file;
         $this->filePath  = $filePath;
-        $this->layout    = 'default';
-        $this->metadatas = array('tags' => array(), 'navigation' => array());
-        $this->path      = $file ? $file->getBaseName() : '.';
-        $this->title     = $file ? $file->getBaseName() : '.';
-        $this->toc       = array();
         $this->type      = $type;
+
+        $this->layout    = false;
+        $this->metadatas = array('tags' => array(), 'navigation' => array());
+        $this->toc       = array();
         $this->vars      = array();
+
+        if ($file && is_file($file)) {
+            $this->path = $file->getBaseName();
+            $this->title = $file->getBaseName();
+            $this->body = file_get_contents($file);
+        }
     }
 
     public function getBody()
@@ -53,12 +57,6 @@ class Document
         return $this->file;
     }
 
-    public function setFile($file)
-    {
-        $this->file = $file;
-
-        return $this;
-    }
 
     public function getLayout()
     {
@@ -77,14 +75,9 @@ class Document
         return $this->metadatas;
     }
 
-    public function setMetadatas($metadatas, $merge = true)
+    public function addMetadatas(array $metadatas)
     {
-        if ($merge) {
-            $this->metadatas = array_replace_recursive($this->metadatas, $metadatas);
-        } else {
-            $this->metadatas = $metadatas;
-
-        }
+        $this->metadatas = array_replace_recursive($this->metadatas, $metadatas);
 
         return $this;
     }

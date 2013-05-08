@@ -3,6 +3,8 @@
 namespace Carew;
 
 use Carew\Event\Listener;
+use Carew\Twig\CarewExtension;
+use Carew\Twig\Globals;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -21,11 +23,7 @@ class CoreExtension implements ExtensionInterface
         $this->registerTwig($container);
 
         $container['processor'] = $container->share(function($container) {
-            return new Processor($container['event_dispatcher']);
-        });
-
-        $container['renderer'] = $container->share(function($container) {
-            return new Renderer($container['twig'], $container['web_dir'], $container['filesystem']);
+            return new Processor($container['web_dir'], $container['event_dispatcher'], $container['filesystem']);
         });
 
         $container['filesystem'] = $container->share(function($container) {
@@ -49,10 +47,15 @@ class CoreExtension implements ExtensionInterface
             $config = array(
                 'site'   => array(),
                 'engine' => array(),
+                'folders' => array(
+                    'pages' => Document::TYPE_PAGE,
+                    'posts' => Document::TYPE_POST,
+                    'api'   => Document::TYPE_API,
+                ),
             );
 
             if (file_exists($container['base_dir'].'/config.yml')) {
-                $config = array_replace_recursive($config, Yaml::parse($container['base_dir'].'/config.yml'));
+                $config = array_merge_recursive($config, Yaml::parse($container['base_dir'].'/config.yml') ?: array());
             }
 
             return $config;
@@ -65,12 +68,12 @@ class CoreExtension implements ExtensionInterface
 
     private function registerEventDispatcher(\Pimple $container)
     {
-        $container['event_dispatcher'] = $container->share(function() {
+        $container['event_dispatcher'] = $container->share(function($container) {
             $dispatcher =  new EventDispatcher();
             $dispatcher->addSubscriber(new Listener\Metadata\Extraction());
             $dispatcher->addSubscriber(new Listener\Metadata\Optimization());
-            $dispatcher->addSubscriber(new Listener\Body\UrlRewriter());
             $dispatcher->addSubscriber(new Listener\Body\Markdown());
+            $dispatcher->addSubscriber(new Listener\Body\Twig($container['twig']));
 
             return $dispatcher;
         });
@@ -81,34 +84,28 @@ class CoreExtension implements ExtensionInterface
         $container['twig.loader'] = $container->share(function($container) {
             $loader = new Twig_Loader_Filesystem(array());
 
-            foreach ($container['themes'] as $theme) {
+           foreach ($container['themes'] as $theme) {
                 $path = $theme.'/layouts';
                 if (is_dir($path)) {
                     $loader->addPath($path);
                 }
             }
+            $loader->addPath(__DIR__.'/Twig/Resources/layouts');
+            $loader->addPath(__DIR__.'/Twig/Resources/layouts', 'default_theme');
             $loader->addPath($container['base_dir']);
 
             return $loader;
         });
 
         $container['twig'] = $container->share(function($container) {
-            $twig = new Twig_Environment($container['twig.loader'], array('strict_variables' => false, 'debug' => true));
-            $twig->addExtension(new \Twig_Extension_Debug());
+            $twig = new Twig_Environment($container['twig.loader'], array('strict_variables' => true, 'debug' => true));
 
-            foreach (array(
-                'currentPath'  => '.',
-                'document'     => new Document(),
-                'documents'    => array(),
-                'latest'       => false,
-                'navigation'   => array(),
-                'posts'        => array(),
-                'relativeRoot' => '.',
-                'site'         => $container['config']['site'],
-                'tags'         => array(),
-            ) as $key => $value) {
-                $twig->addGlobal($key, $value);
-            }
+            // We will not be able to add new global in Twig 2.0, so we should declare everything now;
+            $twig->addGlobal('carew', new Globals($container['config']));
+
+            $twig->addExtension(new \Twig_Extension_Debug());
+            $twig->addExtension(new \Twig_Extension_StringLoader());
+            $twig->addExtension(new CarewExtension());
 
             return $twig;
         });
