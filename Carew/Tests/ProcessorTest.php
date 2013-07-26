@@ -14,7 +14,7 @@ class ProcessorTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->eventDispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
-        $this->finder          = $this->getMock('Symfony\Component\Finder\Finder');
+        $this->finder          = $this->getMock('Symfony\Component\Finder\Finder', [], [], '', false);
         $this->processor       = new Processor($this->eventDispatcher, $this->finder);
     }
 
