@@ -44,5 +44,4 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array('tags' => array(), 'navigation' => array(), 'foo' => 'bar', 'foo2' => 'bar2'), $document->getMetadatas());
     }
 
-
 }

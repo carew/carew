@@ -55,7 +55,7 @@ class Twig implements EventSubscriberInterface
         );
     }
 
-    private function setTwigGlobals($event)
+    private function setTwigGlobals(CarewEvent $event)
     {
         $globals = $event->hasArgument('globalVars') ? $event->getArgument('globalVars') : array();
 

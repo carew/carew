@@ -2,11 +2,13 @@
 
 namespace Carew;
 
+use Carew\Document;
 use Carew\Event\CarewEvent;
 use Carew\Event\Events;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\SplFileInfo;
 
 class Processor
 {
@@ -21,7 +23,7 @@ class Processor
         $this->filesystem = $filesystem ?: new Filesystem();
     }
 
-    public function processFile($file, $folder = '', $type = Document::TYPE_UNKNOWN)
+    public function processFile(SplFileInfo $file, $folder = '', $type = Document::TYPE_UNKNOWN)
     {
         $internalPath = trim($folder.'/'.$file->getRelativePathname(), '/');
         $document = new Document($file, $internalPath, $type);
@@ -65,7 +67,7 @@ class Processor
         }
     }
 
-    public function write($document)
+    public function write(Document $document)
     {
         $target = $this->target.'/'.$document->getPath();
         $this->filesystem->mkdir(dirname($target));

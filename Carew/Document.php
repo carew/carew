@@ -57,7 +57,6 @@ class Document
         return $this->file;
     }
 
-
     public function getLayout()
     {
         return $this->layout;

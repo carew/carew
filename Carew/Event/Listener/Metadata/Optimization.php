@@ -11,7 +11,7 @@ class Optimization implements EventSubscriberInterface
 {
     public function onDocument(CarewEvent $event)
     {
-        $document  = $event->getSubject();
+        $document = $event->getSubject();
 
         if (Document::TYPE_POST == $document->getType()) {
             $this->onPost($document);
@@ -20,7 +20,7 @@ class Optimization implements EventSubscriberInterface
         }
     }
 
-    private function onPost($document)
+    private function onPost(Document $document)
     {
         list($year, $month, $day, $slug) = explode('-', $document->getFile()->getBasename('.md'), 4);
 
@@ -35,7 +35,7 @@ class Optimization implements EventSubscriberInterface
         }
     }
 
-    private function onApi($document)
+    private function onApi(Document $document)
     {
         $document->setPath(sprintf('api/%s', $document->getPath()));
     }
