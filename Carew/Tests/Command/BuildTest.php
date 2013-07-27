@@ -11,7 +11,7 @@ class BuildTest extends AbstractTest
 {
     public function testExecute()
     {
-        $this->deleteDir($webDir = __DIR__.'/fixtures/blog1/web');
+        $this->deleteDir($webDir = __DIR__.'/fixtures/site1/web');
         list(, $statusCode) = $this->runApplication(dirname($webDir));
 
         $this->assertSame(0, $statusCode);
