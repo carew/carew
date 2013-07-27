@@ -35,8 +35,7 @@ class Build extends BaseCommand
         $memoryUsage = memory_get_usage();
 
         $baseDir = $this->container['base_dir'];
-
-        $this->container['web_dir'] = $webDir = $input->getOption('web-dir');
+        $webDir = $this->container['web_dir'] = $input->getOption('web-dir');
 
         $this->container['filesystem']->mkdir($webDir);
 
@@ -58,10 +57,8 @@ class Build extends BaseCommand
         $input->getOption('verbose') and $output->writeln('<info>Processing all documents</info>');
         list($documents, $globalVars) = $this->container['processor']->processDocuments($documents, array('tags', 'navigation'));
 
-        if (is_dir($webDir)) {
-            $input->getOption('verbose') and $output->writeln('<info>Cleaning target folder</info>');
-            $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));
-        }
+        $input->getOption('verbose') and $output->writeln('<info>Cleaning target folder</info>');
+        $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));
 
         $input->getOption('verbose') and $output->writeln('<info>Compiling and Writing</info>');
         foreach ($documents as $document) {

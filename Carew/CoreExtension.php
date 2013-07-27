@@ -70,6 +70,7 @@ class CoreExtension implements ExtensionInterface
     {
         $container['event_dispatcher'] = $container->share(function($container) {
             $dispatcher =  new EventDispatcher();
+
             $dispatcher->addSubscriber(new Listener\Metadata\Extraction());
             $dispatcher->addSubscriber(new Listener\Metadata\Optimization());
             $dispatcher->addSubscriber(new Listener\Body\Markdown());
@@ -82,7 +83,7 @@ class CoreExtension implements ExtensionInterface
     private function registerTwig(\Pimple $container)
     {
         $container['twig.loader'] = $container->share(function($container) {
-            $loader = new Twig_Loader_Filesystem(array());
+            $loader = new Twig_Loader_Filesystem();
 
            foreach ($container['themes'] as $theme) {
                 $path = $theme.'/layouts';
