@@ -9,7 +9,7 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class BuildTest extends AbstractTest
 {
-    public function testExecute()
+    public function testExecuteWithSite1()
     {
         $this->deleteDir($webDir = __DIR__.'/fixtures/site1/web');
         list(, $statusCode) = $this->runApplication(dirname($webDir));
@@ -54,7 +54,7 @@ class BuildTest extends AbstractTest
         $this->deleteDir($webDir);
     }
 
-    public function testConfigFolder()
+    public function testExecuteWithConfigFolder()
     {
         $this->deleteDir($webDir = __DIR__.'/fixtures/config-folder/web');
         list(, $statusCode) = $this->runApplication(dirname($webDir));
@@ -73,7 +73,7 @@ class BuildTest extends AbstractTest
         $this->deleteDir($webDir);
     }
 
-    public function testConfigThrowExceptionIfExtensionClassDoesNotExists()
+    public function testExecuteWithConfigThrowExceptionIfExtensionClassDoesNotExists()
     {
         list($application, $statusCode) = $this->runApplication(__DIR__.'/fixtures/config-exception-class-not-exists');
 
@@ -81,7 +81,7 @@ class BuildTest extends AbstractTest
         $this->assertContains('The class "FooBar" does not exists. See "config.yml".', $application->getDisplay());
     }
 
-    public function testConfigThrowExceptionIfExtensionClassDoesNotImplementsInterface()
+    public function testExecuteWithConfigThrowExceptionIfExtensionClassDoesNotImplementsInterface()
     {
         list($application, $statusCode) = $this->runApplication(__DIR__.'/fixtures/config-exception-class-not-implements');
 
@@ -89,7 +89,7 @@ class BuildTest extends AbstractTest
         $this->assertContains('The class "stdClass" does not implements ExtensionInterface. See "config.yml".', $application->getDisplay());
     }
 
-    public function testConfigTheme()
+    public function testExecuteWithConfigTheme()
     {
         $this->deleteDir($webDir = __DIR__.'/fixtures/theme/web');
         list(, $statusCode) = $this->runApplication(dirname($webDir));
@@ -109,7 +109,7 @@ class BuildTest extends AbstractTest
         $this->assertSame('Should be wrapped into a div', trim($crawler->filter('div.body')->text()));
     }
 
-    public function runApplication($fixturesPath)
+    private function runApplication($fixturesPath)
     {
         $carew = new Carew();
         $carew->setAutoExit(false);
