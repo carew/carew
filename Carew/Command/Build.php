@@ -64,9 +64,14 @@ class Build extends BaseCommand
         $input->getOption('verbose') and $output->writeln('<info>Compiling and Writing</info>');
         foreach ($documents as $document) {
             $input->getOption('verbose') and $output->writeln(sprintf('  >> <info>Compiling</info> <comment>%s</comment>', $document->getPath()));
-            $this->container['processor']->processDocument($document, $globalVars);
-            $input->getOption('verbose') and $output->writeln(sprintf('  >> <info>Writing</info> <comment>%s</comment>', $document->getPath()));
-            $this->container['processor']->write($document);
+            $documentsTmp = $this->container['processor']->processDocument($document, $globalVars);
+            if (!is_array($documentsTmp)) {
+                $documentsTmp = array($documentsTmp);
+            }
+            foreach ($documentsTmp as $documentTmp) {
+                $input->getOption('verbose') and $output->writeln(sprintf('  >> <info>Writing</info> <comment>%s</comment>', $documentTmp->getPath()));
+                $this->container['processor']->write($documentTmp);
+            }
         }
 
         $input->getOption('verbose') and $output->writeln('<info>Copy assets</info>');

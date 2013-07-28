@@ -66,10 +66,12 @@ class Processor
     {
         $event = new CarewEvent($document, array('globalVars' => $globalVars));
         try {
-            $document = $this->eventDispatcher->dispatch(Events::DOCUMENT_BODY, $event)->getSubject();
+            $documents = $this->eventDispatcher->dispatch(Events::DOCUMENT_BODY, $event)->getSubject();
         } catch (\Exception $e) {
             throw new \LogicException(sprintf('Could not process: "%s".', (string) $document->getFile()), 0 , $e);
         }
+
+        return $document;
     }
 
     public function write(Document $document)
