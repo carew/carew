@@ -81,6 +81,18 @@ class Document
         return $this;
     }
 
+    public function getMetadata($key, $default = null)
+    {
+        return array_key_exists($key, $this->metadatas) ? $this->metadatas[$key] : $default;
+    }
+
+    public function setMetadata($key, $value)
+    {
+        $this->metadatas[$key] = $value;
+
+        return $this;
+    }
+
     public function getPath()
     {
         return $this->path;
@@ -137,9 +149,21 @@ class Document
         return $this->vars;
     }
 
+    public function getVar($key, $default = null)
+    {
+        return array_key_exists($key, $this->vars) ? $this->vars[$key] : $default;
+    }
+
     public function setVars($vars)
     {
         $this->vars = $vars;
+
+        return $this;
+    }
+
+    public function setVar($key, $value)
+    {
+        $this->vars[$key] = $value;
 
         return $this;
     }

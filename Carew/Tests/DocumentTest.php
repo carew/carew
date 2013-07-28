@@ -33,6 +33,18 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $document->getRootPath());
     }
 
+    public function testGetSetVar()
+    {
+        $document = new Document();
+
+        $this->assertSame(null, $document->getVar('foo'));
+        $this->assertSame('default', $document->getVar('foo', 'default'));
+
+        $document->setVar('foo', 'bar');
+        $this->assertSame('bar', $document->getVar('foo'));
+        $this->assertSame('bar', $document->getVar('foo', 'default'));
+    }
+
     public function testSetMetadatas()
     {
         $document = new Document();
@@ -44,4 +56,15 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array('tags' => array(), 'navigation' => array(), 'foo' => 'bar', 'foo2' => 'bar2'), $document->getMetadatas());
     }
 
+    public function testGetSetMetadata()
+    {
+        $document = new Document();
+
+        $this->assertSame(null, $document->getMetadata('foo'));
+        $this->assertSame('default', $document->getMetadata('foo', 'default'));
+
+        $document->setMetadata('foo', 'bar');
+        $this->assertSame('bar', $document->getMetadata('foo'));
+        $this->assertSame('bar', $document->getMetadata('foo', 'default'));
+    }
 }

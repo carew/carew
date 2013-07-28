@@ -44,6 +44,11 @@ class Processor
         $event = new CarewEvent($documents);
         $this->eventDispatcher->dispatch(Events::DOCUMENTS, $event);
 
+        return $event->getSubject();
+    }
+
+    public function processGlobals($documents)
+    {
         $globals = $this->buildCollectionsWithType($documents);
         $globals['documents'] = $documents;
 
@@ -54,7 +59,7 @@ class Processor
 
         $globals = $this->mergeDefaultGlobals($globals);
 
-        return array($event->getSubject(), $globals);
+        return $globals;
     }
 
     public function processDocument($document, array $globalVars = array())

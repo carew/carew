@@ -41,6 +41,23 @@ class ProcessorTest extends AbstractTest
         $documents = array(
             new Document(),
             new Document(),
+        );
+
+        $i = 0;
+
+        $this->eventDispatcher->addListener(Events::DOCUMENTS, function() use (&$i) { $i++; });
+
+        $documents = $this->processor->processDocuments($documents);
+
+        $this->assertSame(1, $i);
+        $this->assertCount(2, $documents);
+    }
+
+    public function testProcessGlobals()
+    {
+        $documents = array(
+            new Document(),
+            new Document(),
             new Document(),
             new Document(null, null, Document::TYPE_POST),
             new Document(null, null, Document::TYPE_POST),
@@ -56,13 +73,8 @@ class ProcessorTest extends AbstractTest
         $documents[4]->addMetadatas(array('navigation' => 'nav1', 'date' => new \DateTime('2000-01-10')));
         $documents[4]->setFilePath('e');
 
-        $i = 0;
-        $this->eventDispatcher->addListener(Events::DOCUMENTS, function() use (&$i) { $i++; });
+        $globalVars = $this->processor->processGlobals($documents);
 
-        list($documents, $globalVars) = $this->processor->processDocuments($documents);
-
-        $this->assertSame(1, $i);
-        $this->assertCount(5, $documents);
         $this->assertCount(5, $globalVars['documents']);
         $this->assertSame($documents, $globalVars['documents']);
 
