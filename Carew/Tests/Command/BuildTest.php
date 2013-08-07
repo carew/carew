@@ -12,7 +12,7 @@ class BuildTest extends AbstractTest
     public function testExecuteWithSite1()
     {
         $this->deleteDir($webDir = __DIR__.'/fixtures/site1/web');
-        list(, $statusCode) = $this->runApplication(dirname($webDir));
+        list($application, $statusCode) = $this->runApplication(dirname($webDir));
 
         $this->assertSame(0, $statusCode);
 
@@ -52,6 +52,72 @@ class BuildTest extends AbstractTest
         $this->assertSame("css\n", file_get_contents($webDir.'/styles.css'));
 
         $this->deleteDir($webDir);
+    }
+
+    public function testExecuteWithSiteAndPagination()
+    {
+        $this->deleteDir($webDir = __DIR__.'/fixtures/site2/web');
+        list($application, $statusCode) = $this->runApplication(dirname($webDir));
+
+        $this->assertSame(0, $statusCode);
+
+        $lis = array();
+
+        $this->assertTrue(file_exists($webDir.'/index.html'));
+        $crawler = new Crawler(file_get_contents($webDir.'/index.html'));
+        $this->assertCount(1, $crawler->filter('ul'));
+        $this->assertCount(4, $crawler->filter('ul')->eq(0)->filter('li'));
+        foreach ($crawler->filter('ul')->eq(0)->filter('li') as $li) {
+            $lis[] = trim($li->textContent);
+        }
+
+        $this->assertTrue(file_exists($webDir.'/index-page-2.html'));
+        $crawler = new Crawler(file_get_contents($webDir.'/index-page-2.html'));
+        $this->assertCount(1, $crawler->filter('ul'));
+        $this->assertCount(4, $crawler->filter('ul')->eq(0)->filter('li'));
+        foreach ($crawler->filter('ul')->eq(0)->filter('li') as $li) {
+            $lis[] = trim($li->textContent);
+        }
+
+        $this->assertTrue(file_exists($webDir.'/index-page-3.html'));
+        $crawler = new Crawler(file_get_contents($webDir.'/index-page-3.html'));
+        $this->assertCount(1, $crawler->filter('ul'));
+        $this->assertCount(4, $crawler->filter('ul')->eq(0)->filter('li'));
+        foreach ($crawler->filter('ul')->eq(0)->filter('li') as $li) {
+            $lis[] = trim($li->textContent);
+        }
+
+        $this->assertTrue(file_exists($webDir.'/index-page-4.html'));
+        $crawler = new Crawler(file_get_contents($webDir.'/index-page-4.html'));
+        $this->assertCount(1, $crawler->filter('ul'));
+        $this->assertCount(3, $crawler->filter('ul')->eq(0)->filter('li'));
+        foreach ($crawler->filter('ul')->eq(0)->filter('li') as $li) {
+            $lis[] = trim($li->textContent);
+        }
+
+        $this->assertFalse(file_exists($webDir.'/index-page-5.html'));
+
+        sort($lis);
+
+        $expected = array (
+            'Page1',
+            'Page10',
+            'Page11',
+            'Page12',
+            'Page13',
+            'Page14',
+            'Page2',
+            'Page3',
+            'Page4',
+            'Page5',
+            'Page6',
+            'Page7',
+            'Page8',
+            'Page9',
+            'index',
+        );
+
+        $this->assertSame($expected, $lis);
     }
 
     public function testExecuteWithConfigFolder()

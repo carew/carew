@@ -18,21 +18,25 @@ class Markdown implements EventSubscriberInterface
 
     public function onDocument(CarewEvent $event)
     {
-        $subject = $event->getSubject();
+        $documents = $event->getSubject();
 
-        $extension = $subject->getFile()->getExtension();
-        if ('md' !== $extension) {
-            if ('twig' !== $extension) {
-                return;
-            }
-
-            $extension = pathinfo(str_replace('.twig', '', $subject->getFilePath()), PATHINFO_EXTENSION);
+        foreach ($documents as $document) {
+            $extension = $document->getFile()->getExtension();
             if ('md' !== $extension) {
-                return;
+                if ('twig' !== $extension) {
+                    continue;
+                }
+
+                $extension = pathinfo(str_replace('.twig', '', $document->getFilePath()), PATHINFO_EXTENSION);
+                if ('md' !== $extension) {
+                    continue;
+                }
             }
+
+            $document->setBody($this->markdownParser->transform($document->getBody()));
         }
 
-        $subject->setBody($this->markdownParser->transform($subject->getBody()));
+        $event->setSubject($documents);
     }
 
     public static function getSubscribedEvents()

@@ -99,7 +99,11 @@ class CoreExtension implements ExtensionInterface
         });
 
         $container['twig'] = $container->share(function($container) {
-            $twig = new Twig_Environment($container['twig.loader'], array('strict_variables' => true, 'debug' => true));
+            $twig = new Twig_Environment($container['twig.loader'], array(
+                'strict_variables' => true,
+                'debug' => true,
+                'base_template_class' => 'Carew\Twig\Template',
+            ));
 
             // We will not be able to add new global in Twig 2.0, so we should declare everything now;
             $twig->addGlobal('carew', new Globals($container['config']));

@@ -25,7 +25,7 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
     public function testOnDocument($expected, $file)
     {
         $document = $this->createDocument($file);
-        $event = new CarewEvent($document);
+        $event = new CarewEvent(array($document));
 
         $markdownParser = $this->getMock('Michelf\Markdown');
         $markdownParser
@@ -42,7 +42,7 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
     {
         $document = $this->createDocument('simple.md.twig');
         $document->setBody('[homepage](<{{ carew.relativeRoot }}>)');
-        $event = new CarewEvent($document);
+        $event = new CarewEvent(array($document));
 
         $extraction = new Markdown();
         $extraction->onDocument($event);

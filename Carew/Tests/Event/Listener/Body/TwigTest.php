@@ -15,7 +15,9 @@ class TwigTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->twigLoader = new \Twig_Loader_Array(array('pre_render_template.html.twig' => '{{ include(template_from_string(body)) }}'));
-        $twig = new \Twig_Environment($this->twigLoader);
+        $twig = new \Twig_Environment($this->twigLoader, array(
+            'base_template_class' => 'Carew\Twig\Template',
+        ));
         $twig->addExtension(new \Twig_Extension_StringLoader());
         $twig->addGlobal('carew', new Globals());
 
@@ -46,7 +48,9 @@ class TwigTest extends \PHPUnit_Framework_TestCase
         $document->setPath('index.html');
         $document->setBody($body);
 
-        $this->twigListenner->preRender(new CarewEvent($document));
+        $event = new CarewEvent(array($document));
+
+        $this->twigListenner->preRender($event);
 
         $this->assertSame($expected, $document->getBody());
     }
@@ -57,7 +61,8 @@ class TwigTest extends \PHPUnit_Framework_TestCase
         $document->setLayout(false);
         $document->setBody('{{ foo }}');
 
-        $this->twigListenner->preRender(new CarewEvent($document));
+        $event = new CarewEvent(array($document));
+        $this->twigListenner->preRender($event);
 
         $this->assertSame('{{ foo }}', $document->getBody());
     }
@@ -68,7 +73,7 @@ class TwigTest extends \PHPUnit_Framework_TestCase
         $document->setLayout('default');
         $document->setBody('{{ carew.extra.foo }}');
 
-        $event = new CarewEvent($document);
+        $event = new CarewEvent(array($document));
         $event['globalVars'] = array('foo' => 'bar');
 
         $this->twigListenner->preRender($event);
@@ -92,7 +97,8 @@ class TwigTest extends \PHPUnit_Framework_TestCase
         $document = new Document();
         $document->setBody($body);
 
-        $this->twigListenner->postRender(new CarewEvent($document));
+        $event = new CarewEvent(array($document));
+        $this->twigListenner->postRender($event);
 
         $this->assertSame($expected, $document->getBody());
     }
@@ -124,7 +130,7 @@ class TwigTest extends \PHPUnit_Framework_TestCase
 EOL;
         $this->twigLoader->setTemplate('default.html.twig', $template);
 
-        $event = new CarewEvent($document);
+        $event = new CarewEvent(array($document));
         $event['globalVars'] = array('foo' => 'bar', 'relativeRoot' => 'should not appear');
         $this->twigListenner->postRender($event);
 

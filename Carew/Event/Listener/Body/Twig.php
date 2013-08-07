@@ -17,32 +17,70 @@ class Twig implements EventSubscriberInterface
 
     public function preRender(CarewEvent $event)
     {
-        $document = $event->getSubject();
+        $documents = $event->getSubject();
+        $documentsTmp = array();
+        foreach ($documents as $k => $document) {
+            $documentsTmp[] = $document;
+            if (false === $document->getLayout()) {
+                continue;
+            }
 
-        if (false === $document->getLayout()) {
-            return;
+            $this->setTwigGlobals($event, $document);
+
+            // Force autoloading of Twig_Extension_StringLoader
+            $stringLoader = $this->twig->getExtension('string_loader');
+
+            $template = twig_template_from_string($this->twig, $document->getBody());
+            $nbItems = $template->getNbItems(array());
+            if ($template->getMaxPerPage() >= $nbItems) {
+                $document->setBody($template->render(array()));
+
+                continue;
+            }
+
+            unset($documentsTmp[$k]);
+
+            $nbPages = ceil($nbItems / $template->getMaxPerPage());
+
+            for ($i = 1; $i <= $nbPages; $i++) {
+                $documentTmp = clone $document;
+
+                if (1 < $i) {
+                    $pathInfo = pathinfo($documentTmp->getPath());
+                    $pathInfo['filename'] = sprintf('%s-page-%d', $pathInfo['filename'], $i);
+                    $documentTmp->setPath(sprintf('%s/%s.%s', $pathInfo['dirname'], $pathInfo['filename'], $pathInfo['extension']));
+                }
+
+                $documentTmp->setBody($template->render(array(
+                    '__offset__' => ($i - 1) * $template->getMaxPerPage(),
+                )));
+                $documentsTmp[] = $documentTmp;
+            }
         }
 
-        $this->setTwigGlobals($event);
-
-        $document->setBody($this->twig->render('pre_render_template.html.twig', array('body' => $document->getBody())));
+        $event->setSubject($documentsTmp);
     }
 
     public function postRender(CarewEvent $event)
     {
-        $document = $event->getSubject();
+        $documents = $event->getSubject();
 
-        if (false === $document->getLayout()) {
-            return;
+        foreach ($documents as $document) {
+            if (false === $document->getLayout()) {
+                continue;
+            }
+
+            $this->setTwigGlobals($event, $document);
+
+            $layout = $document->getLayout();
+            if (false === strpos($layout, '.twig')) {
+                $layout .= '.html.twig';
+            }
+
+            $document->setBody($this->twig->render($layout));
         }
 
-        $this->setTwigGlobals($event);
-
-        $layout = $document->getLayout();
-        if (false === strpos($layout, '.twig')) {
-            $layout .= '.html.twig';
-        }
-        $document->setBody($this->twig->render($layout));
+        $event->setSubject($documents);
     }
 
     public static function getSubscribedEvents()
@@ -55,11 +93,10 @@ class Twig implements EventSubscriberInterface
         );
     }
 
-    private function setTwigGlobals(CarewEvent $event)
+    private function setTwigGlobals(CarewEvent $event, $document)
     {
         $globals = $event->hasArgument('globalVars') ? $event->getArgument('globalVars') : array();
 
-        $document = $event->getSubject();
         $globals['relativeRoot'] = $document->getRootPath();
         $globals['currentPath'] = $document->getPath();
         $globals['document'] = $document;

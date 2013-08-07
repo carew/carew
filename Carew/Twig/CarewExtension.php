@@ -4,8 +4,17 @@ namespace Carew\Twig;
 
 use Carew\Document;
 
+use Carew\Twig\NodeVisitor\Paginator;
+
 class CarewExtension extends \Twig_Extension
 {
+    public function getNodeVisitors()
+    {
+        return array(
+            new Paginator(),
+        );
+    }
+
     public function getFunctions()
     {
         return array(
@@ -15,6 +24,7 @@ class CarewExtension extends \Twig_Extension
             new \Twig_SimpleFunction('render_document',      array($this, 'renderDocument'),          array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_documents',     array($this, 'renderDocuments'),         array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_*',             array($this, 'renderBlock'),             array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('paginate', function() { } ),
         );
     }
 
