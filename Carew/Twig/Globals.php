@@ -32,7 +32,7 @@ class Globals
     public function fromArray(array $array)
     {
         foreach ($array as $key => $value) {
-            if (array_key_exists($key, $this)) {
+            if (property_exists($this, $key)) {
                 $this->$key = $value;
             } else {
                 $this->extra[$key] = $value;
