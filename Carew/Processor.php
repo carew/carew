@@ -52,9 +52,8 @@ class Processor
         $globals = $this->buildCollectionsWithType($documents);
         $globals['documents'] = $documents;
 
-        // @TODO: Move this to configuration
-        foreach (array('tags', 'navigation') as $key) {
-            $globals[$key] = $this->buildCollectionWithMetadatas($documents, $key);
+        foreach (array('tags', 'navigations') as $key) {
+            $globals[$key] = $this->buildCollectionWithDocumentMethod($documents, 'get'.ucfirst($key));
         }
 
         $globals = $this->mergeDefaultGlobals($globals);
@@ -100,24 +99,16 @@ class Processor
         return $documents;
     }
 
-    private function buildCollectionWithMetadatas($documents, $key)
+    private function buildCollectionWithDocumentMethod($documents, $method)
     {
         $collection = array();
         foreach ($documents as $document) {
-            $metadatas = $document->getMetadatas();
-            if (isset($metadatas[$key])) {
-                $items = $metadatas[$key];
-                if (!is_array($items)) {
-                    $items = array($items);
+            $items = (array) $document->{$method}();
+            foreach ($items as $item) {
+                if (!array_key_exists($item, $collection)) {
+                    $collection[$item] = array();
                 }
-                foreach ($items as $item) {
-                    $item = $item;
-                    if (!array_key_exists($item, $collection)) {
-                        $collection[$item] = array();
-                    }
-
-                    $collection[$item][$document->getFilePath()] = $document;
-                }
+                $collection[$item][$document->getFilePath()] = $document;
             }
         }
 
@@ -152,8 +143,8 @@ class Processor
                 'apis'       => array(),
                 'posts'      => array(),
                 'unknown'    => array(),
-                'tags'       => array(), // @TODO: Move to conf
-                'navigation' => array(), // @TODO: Move to conf
+                'tags'       => array(),
+                'navigation' => array(),
             ),
             $globals
         );

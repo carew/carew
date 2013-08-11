@@ -28,17 +28,11 @@ class Extraction implements EventSubscriberInterface
             $metadatas = Yaml::parse($metadatas);
 
             $document->setLayout('default');
-            foreach (array('title', 'layout') as $key) {
-                if (isset($metadatas[$key])) {
-                    $method = 'set'.ucfirst($key);
-                    $document->{$method}($metadatas[$key]);
+            foreach ($metadatas as $key => $value) {
+                $method = 'set'.ucfirst($key);
+                if (method_exists($document, $method)) {
+                    $document->{$method}($value);
                     unset($metadatas[$key]);
-                }
-            }
-
-            foreach (array('tags', 'navigation') as $value) {
-                if (isset($metadatas[$value]) && !is_array($metadatas[$value])) {
-                    $metadatas[$value] = array($metadatas[$value]);
                 }
             }
 

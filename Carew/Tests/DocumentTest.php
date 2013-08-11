@@ -45,15 +45,15 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('bar', $document->getVar('foo', 'default'));
     }
 
-    public function testSetMetadatas()
+    public function testAddMetadatas()
     {
         $document = new Document();
 
         $document->addMetadatas(array('foo' => 'bar'));
-        $this->assertSame(array('tags' => array(), 'navigation' => array(), 'foo' => 'bar'), $document->getMetadatas());
+        $this->assertSame(array('foo' => 'bar'), $document->getMetadatas());
 
         $document->addMetadatas(array('foo2' => 'bar2'));
-        $this->assertSame(array('tags' => array(), 'navigation' => array(), 'foo' => 'bar', 'foo2' => 'bar2'), $document->getMetadatas());
+        $this->assertSame(array('foo' => 'bar', 'foo2' => 'bar2'), $document->getMetadatas());
     }
 
     public function testGetSetMetadata()

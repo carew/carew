@@ -79,8 +79,7 @@ class ExtractionTest extends \PHPUnit_Framework_TestCase
         $extraction = new Extraction();
         $extraction->onDocument($event);
 
-        $metadatas = $document->getMetadatas();
-        $this->assertSame($expected, $metadatas['tags']);
+        $this->assertSame($expected, $document->getTags());
     }
 
     public function testOnDocumentWithExtraMetadatas()

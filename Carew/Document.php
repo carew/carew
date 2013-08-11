@@ -16,7 +16,9 @@ class Document
     private $filePath;
     private $layout;
     private $metadatas;
+    private $navigations;
     private $path;
+    private $tags;
     private $title;
     private $toc;
     private $type;
@@ -24,14 +26,16 @@ class Document
 
     public function __construct(SplFileInfo $file = null, $filePath = null, $type = self::TYPE_UNKNOWN)
     {
-        $this->file      = $file;
-        $this->filePath  = $filePath;
-        $this->type      = $type;
+        $this->file = $file;
+        $this->filePath = $filePath;
+        $this->type = $type;
 
-        $this->layout    = false;
-        $this->metadatas = array('tags' => array(), 'navigation' => array());
-        $this->toc       = array();
-        $this->vars      = array();
+        $this->layout = false;
+        $this->metadatas = array();
+        $this->navigations = array();
+        $this->tags = array();
+        $this->toc = array();
+        $this->vars = array();
 
         if ($file && is_file($file)) {
             $this->path = $file->getBaseName();
@@ -176,6 +180,38 @@ class Document
     public function setFilePath($filePath)
     {
         $this->filePath = $filePath;
+
+        return $this;
+    }
+
+    public function getNavigations()
+    {
+        return $this->navigations;
+    }
+
+    public function setNavigations($navigations)
+    {
+        if (!is_array($navigations)) {
+            $navigations = array($navigations);
+        }
+
+        $this->navigations = $navigations;
+
+        return $this;
+    }
+
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+    public function setTags($tags)
+    {
+        if (!is_array($tags)) {
+            $tags = array($tags);
+        }
+
+        $this->tags = $tags;
 
         return $this;
     }

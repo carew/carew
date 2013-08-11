@@ -13,7 +13,7 @@ class Globals
     public $apis = array();
 
     public $tags = array();
-    public $navigation = array();
+    public $navigations = array();
 
     public $relativeRoot;
     public $currentPath;
