@@ -87,7 +87,6 @@ class ProcessorTest extends AbstractTest
         $this->assertContains($documents[1], $globalVars['tags']['tag2']);
         $this->assertContains($documents[2], $globalVars['tags']['tag2']);
 
-
         $this->assertCount(1, $globalVars['navigations']);
         $this->assertCount(2, $globalVars['navigations']['nav1']);
         $this->assertContains($documents[3], $globalVars['navigations']['nav1']);
