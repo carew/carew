@@ -9,19 +9,20 @@ use Carew\Twig\Globals;
 
 class TwigTest extends \PHPUnit_Framework_TestCase
 {
-    private $twigListenner;
     private $twigLoader;
+    private $twig;
+    private $twigListenner;
 
     public function setUp()
     {
-        $this->twigLoader = new \Twig_Loader_Array(array('pre_render_template.html.twig' => '{{ include(template_from_string(body)) }}'));
-        $twig = new \Twig_Environment($this->twigLoader, array(
+        $this->twigLoader = new \Twig_Loader_Array(array());
+        $this->twig = new \Twig_Environment($this->twigLoader, array(
             'base_template_class' => 'Carew\Twig\Template',
         ));
-        $twig->addExtension(new \Twig_Extension_StringLoader());
-        $twig->addGlobal('carew', new Globals());
+        $this->twig->addExtension(new \Twig_Extension_StringLoader());
+        $this->twig->addGlobal('carew', new Globals());
 
-        $this->twigListenner = new Twig($twig);
+        $this->twigListenner = new Twig($this->twig);
     }
 
     public function getPreRenderTests()
@@ -74,7 +75,7 @@ class TwigTest extends \PHPUnit_Framework_TestCase
         $document->setBody('{{ carew.extra.foo }}');
 
         $event = new CarewEvent(array($document));
-        $event['globalVars'] = array('foo' => 'bar');
+        $this->getTwigGlobals()->fromArray(array('foo' => 'bar'));
 
         $this->twigListenner->preRender($event);
 
@@ -131,7 +132,7 @@ EOL;
         $this->twigLoader->setTemplate('default.html.twig', $template);
 
         $event = new CarewEvent(array($document));
-        $event['globalVars'] = array('foo' => 'bar', 'relativeRoot' => 'should not appear');
+        $this->getTwigGlobals()->fromArray(array('foo' => 'bar', 'relativeRoot' => 'should not appear'));
         $this->twigListenner->postRender($event);
 
         $expected = <<<EOL
@@ -147,6 +148,14 @@ EOL;
     public function tearDown()
     {
         $this->twigListenner = null;
-        $this->twigLoader    = null;
+        $this->twig = null;
+        $this->twigLoader = null;
+    }
+
+    private function getTwigGlobals()
+    {
+        $all = $this->twig->getGlobals();
+
+        return $all['carew'];
     }
 }

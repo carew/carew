@@ -2,6 +2,7 @@
 
 namespace Carew\Event\Listener\Body;
 
+use Carew\Document;
 use Carew\Event\CarewEvent;
 use Carew\Event\Events;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -93,18 +94,16 @@ class Twig implements EventSubscriberInterface
         );
     }
 
-    private function setTwigGlobals(CarewEvent $event, $document)
+    private function setTwigGlobals(CarewEvent $event, Document $document)
     {
-        $globals = $event->hasArgument('globalVars') ? $event->getArgument('globalVars') : array();
+        $twigGlobals = $this->twig->getGlobals();
+        $globals = $twigGlobals['carew'];
 
-        $globals['relativeRoot'] = $document->getRootPath();
-        $globals['currentPath'] = $document->getPath();
-        $globals['document'] = $document;
+        $globals->fromArray($document->getVars());
 
-        $globals = array_replace($document->getVars(), $globals);
-
-        $current = $this->twig->getGlobals();
-        $this->twig->addGlobal('carew', $current['carew']->fromArray($globals));
+        $globals->relativeRoot = $document->getRootPath();
+        $globals->currentPath = $document->getPath();
+        $globals->document = $document;
 
         return $this;
     }

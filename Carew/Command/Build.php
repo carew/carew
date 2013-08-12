@@ -56,7 +56,8 @@ class Build extends BaseCommand
 
         $input->getOption('verbose') and $output->writeln('<info>Processing all documents</info>');
         $documents = $this->container['processor']->processDocuments($documents);
-        $globalVars = $this->container['processor']->processGlobals($documents);
+        $globals = $this->container['twig']->getGlobals();
+        $this->container['processor']->processGlobals($documents, $globals['carew']);
 
         $input->getOption('verbose') and $output->writeln('<info>Cleaning target folder</info>');
         $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));
@@ -64,7 +65,7 @@ class Build extends BaseCommand
         $input->getOption('verbose') and $output->writeln('<info>Compiling and Writing</info>');
         foreach ($documents as $document) {
             $input->getOption('verbose') and $output->writeln(sprintf('  >> <info>Compiling</info> <comment>%s</comment>', $document->getPath()));
-            $documentsTmp = $this->container['processor']->processDocument($document, $globalVars);
+            $documentsTmp = $this->container['processor']->processDocument($document);
             if (!is_array($documentsTmp)) {
                 $documentsTmp = array($documentsTmp);
             }

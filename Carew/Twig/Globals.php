@@ -11,6 +11,7 @@ class Globals
     public $posts = array();
     public $pages = array();
     public $apis = array();
+    public $unknowns = array();
 
     public $tags = array();
     public $navigations = array();

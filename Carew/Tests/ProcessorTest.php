@@ -77,31 +77,31 @@ class ProcessorTest extends AbstractTest
 
         $globalVars = $this->processor->processGlobals($documents);
 
-        $this->assertCount(5, $globalVars['documents']);
-        $this->assertSame($documents, $globalVars['documents']);
+        $this->assertCount(5, $globalVars->documents);
+        $this->assertSame($documents, $globalVars->documents);
 
-        $this->assertCount(2, $globalVars['tags']);
-        $this->assertCount(1, $globalVars['tags']['tag1']);
-        $this->assertContains($documents[0], $globalVars['tags']['tag1']);
-        $this->assertCount(2, $globalVars['tags']['tag2']);
-        $this->assertContains($documents[1], $globalVars['tags']['tag2']);
-        $this->assertContains($documents[2], $globalVars['tags']['tag2']);
+        $this->assertCount(2, $globalVars->tags);
+        $this->assertCount(1, $globalVars->tags['tag1']);
+        $this->assertContains($documents[0], $globalVars->tags['tag1']);
+        $this->assertCount(2, $globalVars->tags['tag2']);
+        $this->assertContains($documents[1], $globalVars->tags['tag2']);
+        $this->assertContains($documents[2], $globalVars->tags['tag2']);
 
-        $this->assertCount(1, $globalVars['navigations']);
-        $this->assertCount(2, $globalVars['navigations']['nav1']);
-        $this->assertContains($documents[3], $globalVars['navigations']['nav1']);
-        $this->assertContains($documents[4], $globalVars['navigations']['nav1']);
+        $this->assertCount(1, $globalVars->navigations);
+        $this->assertCount(2, $globalVars->navigations['nav1']);
+        $this->assertContains($documents[3], $globalVars->navigations['nav1']);
+        $this->assertContains($documents[4], $globalVars->navigations['nav1']);
 
-        $this->assertCount(3, $globalVars['unknowns']);
-        $this->assertContains($documents[0], $globalVars['unknowns']);
-        $this->assertContains($documents[1], $globalVars['unknowns']);
-        $this->assertContains($documents[2], $globalVars['unknowns']);
-        $this->assertCount(2, $globalVars['posts']);
-        $this->assertContains($documents[3], $globalVars['posts']);
-        $this->assertContains($documents[4], $globalVars['posts']);
+        $this->assertCount(3, $globalVars->unknowns);
+        $this->assertContains($documents[0], $globalVars->unknowns);
+        $this->assertContains($documents[1], $globalVars->unknowns);
+        $this->assertContains($documents[2], $globalVars->unknowns);
+        $this->assertCount(2, $globalVars->posts);
+        $this->assertContains($documents[3], $globalVars->posts);
+        $this->assertContains($documents[4], $globalVars->posts);
 
-        $this->assertSame($documents[3], reset($globalVars['posts']));
-        $this->assertSame($documents[4], end($globalVars['posts']));
+        $this->assertSame($documents[3], reset($globalVars->posts));
+        $this->assertSame($documents[4], end($globalVars->posts));
     }
 
     public function testProcessBody()

@@ -5,6 +5,7 @@ namespace Carew;
 use Carew\Document;
 use Carew\Event\CarewEvent;
 use Carew\Event\Events;
+use Carew\Twig\Globals;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -47,23 +48,24 @@ class Processor
         return $event->getSubject();
     }
 
-    public function processGlobals($documents)
+    public function processGlobals($documents, Globals $globals = null)
     {
-        $globals = $this->buildCollectionsWithType($documents);
-        $globals['documents'] = $documents;
+        $globals = $globals ?: new Globals();
+
+        $globalsData = $this->buildCollectionsWithType($documents);
+        $globalsData['documents'] = $documents;
 
         foreach (array('tags', 'navigations') as $key) {
-            $globals[$key] = $this->buildCollectionWithDocumentMethod($documents, 'get'.ucfirst($key));
+            $globalsData[$key] = $this->buildCollectionWithDocumentMethod($documents, 'get'.ucfirst($key));
         }
 
-        $globals = $this->mergeDefaultGlobals($globals);
 
-        return $globals;
+        return $globals->fromArray($globalsData);
     }
 
-    public function processDocument($document, array $globalVars = array())
+    public function processDocument($document)
     {
-        $event = new CarewEvent(array($document), array('globalVars' => $globalVars));
+        $event = new CarewEvent(array($document));
         try {
             $documents = $this->eventDispatcher->dispatch(Events::DOCUMENT_BODY, $event)->getSubject();
         } catch (\Exception $e) {
@@ -132,21 +134,5 @@ class Processor
         }
 
         return $collections;
-    }
-
-    private function mergeDefaultGlobals($globals)
-    {
-       return array_replace(
-            array(
-                'documents'  => array(),
-                'pages'      => array(),
-                'apis'       => array(),
-                'posts'      => array(),
-                'unknown'    => array(),
-                'tags'       => array(),
-                'navigation' => array(),
-            ),
-            $globals
-        );
     }
 }
