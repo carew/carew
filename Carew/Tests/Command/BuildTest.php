@@ -65,35 +65,39 @@ class BuildTest extends AbstractTest
 
         $this->assertTrue(file_exists($webDir.'/index.html'));
         $crawler = new Crawler(file_get_contents($webDir.'/index.html'));
-        $this->assertCount(1, $crawler->filter('ul'));
+        $this->assertCount(2, $crawler->filter('ul'));
         $this->assertCount(4, $crawler->filter('ul')->eq(0)->filter('li'));
         foreach ($crawler->filter('ul')->eq(0)->filter('li') as $li) {
             $lis[] = trim($li->textContent);
         }
+        $this->assertPagination(1, 4, $crawler);
 
         $this->assertTrue(file_exists($webDir.'/index-page-2.html'));
         $crawler = new Crawler(file_get_contents($webDir.'/index-page-2.html'));
-        $this->assertCount(1, $crawler->filter('ul'));
+        $this->assertCount(2, $crawler->filter('ul'));
         $this->assertCount(4, $crawler->filter('ul')->eq(0)->filter('li'));
         foreach ($crawler->filter('ul')->eq(0)->filter('li') as $li) {
             $lis[] = trim($li->textContent);
         }
+        $this->assertPagination(2, 4, $crawler);
 
         $this->assertTrue(file_exists($webDir.'/index-page-3.html'));
         $crawler = new Crawler(file_get_contents($webDir.'/index-page-3.html'));
-        $this->assertCount(1, $crawler->filter('ul'));
+        $this->assertCount(2, $crawler->filter('ul'));
         $this->assertCount(4, $crawler->filter('ul')->eq(0)->filter('li'));
         foreach ($crawler->filter('ul')->eq(0)->filter('li') as $li) {
             $lis[] = trim($li->textContent);
         }
+        $this->assertPagination(3, 4, $crawler);
 
         $this->assertTrue(file_exists($webDir.'/index-page-4.html'));
         $crawler = new Crawler(file_get_contents($webDir.'/index-page-4.html'));
-        $this->assertCount(1, $crawler->filter('ul'));
+        $this->assertCount(2, $crawler->filter('ul'));
         $this->assertCount(3, $crawler->filter('ul')->eq(0)->filter('li'));
         foreach ($crawler->filter('ul')->eq(0)->filter('li') as $li) {
             $lis[] = trim($li->textContent);
         }
+        $this->assertPagination(4, 4, $crawler);
 
         $this->assertFalse(file_exists($webDir.'/index-page-5.html'));
 
@@ -118,6 +122,8 @@ class BuildTest extends AbstractTest
         );
 
         $this->assertSame($expected, $lis);
+
+        $this->deleteDir($webDir);
     }
 
     public function testExecuteWithConfigFolder()
@@ -192,5 +198,18 @@ class BuildTest extends AbstractTest
         $statusCode = $application->run($input);
 
         return array($application, $statusCode);
+    }
+
+    private function assertPagination($current, $size, Crawler $crawler)
+    {
+        $this->assertCount($size, $crawler->filter('ul')->eq(1)->filter('li'));
+
+        for ($i = 1; $i <= $size; $i++) {
+            $class = $current == $i ? 'active' : '';
+            $this->assertSame($class, $crawler->filter('ul')->eq(1)->filter('li')->eq($i - 1)->attr('class'), sprintf('Class "active" is present only when $i == $current, ($i = %s, $current = %s)', $i, $current));
+            $this->assertSame('page '.$i, $crawler->filter('ul')->eq(1)->filter('li')->eq($i - 1)->text(), sprintf('($i = %s, $current = %s)', $i, $current));
+            $href = 1 == $i ? './index.html' : sprintf('./index-page-%s.html', $i);
+            $this->assertSame($href, $crawler->filter('ul')->eq(1)->filter('li')->eq($i - 1)->filter('a')->attr('href'), sprintf('($i = %s, $current = %s)', $i, $current));
+        }
     }
 }

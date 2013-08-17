@@ -42,20 +42,26 @@ class Twig implements EventSubscriberInterface
             unset($documentsTmp[$k]);
 
             $nbPages = ceil($nbItems / $template->getMaxPerPage());
-
-            for ($i = 1; $i <= $nbPages; $i++) {
+            $pagesAsDocument = array();
+            for ($page = 1; $page <= $nbPages; $page++) {
                 $documentTmp = clone $document;
 
-                if (1 < $i) {
+                if (1 < $page) {
                     $pathInfo = pathinfo($documentTmp->getPath());
-                    $pathInfo['filename'] = sprintf('%s-page-%d', $pathInfo['filename'], $i);
-                    $documentTmp->setPath(sprintf('%s/%s.%s', $pathInfo['dirname'], $pathInfo['filename'], $pathInfo['extension']));
+                    $pathInfo['filename'] = sprintf('%s-page-%d', $pathInfo['filename'], $page);
+                    $documentTmp->setPath(ltrim(sprintf('%s/%s.%s', $pathInfo['dirname'], $pathInfo['filename'], $pathInfo['extension']), './'));
                 }
 
-                $documentTmp->setBody($template->render(array(
-                    '__offset__' => ($i - 1) * $template->getMaxPerPage(),
+                $pagesAsDocument[$page] = $documentTmp;
+            }
+
+            foreach ($pagesAsDocument as $page => $pageAsDocument) {
+                $pageAsDocument->setBody($template->render(array(
+                    '__offset__' => ($page - 1) * $template->getMaxPerPage(),
+                    '__pages__' => $pagesAsDocument,
+                    '__current_page__' => $page,
                 )));
-                $documentsTmp[] = $documentTmp;
+                $documentsTmp[] = $pageAsDocument;
             }
         }
 

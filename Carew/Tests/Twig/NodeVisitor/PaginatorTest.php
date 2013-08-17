@@ -57,9 +57,40 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $env = $this->createEnv();
 
         $stream = $env->parse($env->tokenize('{{ paginate(collection, 10) }}'));
+        // Transformed in "collection|slice(__offset__, 10)"
 
         $nodeFilter = $stream->getNode('body')->getNode(0)->getNode('expr');
         $this->assertInstanceOf('Twig_Node_Expression_Filter', $nodeFilter);
+        $this->assertNodeFilterHasSlice($nodeFilter);
+
+        $this->assertStreamHasExtra($stream);
+    }
+
+    public function testNodeVisitorAddPagination()
+    {
+        $env = $this->createEnv();
+
+        $stream = $env->parse($env->tokenize('{{ render_documents(paginate(collection, 10)) }}'));
+        // Transformed in "render_documents(collection|slice(__offset__, 10), __page__, __nb_pages__)"
+
+        $nodeFunction = $stream->getNode('body')->getNode(0)->getNode('expr');
+
+        $this->assertInstanceOf('Twig_Node_Expression_Function', $nodeFunction);
+        $this->assertSame('render_documents', $nodeFunction->getAttribute('name'));
+
+        $nodeFilter = $nodeFunction->getNode('arguments')->getNode(0);
+        $this->assertInstanceOf('Twig_Node_Expression_Filter', $nodeFilter);
+        $this->assertNodeFilterHasSlice($nodeFilter);
+
+        $arguments = $nodeFunction->getNode('arguments');
+        $this->assertInstanceOf('Twig_Node_Expression_Name', $arguments->getNode(1));
+        $this->assertSame('__pages__', $arguments->getNode(1)->getAttribute('name'));
+        $this->assertInstanceOf('Twig_Node_Expression_Name', $arguments->getNode(2));
+        $this->assertSame('__current_page__', $arguments->getNode(2)->getAttribute('name'));
+    }
+
+    private function assertNodeFilterHasSlice(\Twig_Node_Expression_Filter $nodeFilter)
+    {
         $this->assertInstanceOf('Twig_Node_Expression_Constant', $nodeFilter->getNode('filter'));
         $this->assertSame('slice', $nodeFilter->getNode('filter')->getAttribute('value'));
 
@@ -68,7 +99,10 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('__offset__', $arguments->getNode(0)->getAttribute('name'));
         $this->assertInstanceOf('Twig_Node_Expression_Constant', $arguments->getNode(1));
         $this->assertSame(10, $arguments->getNode(1)->getAttribute('value'));
+    }
 
+    private function assertStreamHasExtra(\Twig_Node_Module $stream)
+    {
         $extraNode = $stream->getNode('extra');
         $this->assertInstanceOf('Twig_Node_Extra', $extraNode);
         $this->assertInstanceOf('Carew\Twig\Node\Pagination', $extraNode->getNode(0));
@@ -82,6 +116,7 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $env = new \Twig_Environment(new \Twig_Loader_String(), array('cache' => false, 'autoescape' => false));
         $env->addNodeVisitor(new Paginator());
         $env->addFunction(new \Twig_SimpleFunction('paginate', function() { }));
+        $env->addFunction(new \Twig_SimpleFunction('render_documents', function() { }));
         $env->addGlobal('collection', range(1, 100));
 
         return $env;

@@ -61,3 +61,15 @@
     {{ document.title|title }}
 {%- endspaceless %}
 {% endblock %}
+
+{% block pagination %}
+{% spaceless %}
+    <ul>
+        {% for page_number, document in pages %}
+            <li{% if current_page == page_number %} class="active"{% endif %}>
+                <a href="{{ render_document_url(document) }}">page {{ page_number }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endspaceless %}
+{% endblock %}

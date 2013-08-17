@@ -23,6 +23,7 @@ class CarewExtension extends \Twig_Extension
             new \Twig_SimpleFunction('render_document_*',    array($this, 'renderDocumentAttribute'), array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_document',      array($this, 'renderDocument'),          array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_documents',     array($this, 'renderDocuments'),         array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('render_pagination',    array($this, 'renderPagination'),        array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_*',             array($this, 'renderBlock'),             array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('paginate', function() { } ),
         );
@@ -30,9 +31,7 @@ class CarewExtension extends \Twig_Extension
 
     public function renderDocumentUrl(\Twig_Environment $twig, Document $document)
     {
-        $parameters = array('document' => $document);
-
-        return $this->renderDocumentAttribute($twig, 'url', $document, $parameters);
+        return $this->renderDocumentAttribute($twig, 'url', $document);
     }
 
     public function renderDocumentAttribute(\Twig_Environment $twig, $attribute, Document $document)
@@ -49,11 +48,27 @@ class CarewExtension extends \Twig_Extension
         return $this->renderBlock($twig, $document->getType(), $parameters);
     }
 
-    public function renderDocuments(\Twig_Environment $twig, array $documents = array())
+    public function renderDocuments(\Twig_Environment $twig, array $documents = array(), array $pages = array(), $currentPage = null)
     {
         $parameters = array('documents' => $documents);
 
-        return $this->renderBlock($twig, 'documents', $parameters);
+        $documentsBlock = $this->renderBlock($twig, 'documents', $parameters);
+
+        if (0 < count($pages) && null !== $currentPage) {
+            $documentsBlock .= $this->renderPagination($twig, $pages, $currentPage);
+        }
+
+        return $documentsBlock;
+    }
+
+    public function renderPagination(\Twig_Environment $twig, array $pages, $currentPage)
+    {
+        $parameters = array(
+            'pages' => $pages,
+            'current_page' => $currentPage,
+        );
+
+        return $this->renderBlock($twig, 'pagination', $parameters);
     }
 
     public function renderBlock(\Twig_Environment $twig, $block, array $parameters = array())
