@@ -63,7 +63,7 @@ class Processor
         return $globals->fromArray($globalsData);
     }
 
-    public function processDocument($document)
+    public function processDocument(Document $document)
     {
         $event = new CarewEvent(array($document));
         try {

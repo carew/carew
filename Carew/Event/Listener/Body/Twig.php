@@ -29,7 +29,7 @@ class Twig implements EventSubscriberInterface
             $this->setTwigGlobals($event, $document);
 
             // Force autoloading of Twig_Extension_StringLoader
-            $stringLoader = $this->twig->getExtension('string_loader');
+            $this->twig->getExtension('string_loader');
 
             $template = twig_template_from_string($this->twig, $document->getBody());
             $nbItems = $template->getNbItems(array());
