@@ -7,6 +7,9 @@ use Symfony\Component\Console\Tester\ApplicationTester;
 use Carew\Tests\AbstractTest;
 use Symfony\Component\DomCrawler\Crawler;
 
+/**
+ * @group functional
+ */
 class BuildTest extends AbstractTest
 {
     public function testExecuteWithSite1()
