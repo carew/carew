@@ -4,9 +4,20 @@ namespace Carew\Twig\Node;
 
 class Pagination extends \Twig_Node
 {
-    public function __construct(\Twig_Node $node, $maxPerPage)
+    public function __construct()
     {
-        parent::__construct(array('node' => $node), array('maxPerPage' => (integer) $maxPerPage));
+        parent::__construct(array(), array('maxesPerPage' => array()));
+    }
+
+    public function addNodeToPaginate(\Twig_Node $node, $maxPerPage)
+    {
+        $this->nodes[] = $node;
+
+        $maxesPerPage = $this->getAttribute('maxesPerPage');
+        $maxesPerPage[] = $maxPerPage;
+        $this->setAttribute('maxesPerPage', $maxesPerPage);
+
+        return $this;
     }
 
     public function compile(\Twig_Compiler $compiler)
@@ -19,16 +30,21 @@ class Pagination extends \Twig_Node
     private function compileGetNbItems(\Twig_Compiler $compiler)
     {
         $compiler
-            ->write("public function getNbItems(array \$context)\n", "{\n")
+            ->write("public function getNbsItems(array \$context)\n", "{\n")
             ->indent()
         ;
 
-        $compiler->addIndentation();
-        $compiler->raw("\$context = \$this->env->mergeGlobals(\$context);\n\n", false);
-        $compiler->addIndentation();
-        $compiler->raw('return count(', false);
-        $compiler->subcompile($this->getNode('node'));
-        $compiler->raw(");\n");
+        $compiler->write("\$context = \$this->env->mergeGlobals(\$context);\n\n");
+
+        $compiler->write("return array(\n");
+        $compiler->indent();
+        foreach ($nodes = $this->nodes as $node) {
+            $compiler->write('count(');
+            $compiler->subcompile($node);
+            $compiler->raw("),\n");
+        }
+        $compiler->outdent();
+        $compiler->write(");\n");
 
         $compiler
             ->outdent()
@@ -39,11 +55,17 @@ class Pagination extends \Twig_Node
     private function compileMaxPerPage(\Twig_Compiler $compiler)
     {
         $compiler
-            ->write("public function getMaxPerPage()\n", "{\n")
+            ->write("public function getMaxesPerPage()\n", "{\n")
             ->indent()
         ;
 
-        $compiler->write(sprintf("return %s;\n", $this->getAttribute('maxPerPage')));
+        $compiler->write("return array(\n");
+        $compiler->indent();
+        foreach ($nodes = $this->getAttribute('maxesPerPage') as $maxPerPage) {
+            $compiler->write($maxPerPage.",\n");
+        }
+        $compiler->outdent();
+        $compiler->write(");\n");
 
         $compiler
             ->outdent()

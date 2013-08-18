@@ -109,6 +109,16 @@ class BuildTest extends AbstractTest
         $this->deleteDir($webDir);
     }
 
+    public function testExecuteWithSiteAndMultiplePagination()
+    {
+        $this->deleteDir($webDir = __DIR__.'/fixtures/site-with-multiple-pagination/web');
+        list($application, $statusCode) = $this->runApplication(dirname($webDir));
+
+        $this->assertSame(0, $statusCode);
+
+        $this->deleteDir($webDir);
+    }
+
     public function testExecuteWithConfigFolder()
     {
         $this->deleteDir($webDir = __DIR__.'/fixtures/config-folder/web');

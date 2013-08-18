@@ -4,13 +4,13 @@ namespace Carew\Twig;
 
 abstract class Template extends \Twig_Template
 {
-    public function getNbItems(array $context)
+    public function getNbsItems(array $context)
     {
-        return null;
+        return array();
     }
 
-    public function getMaxPerPage()
+    public function getMaxesPerPage()
     {
-        return null;
+        return array();
     }
 }

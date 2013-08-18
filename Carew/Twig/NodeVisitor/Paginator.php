@@ -8,6 +8,7 @@ class Paginator implements \Twig_NodeVisitorInterface
 {
     private $currentModule;
     private $currentRenderDocuments;
+    private $currentNumberOfPagination;
     private $maxPerPage;
 
     public function __construct($maxPerPage = 10)
@@ -19,10 +20,15 @@ class Paginator implements \Twig_NodeVisitorInterface
     {
         if ($node instanceof \Twig_Node_Module) {
             $this->currentModule = $node;
+            $this->currentNumberOfPagination = 0;
         } elseif ($node instanceof \Twig_Node_Expression_Function) {
             $name = $node->getAttribute('name');
             if ('paginate' == $name) {
-                return $this->enterPaginationFilterNode($node, $env);
+                $node = $this->enterPaginationFilterNode($node, $env);
+
+                $this->currentNumberOfPagination++;
+
+                return $node;
             }
             if ('render_documents' == $name) {
                 $this->currentRenderDocuments = $node;
@@ -57,14 +63,17 @@ class Paginator implements \Twig_NodeVisitorInterface
 
         // Set-up the PaginationNode
         $extra = $this->currentModule->getNode('extra');
-        $extra->setNode('pagination', new PaginationNode($nodeToPaginate, $maxPerPage));
+        if (!$extra->hasNode('pagination')) {
+            $extra->setNode('pagination', new PaginationNode());
+        }
+        $extra->getNode('pagination')->addNodeToPaginate($nodeToPaginate, $maxPerPage);
 
         // Filter the node with "|slice(offset, maxPerPage)"
         $slicedNode = new \Twig_Node_Expression_Filter(
             $nodeToPaginate,
             new \Twig_Node_Expression_Constant('slice', 1),
             new \Twig_Node(array(
-                new \Twig_Node_Expression_Name('__offset__', 1),
+                new \Twig_Node_Expression_Name(sprintf('__offset_%s__', $this->currentNumberOfPagination), 1),
                 new \Twig_Node_Expression_Constant($maxPerPage, 1),
             )),
             1
@@ -99,7 +108,7 @@ class Paginator implements \Twig_NodeVisitorInterface
         }
 
         $args = $this->currentRenderDocuments->getNode('arguments');
-        $args->setNode(1, new \Twig_Node_Expression_Name('__pages__', 1));
-        $args->setNode(2, new \Twig_Node_Expression_Name('__current_page__', 1));
+        $args->setNode(1, new \Twig_Node_Expression_Name(sprintf('__pages_%s__', $this->currentNumberOfPagination), 1));
+        $args->setNode(2, new \Twig_Node_Expression_Name(sprintf('__current_page_%s__', $this->currentNumberOfPagination), 1));
     }
 }

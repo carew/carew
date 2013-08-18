@@ -143,6 +143,115 @@ class TwigTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $lis);
     }
 
+    public function testPreRenderWithMultiplePagination()
+    {
+        $posts = array();
+        for ($i = 1; $i <= 20; $i++) {
+            $document = new Document();
+            $document->setTitle('Post #'.$i);
+            $posts[] = $document;
+        }
+
+        $posts2 = array();
+        for ($i = 1; $i <= 12; $i++) {
+            $document = new Document();
+            $document->setTitle('Other Post #'.$i);
+            $posts2[] = $document;
+        }
+
+        $document = new Document();
+        $document->setLayout('default');
+        $document->setPath('index.html');
+        $document->setTitle('Index');
+        $document->setBody(<<<'EOL'
+{{ render_documents(paginate([carew.document], 4)) }}
+{{ render_documents(paginate(carew.posts, 4)) }}
+{{ render_documents(paginate(carew.extra.posts2, 6)) }}
+EOL
+        );
+
+        $event = new CarewEvent(array($document));
+        $this->getTwigGlobals()->fromArray(array('posts' => $posts, 'posts2' => $posts2));
+
+        $this->twigListenner->preRender($event);
+        $documents = $event->getSubject();
+        $this->assertCount(6, $documents);
+
+        $lis1 = $lis2 = $lis3 = array();
+        foreach (array_values($documents) as $key => $document) {
+            $page = $key + 1;
+            if (1 == $page) {
+                $path = 'index.html';
+            } elseif (in_array($page, array(2, 3, 4, 5))) {
+                $path = sprintf('index-page-%s.html', $page);
+            } elseif (6 == $page) {
+                $path = 'index-2-page-6.html';
+            }
+
+            $crawler = new Crawler($document->getBody());
+            $this->assertCount(6, $crawler->filter('ul'));
+
+            // First pagination (1 item by pages, 1 page)
+            $this->assertCount(1, $crawler->filter('ul')->eq(0)->filter('li'));
+            foreach ($crawler->filter('ul')->eq(0)->filter('li') as $li) {
+                $lis1[] = trim($li->textContent);
+            }
+            $this->assertCount(1, $crawler->filter('ul')->eq(1)->filter('li'));
+            $this->assertSame('active', $crawler->filter('ul')->eq(1)->filter('li')->eq(0)->attr('class'));
+            $this->assertSame('page 1', $crawler->filter('ul')->eq(1)->filter('li')->eq(0)->text());
+            $this->assertSame('./index.html', $crawler->filter('ul')->eq(1)->filter('li')->eq(0)->filter('a')->attr('href'));
+
+            // Seconde pagination (4 items by pages, 5 pages)
+            $this->assertCount(4, $crawler->filter('ul')->eq(2)->filter('li'));
+            foreach ($crawler->filter('ul')->eq(2)->filter('li') as $li) {
+                $lis2[] = trim($li->textContent);
+            }
+            $this->assertCount(5, $crawler->filter('ul')->eq(3)->filter('li'));
+            for ($i = 1; $i <= 5; $i++) {
+                $this->assertSame('page '.$i, $crawler->filter('ul')->eq(3)->filter('li')->eq($i - 1)->text(), sprintf('($i = %s, $page = %s)', $i, $page));
+                $href = 1 == $i ? './index.html' : sprintf('./index-1-page-%s.html', $i);
+                $this->assertSame($href, $crawler->filter('ul')->eq(3)->filter('li')->eq($i - 1)->filter('a')->attr('href'), sprintf('($i = %s, $page = %s)', $i, $page));
+                if (6 == $page) {
+                    continue;
+                }
+                $class = $page === $i ? 'active' : '';
+                $this->assertSame($class, $crawler->filter('ul')->eq(3)->filter('li')->eq($i - 1)->attr('class'), sprintf('Class "active" is present only when $i == $page, ($i = %s, $page = %s, class = "%s")', $i, $page, $class));
+            }
+
+            // Third pagination (6 items by pages, 2 pages)
+            $this->assertCount(6, $crawler->filter('ul')->eq(4)->filter('li'));
+            foreach ($crawler->filter('ul')->eq(4)->filter('li') as $li) {
+                $lis3[] = trim($li->textContent);
+            }
+            $this->assertCount(2, $crawler->filter('ul')->eq(5)->filter('li'));
+            if (1 == $page) {
+                $this->assertSame('active', $crawler->filter('ul')->eq(5)->filter('li')->eq(0)->attr('class'));
+            } elseif (6 == $page) {
+                $this->assertSame('', $crawler->filter('ul')->eq(5)->filter('li')->eq(0)->attr('class'));
+                $this->assertSame('active', $crawler->filter('ul')->eq(5)->filter('li')->eq(1)->attr('class'));
+            }
+            $this->assertSame('page 1', $crawler->filter('ul')->eq(5)->filter('li')->eq(0)->text());
+            $this->assertSame('./index.html', $crawler->filter('ul')->eq(5)->filter('li')->eq(0)->filter('a')->attr('href'));
+            $this->assertSame('page 2', $crawler->filter('ul')->eq(5)->filter('li')->eq(1)->text());
+            $this->assertSame('./index-2-page-2.html', $crawler->filter('ul')->eq(5)->filter('li')->eq(1)->filter('a')->attr('href'));
+        }
+
+        $lis1 = array_unique($lis1);
+        sort($lis1);
+        $lis1Expected = array('Index');
+        $this->assertSame($lis1Expected, $lis1);
+
+        $lis2 = array_unique($lis2);
+        sort($lis2);
+        $lis2Expected = array (
+            'Post #1', 'Post #10', 'Post #11', 'Post #12', 'Post #13',
+            'Post #14', 'Post #15', 'Post #16', 'Post #17', 'Post #18',
+            'Post #19', 'Post #2', 'Post #20', 'Post #3', 'Post #4', 'Post #5',
+            'Post #6', 'Post #7', 'Post #8', 'Post #9',
+        );
+        $this->assertSame($lis2Expected, $lis2);
+    }
+
     public function getPostRenderWithoutLayoutTests()
     {
         return array(
