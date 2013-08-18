@@ -105,10 +105,10 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
     {
         $extraNode = $stream->getNode('extra');
         $this->assertInstanceOf('Twig_Node_Extra', $extraNode);
-        $this->assertInstanceOf('Carew\Twig\Node\Pagination', $extraNode->getNode(0));
-        $this->assertInstanceOf('Twig_Node_Expression_Name', $extraNode->getNode(0)->getNode('node'));
-        $this->assertSame('collection', $extraNode->getNode(0)->getNode('node')->getAttribute('name'));
-        $this->assertSame(10, $extraNode->getNode(0)->getAttribute('maxPerPage'));
+        $this->assertInstanceOf('Carew\Twig\Node\Pagination', $extraNode->getNode('pagination'));
+        $this->assertInstanceOf('Twig_Node_Expression_Name', $extraNode->getNode('pagination')->getNode('node'));
+        $this->assertSame('collection', $extraNode->getNode('pagination')->getNode('node')->getAttribute('name'));
+        $this->assertSame(10, $extraNode->getNode('pagination')->getAttribute('maxPerPage'));
     }
 
     private function createEnv()

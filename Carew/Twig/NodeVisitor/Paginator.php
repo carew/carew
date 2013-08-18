@@ -44,7 +44,7 @@ class Paginator implements \Twig_NodeVisitorInterface
         if ($args->hasNode(1)) {
             $arg = $args->getNode(1);
             if (!$arg instanceof \Twig_Node_Expression_Constant) {
-                throw new \Twig_Error_Syntax('Second argument of "paginate" function should be an integer.');
+                throw new \Twig_Error_Syntax('Second argument (optional) of "paginate" function should be an integer.');
             }
             $maxPerPage = (integer) $arg->getAttribute('value');
         } else {
@@ -57,7 +57,7 @@ class Paginator implements \Twig_NodeVisitorInterface
 
         // Set-up the PaginationNode
         $extra = $this->currentModule->getNode('extra');
-        $extra->setNode(0, new PaginationNode($nodeToPaginate, $maxPerPage));
+        $extra->setNode('pagination', new PaginationNode($nodeToPaginate, $maxPerPage));
 
         // Filter the node with "|slice(offset, maxPerPage)"
         $slicedNode = new \Twig_Node_Expression_Filter(
