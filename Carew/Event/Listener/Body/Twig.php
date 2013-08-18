@@ -19,9 +19,7 @@ class Twig implements EventSubscriberInterface
     public function preRender(CarewEvent $event)
     {
         $documents = $event->getSubject();
-        $documentsTmp = array();
         foreach ($documents as $k => $document) {
-            $documentsTmp[] = $document;
             if (false === $document->getLayout()) {
                 continue;
             }
@@ -39,20 +37,20 @@ class Twig implements EventSubscriberInterface
                 continue;
             }
 
-            unset($documentsTmp[$k]);
+            unset($documents[$k]);
 
             $nbPages = ceil($nbItems / $template->getMaxPerPage());
             $pagesAsDocument = array();
             for ($page = 1; $page <= $nbPages; $page++) {
-                $documentTmp = clone $document;
+                $pageAsDocument = clone $document;
 
                 if (1 < $page) {
-                    $pathInfo = pathinfo($documentTmp->getPath());
+                    $pathInfo = pathinfo($pageAsDocument->getPath());
                     $pathInfo['filename'] = sprintf('%s-page-%d', $pathInfo['filename'], $page);
-                    $documentTmp->setPath(ltrim(sprintf('%s/%s.%s', $pathInfo['dirname'], $pathInfo['filename'], $pathInfo['extension']), './'));
+                    $pageAsDocument->setPath(ltrim(sprintf('%s/%s.%s', $pathInfo['dirname'], $pathInfo['filename'], $pathInfo['extension']), './'));
                 }
 
-                $pagesAsDocument[$page] = $documentTmp;
+                $pagesAsDocument[$page] = $pageAsDocument;
             }
 
             foreach ($pagesAsDocument as $page => $pageAsDocument) {
@@ -61,11 +59,11 @@ class Twig implements EventSubscriberInterface
                     '__pages__' => $pagesAsDocument,
                     '__current_page__' => $page,
                 )));
-                $documentsTmp[] = $pageAsDocument;
+                $documents[] = $pageAsDocument;
             }
         }
 
-        $event->setSubject($documentsTmp);
+        $event->setSubject($documents);
     }
 
     public function postRender(CarewEvent $event)

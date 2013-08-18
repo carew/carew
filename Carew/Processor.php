@@ -59,7 +59,6 @@ class Processor
             $globalsData[$key] = $this->buildCollectionWithDocumentMethod($documents, 'get'.ucfirst($key));
         }
 
-
         return $globals->fromArray($globalsData);
     }
 
