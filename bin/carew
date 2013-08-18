@@ -7,6 +7,10 @@ if ((!@include __DIR__.'/../../../autoload.php') && (!@include __DIR__.'/../vend
         'php composer.phar install'.PHP_EOL);
 }
 
+use Symfony\Component\Debug\Debug;
+
+Debug::enable();
+
 $application = new Carew\Carew();
 
 $application->run();

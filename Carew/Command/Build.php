@@ -2,8 +2,6 @@
 
 namespace Carew\Command;
 
-use Carew\Document;
-use Carew\Processor;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -36,60 +34,48 @@ class Build extends BaseCommand
         $startAt = microtime(true);
         $memoryUsage = memory_get_usage();
 
-        $this->container['base_dir'] = $baseDir = realpath($input->getOption('base-dir'));
-        if (false === $baseDir) {
-            throw new \InvalidArgumentException('Could not find base dir path');
+        $baseDir = $this->container['base_dir'];
+        $webDir = $this->container['web_dir'] = $input->getOption('web-dir');
+
+        $this->container['filesystem']->mkdir($webDir);
+
+        $documents = array();
+        foreach ($this->container['config']['folders'] as $folderRaw => $type) {
+            $folder = "$baseDir/$folderRaw";
+            if (!is_dir($folder)) {
+                continue;
+            }
+            $input->getOption('verbose') and $output->writeln(sprintf('<info>Reading</info> <comment>%s</comment>', $folder));
+            $files = $this->container['finder']->create()->in($folder)->files();
+            foreach ($files as $file) {
+                $input->getOption('verbose') and $output->writeln(sprintf('  >> <comment>%s</comment>', (string) $file));
+                $document = $this->container['processor']->processFile($file, $folderRaw, $type);
+                $documents[$document->getFilePath()] = $document;
+            }
         }
 
-        $this->container['web_dir'] = $webDir = $input->getOption('web-dir');
-        if (!is_dir($webDir)) {
-            $this->container['filesystem']->mkdir($webDir);
-        }
+        $input->getOption('verbose') and $output->writeln('<info>Processing all documents</info>');
+        $documents = $this->container['processor']->processDocuments($documents);
+        $globals = $this->container['twig']->getGlobals();
+        $this->container['processor']->processGlobals($documents, $globals['carew']);
 
-        $processor = $this->container['processor'];
-
-        $input->getOption('verbose') and $output->writeln('Processing <comment>Posts</comment>');
-        $posts = $processor->process($baseDir.'/posts', '*-*-*-*.md', Document::TYPE_POST);
-        $posts = $processor->sortByDate($posts);
-
-        $input->getOption('verbose') and $output->writeln('Processing <comment>Pages</comment>');
-        $pages = $processor->process($baseDir.'/pages', '*.md', Document::TYPE_PAGE);
-
-        $input->getOption('verbose') and $output->writeln('Processing <comment>Api</comment>');
-        $api = $processor->process($baseDir.'/api', '*', Document::TYPE_API, true);
-
-        $documents = array_merge($posts, $pages, $api);
-
-        $tags       = $processor->buildCollection($documents, 'tags');
-        $navigation = $processor->buildCollection($documents, 'navigation');
-
-        $input->getOption('verbose') and $output->writeln('Processing <comment>Tags page</comment>');
-        $documents = array_merge($documents, $tags = $processor->processTags($tags, $baseDir));
-
-        $input->getOption('verbose') and $output->writeln('Processing <comment>Index page</comment>');
-        $documents = array_merge($documents, $processor->processIndex($pages, $posts, $baseDir));
-
-        $input->getOption('verbose') and $output->writeln('<comment>Cleaned target folder</comment>');
+        $input->getOption('verbose') and $output->writeln('<info>Cleaning target folder</info>');
         $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));
 
-        $twigGlobales = array(
-            'latest'     => reset($posts),
-            'navigation' => $navigation,
-            'documents'  => $documents,
-            'posts'      => $posts,
-            'tags'       => $tags,
-        );
-        foreach ($twigGlobales as $key => $global) {
-            $this->container['twig']->addGlobal($key, $global);
-        }
-
-        $builder = $this->container['builder'];
+        $input->getOption('verbose') and $output->writeln('<info>Compiling and Writing</info>');
         foreach ($documents as $document) {
-            $input->getOption('verbose') and $output->writeln(sprintf('Render <comment>%s</comment>', $document->getPath()));
-            $builder->buildDocument($document);
+            $input->getOption('verbose') and $output->writeln(sprintf('  >> <info>Compiling</info> <comment>%s</comment>', $document->getPath()));
+            $documentsTmp = $this->container['processor']->processDocument($document);
+            if (!is_array($documentsTmp)) {
+                $documentsTmp = array($documentsTmp);
+            }
+            foreach ($documentsTmp as $documentTmp) {
+                $input->getOption('verbose') and $output->writeln(sprintf('  >> <info>Writing</info> <comment>%s</comment>', $documentTmp->getPath()));
+                $this->container['processor']->write($documentTmp);
+            }
         }
 
-        $input->getOption('verbose') and $output->writeln('<comment>Copy assets</comment>');
+        $input->getOption('verbose') and $output->writeln('<info>Copy assets</info>');
         foreach ($this->container['themes'] as $theme) {
             $path = $theme.'/assets/';
             if (is_dir($path)) {

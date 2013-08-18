@@ -1,6 +1,6 @@
 <?php
 
-namespace Carew\Tests\Event\Listener\Metadata\Extraction;
+namespace Carew\Tests\Event\Listener\Metadata;
 
 use Carew\Document;
 use Carew\Event\CarewEvent;
@@ -9,20 +9,45 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class ExtractionTest extends \PHPUnit_Framework_TestCase
 {
-    public function getTestOnDocumentWithSimpleFile()
+    public function getRewriteUrlTests()
     {
         return array(
-            array('simple.html', 'simple.md', ''),
-            array('folder/simple.html', 'simple.md', 'folder'),
+            array('simple.html', 'simple'),
+            array('simple.html', 'simple.twig'),
+            array('simple.html', 'simple.html'),
+            array('simple.html', 'simple.html.twig'),
+            array('simple.html', 'simple.md'),
+            array('simple.html', 'simple.md.twig'),
+            array('simple.js',   'simple.js'),
+            array('simple.js',   'simple.js.twig'),
+            array('folder/simple.html', 'folder/simple'),
+            array('folder/simple.html', 'folder/simple.twig'),
+            array('folder/simple.html', 'folder/simple.html'),
+            array('folder/simple.html', 'folder/simple.html.twig'),
+            array('folder/simple.html', 'folder/simple.md'),
+            array('folder/simple.html', 'folder/simple.md.twig'),
+            array('folder/simple.js',   'folder/simple.js'),
+            array('folder/simple.js',   'folder/simple.js.twig'),
         );
     }
 
     /**
-     * @dataProvider getTestOnDocumentWithSimpleFile
+     * @dataProvider getRewriteUrlTests
      */
-    public function testOnDocumentWithSimpleFile($expected, $file, $relativePath)
+    public function testRewriteUrl($expected, $file)
     {
-        $document = $this->createDocument($file, $relativePath);
+        $document = $this->createDocument($file);
+        $event = new CarewEvent($document);
+
+        $extraction = new Extraction();
+        $extraction->onDocument($event);
+
+        $this->assertSame($expected, $document->getPath());
+    }
+
+    public function testOnDocumentWithSimpleFile()
+    {
+        $document = $this->createDocument('extra-metadatas.md');
         $event = new CarewEvent($document);
 
         $extraction = new Extraction();
@@ -30,8 +55,8 @@ class ExtractionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('title', $document->getTitle());
         $this->assertSame('body', $document->getBody());
-        $this->assertSame('layout', $document->getLayout());
-        $this->assertSame($expected, $document->getPath());
+        $this->assertSame('default', $document->getLayout());
+        $this->assertSame('extra-metadatas.html', $document->getPath());
     }
 
     public function getOnDocumentWithTagsTests()
@@ -54,8 +79,7 @@ class ExtractionTest extends \PHPUnit_Framework_TestCase
         $extraction = new Extraction();
         $extraction->onDocument($event);
 
-        $metadatas = $document->getMetadatas();
-        $this->assertSame($expected, $metadatas['tags']);
+        $this->assertSame($expected, $document->getTags());
     }
 
     public function testOnDocumentWithExtraMetadatas()
@@ -71,30 +95,17 @@ class ExtractionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array('v2.1', 'v2.2'), $metadatas['k2']);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Could not parse front matter
-     */
-    public function testOnDocumentWithNoHeaderAndException()
+    public function testOnDocumentWithNoHeader()
     {
-        $document = $this->createDocument('other-format.js');
+        $document = $this->createDocument('scripts.js');
         $event = new CarewEvent($document);
 
         $extraction = new Extraction();
         $extraction->onDocument($event);
-    }
 
-    public function testOnDocumentWithNoHeader()
-    {
-        $document = $this->createDocument('other-format.js');
-        $event = new CarewEvent($document, array('allowEmptyHeader' => true));
-
-        $extraction = new Extraction();
-        $extraction->onDocument($event);
-
-        $this->assertSame("body\n", $document->getBody());
+        $this->assertSame("some js\n", $document->getBody());
         $this->assertSame(false, $document->getLayout());
-        $this->assertSame('other-format.js', $document->getPath());
+        $this->assertSame('scripts.js', $document->getPath());
     }
 
     public function getOnDocumentWithPermalink()
@@ -121,12 +132,13 @@ class ExtractionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($expected, $document->getPath());
     }
 
-    private function createDocument($file, $relativePath = '')
+    private function createDocument($file)
     {
-        if ($relativePath) {
-            $file = $relativePath.'/'.$file;
+        if ('.' == dirname($file)) {
+            $file = new SplFileInfo(__DIR__.'/../../../fixtures/'.$file, '', basename($file));
+        } else {
+            $file = new SplFileInfo(__DIR__.'/../../../fixtures/'.$file, dirname($file), dirname($file).'/'.basename($file));
         }
-        $file = new SplFileInfo(__DIR__.'/../../../fixtures/extraction/'.$file, $relativePath, $file);
 
         return new Document($file);
     }

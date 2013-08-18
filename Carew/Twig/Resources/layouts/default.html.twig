@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+        <title>{{ carew.document.title|default(carew.site.title|default('')) }}</title>
+
+        <meta name="description" content="{{ carew.document.metadatas.description|default(carew.site.description|default('')) }}">
+        <meta name="author" content="{{ carew.document.author_name|default(carew.site.author_name|default('')) }}">
+
+        {% if carew.site.url_absolute is defined -%}
+            <link rel="alternate" href="{{ carew.relativeRoot }}/index.atom" type="application/atom+xml" title="{{ carew.site.title|default('') }}"/>
+            <link rel="canonical" href="{{ carew.site.url_absolute }}/{{ carew.document.path }}"/>
+        {%- endif %}
+    </head>
+
+    <body>
+        {% if carew.document.title is defined and carew.document.title %}
+            <h1>
+                {{- carew.document.title }}
+                {%- if carew.document.metadatas.subtitle is defined %} <small>{{ carew.document.metadatas.subtitle }}</small>{% endif -%}
+            </h1>
+        {% endif %}
+
+        {{ carew.document.body|default('')|raw }}
+
+        <footer>
+                <small>
+                    Made with help from <a href="http://carew.github.com/" target="_blank">Carew</a>
+                </small>
+        </footer>
+    </body>
+</html>

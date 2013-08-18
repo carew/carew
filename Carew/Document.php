@@ -16,7 +16,9 @@ class Document
     private $filePath;
     private $layout;
     private $metadatas;
+    private $navigations;
     private $path;
+    private $tags;
     private $title;
     private $toc;
     private $type;
@@ -24,16 +26,22 @@ class Document
 
     public function __construct(SplFileInfo $file = null, $filePath = null, $type = self::TYPE_UNKNOWN)
     {
-        $this->body      = '';
-        $this->file      = $file;
-        $this->filePath  = $filePath;
-        $this->layout    = 'default';
-        $this->metadatas = array('tags' => array(), 'navigation' => array());
-        $this->path      = $file ? $file->getBaseName() : '.';
-        $this->title     = $file ? $file->getBaseName() : '.';
-        $this->toc       = array();
-        $this->type      = $type;
-        $this->vars      = array();
+        $this->file = $file;
+        $this->filePath = $filePath;
+        $this->type = $type;
+
+        $this->layout = false;
+        $this->metadatas = array();
+        $this->navigations = array();
+        $this->tags = array();
+        $this->toc = array();
+        $this->vars = array();
+
+        if ($file && is_file($file)) {
+            $this->path = $file->getBaseName();
+            $this->title = $file->getBaseName();
+            $this->body = file_get_contents($file);
+        }
     }
 
     public function getBody()
@@ -53,13 +61,6 @@ class Document
         return $this->file;
     }
 
-    public function setFile($file)
-    {
-        $this->file = $file;
-
-        return $this;
-    }
-
     public function getLayout()
     {
         return $this->layout;
@@ -77,14 +78,21 @@ class Document
         return $this->metadatas;
     }
 
-    public function setMetadatas($metadatas, $merge = true)
+    public function addMetadatas(array $metadatas)
     {
-        if ($merge) {
-            $this->metadatas = array_replace_recursive($this->metadatas, $metadatas);
-        } else {
-            $this->metadatas = $metadatas;
+        $this->metadatas = array_replace_recursive($this->metadatas, $metadatas);
 
-        }
+        return $this;
+    }
+
+    public function getMetadata($key, $default = null)
+    {
+        return array_key_exists($key, $this->metadatas) ? $this->metadatas[$key] : $default;
+    }
+
+    public function setMetadata($key, $value)
+    {
+        $this->metadatas[$key] = $value;
 
         return $this;
     }
@@ -145,9 +153,21 @@ class Document
         return $this->vars;
     }
 
+    public function getVar($key, $default = null)
+    {
+        return array_key_exists($key, $this->vars) ? $this->vars[$key] : $default;
+    }
+
     public function setVars($vars)
     {
         $this->vars = $vars;
+
+        return $this;
+    }
+
+    public function setVar($key, $value)
+    {
+        $this->vars[$key] = $value;
 
         return $this;
     }
@@ -162,5 +182,42 @@ class Document
         $this->filePath = $filePath;
 
         return $this;
+    }
+
+    public function getNavigations()
+    {
+        return $this->navigations;
+    }
+
+    public function setNavigations($navigations)
+    {
+        if (!is_array($navigations)) {
+            $navigations = array($navigations);
+        }
+
+        $this->navigations = $navigations;
+
+        return $this;
+    }
+
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+    public function setTags($tags)
+    {
+        if (!is_array($tags)) {
+            $tags = array($tags);
+        }
+
+        $this->tags = $tags;
+
+        return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->title;
     }
 }

@@ -2,157 +2,136 @@
 
 namespace Carew;
 
+use Carew\Document;
 use Carew\Event\CarewEvent;
 use Carew\Event\Events;
+use Carew\Twig\Globals;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Finder\Finder;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\SplFileInfo;
 
 class Processor
 {
+    private $target;
     private $eventDispatcher;
-    private $finder;
+    private $filesystem;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher, Finder $finder = null)
+    public function __construct($target, EventDispatcherInterface $eventDispatcher = null, Filesystem $filesystem = null)
     {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->finder          = $finder ?: new Finder();
+        $this->target = $target;
+        $this->eventDispatcher = $eventDispatcher ?: new EventDispatcher();
+        $this->filesystem = $filesystem ?: new Filesystem();
     }
 
-    public function process($baseDir, $filenamePattern = '.md', $type = Document::TYPE_UNKNOWN, $allowEmptyHeader = false)
+    public function processFile(SplFileInfo $file, $folder = '', $type = Document::TYPE_UNKNOWN)
     {
-        if (!is_dir($baseDir)) {
-            return array();
+        $internalPath = trim($folder.'/'.$file->getRelativePathname(), '/');
+        $document = new Document($file, $internalPath, $type);
+
+        $event = new CarewEvent($document);
+
+        try {
+            $document = $this->eventDispatcher->dispatch(Events::DOCUMENT_HEADER, $event)->getSubject();
+        } catch (\Exception $e) {
+            throw new \LogicException(sprintf('Could not process: "%s".', (string) $file), 0 , $e);
         }
 
-        $documents = array();
-        $finder = $this->finder->create();
-        foreach ($finder->in($baseDir)->files()->name($filenamePattern) as $file) {
-            $document = new Document($file, basename($baseDir).'/'.$file->getRelativePathname(), $type);
+        return $document;
+    }
 
-            $event = new CarewEvent($document, array('allowEmptyHeader' => $allowEmptyHeader));
-
-            try {
-                $this->eventDispatcher->dispatch(Events::DOCUMENT, $event);
-
-                $document = $event->getSubject();
-            } catch (\Exception $e) {
-                throw new \LogicException(sprintf('Could not process: "%s". Error: "%s"', (string) $file, $e->getMessage()));
-            }
-
-            $documents[$document->getFilePath()] = $document;
-        }
-
+    public function processDocuments($documents)
+    {
         $event = new CarewEvent($documents);
         $this->eventDispatcher->dispatch(Events::DOCUMENTS, $event);
-        $documents = $event->getSubject();
 
-        return $documents;
+        return $event->getSubject();
     }
 
-    public function processTags($tags, $baseDir)
+    public function processGlobals($documents, Globals $globals = null)
     {
-        if (!is_dir($baseDir.'/layouts/')) {
-            return array();
+        $globals = $globals ?: new Globals();
+
+        $globalsData = $this->buildCollectionsWithType($documents);
+        $globalsData['documents'] = $documents;
+
+        foreach (array('tags', 'navigations') as $key) {
+            $globalsData[$key] = $this->buildCollectionWithDocumentMethod($documents, 'get'.ucfirst($key));
         }
 
-        $documents = array();
-        $finder = $this->finder->create();
-        foreach ($finder->in($baseDir.'/layouts/')->files()->name('tags.*.twig') as $file) {
-            $file = $file->getBasename();
-
-            preg_match('#tags\.(.+?)\.twig$#', $file, $match);
-            $format = $match[1];
-
-            foreach ($tags as $tag => $posts) {
-                $document = new Document();
-                $document->setLayout((string) $file);
-                $document->setPath(sprintf('tags/%s.%s', $tag, $format));
-                $document->setTitle('Tags: '.$tag);
-                $document->setVars(array(
-                    'tag'   => $tag,
-                    'posts' => $posts,
-                ));
-
-                $event = new CarewEvent($document);
-                $this->eventDispatcher->dispatch(Events::TAG, $event);
-                $document = $event->getSubject();
-
-                $documents[$document->getPath()] = $document;
-            }
-        }
-
-        $event = new CarewEvent($documents);
-        $this->eventDispatcher->dispatch(Events::TAGS, $event);
-        $documents = $event->getSubject();
-
-        return $documents;
+        return $globals->fromArray($globalsData);
     }
 
-    public function processIndex($pages, $posts, $baseDir)
+    public function processDocument(Document $document)
     {
-        if (!is_dir($baseDir.'/layouts/')) {
-            return array();
+        $event = new CarewEvent(array($document));
+        try {
+            $documents = $this->eventDispatcher->dispatch(Events::DOCUMENT_BODY, $event)->getSubject();
+        } catch (\Exception $e) {
+            throw new \LogicException(sprintf('Could not process: "%s".', (string) $document->getFile()), 0 , $e);
         }
-
-        $documents = array();
-        $finder = $this->finder->create();
-        foreach ($finder->in($baseDir.'/layouts/')->files()->name('index.*.twig') as $file) {
-            $file = $file->getBasename();
-
-            preg_match('#index\.(.+?)\.twig$#', $file, $match);
-            $format = $match[1];
-
-            $document = new Document();
-            $document->setLayout((string) $file);
-            $document->setPath(sprintf('index.%s', $format));
-            $document->setTitle(false);
-            $document->setVars(array('pages' => $pages, 'posts' => $posts));
-
-            $event = new CarewEvent($document);
-            $this->eventDispatcher->dispatch(Events::INDEX, $event);
-            $document = $event->getSubject();
-
-            $documents[$document->getPath()] = $document;
-        }
-
-        $event = new CarewEvent($documents);
-        $this->eventDispatcher->dispatch(Events::INDEXES, $event);
-        $documents = $event->getSubject();
 
         return $documents;
     }
 
-    public function sortByDate($documents)
+    public function write(Document $document)
+    {
+        $target = $this->target.'/'.$document->getPath();
+        $this->filesystem->mkdir(dirname($target));
+        file_put_contents($target, $document->getBody());
+    }
+
+    private function sortByDate($documents)
     {
         uasort($documents, function ($a, $b) {
             $aMetadatas = $a->getMetadatas();
             $bMetadatas = $b->getMetadatas();
+            if (!array_key_exists('date', $aMetadatas) || !array_key_exists('date', $bMetadatas)) {
+                return 0;
+            }
+
             if ($aMetadatas['date'] == $bMetadatas['date']) {
                 return 0;
             }
 
-            return ($aMetadatas['date'] > $bMetadatas['date']) ? -1 : 1;
+            return ($aMetadatas['date'] < $bMetadatas['date']) ? -1 : 1;
         });
 
         return $documents;
     }
 
-    public function buildCollection($documents, $key)
+    private function buildCollectionWithDocumentMethod($documents, $method)
     {
         $collection = array();
         foreach ($documents as $document) {
-            $metadatas = $document->getMetadatas();
-            if (isset($metadatas[$key]) && is_array($metadatas[$key])) {
-                foreach ($metadatas[$key] as $item) {
-                    if (!array_key_exists($item, $collection)) {
-                        $collection[$item] = array();
-                    }
-
-                    $collection[$item][] = $document;
+            $items = (array) $document->{$method}();
+            foreach ($items as $item) {
+                if (!array_key_exists($item, $collection)) {
+                    $collection[$item] = array();
                 }
+                $collection[$item][$document->getFilePath()] = $document;
             }
         }
 
         return $collection;
+    }
+
+    private function buildCollectionsWithType($documents)
+    {
+        $collections = array();
+        foreach ($documents as $document) {
+            $type = $document->getType().'s';
+            if (!array_key_exists($type, $collections)) {
+                $collections[$type] = array();
+            }
+
+            $collections[$type][$document->getFilePath()] = $document;
+        }
+
+        if (isset($collections['posts'])) {
+            $collections['posts'] = $this->sortByDate($collections['posts']);
+        }
+
+        return $collections;
     }
 }

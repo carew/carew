@@ -2,7 +2,7 @@
 
 namespace Carew\Command;
 
-use Slug\Slugifier;
+use Cocur\Slugify\Slugify;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,7 +20,7 @@ class GeneratePost extends BaseCommand
             $this->defaultDate = date('Y-m-d');
         }
 
-        $this->slugify = $slugify ?: new Slugifier();
+        $this->slugify = $slugify ?: new Slugify();
 
         parent::__construct();
     }
