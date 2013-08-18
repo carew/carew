@@ -38,7 +38,7 @@ class Pagination extends \Twig_Node
 
         $compiler->write("return array(\n");
         $compiler->indent();
-        foreach ($nodes = $this->nodes as $node) {
+        foreach ($this->nodes as $node) {
             $compiler->write('count(');
             $compiler->subcompile($node);
             $compiler->raw("),\n");
@@ -61,7 +61,7 @@ class Pagination extends \Twig_Node
 
         $compiler->write("return array(\n");
         $compiler->indent();
-        foreach ($nodes = $this->getAttribute('maxesPerPage') as $maxPerPage) {
+        foreach ($this->getAttribute('maxesPerPage') as $maxPerPage) {
             $compiler->write($maxPerPage.",\n");
         }
         $compiler->outdent();
