@@ -134,26 +134,10 @@ class TwigTest extends \PHPUnit_Framework_TestCase
 
         sort($lis);
         $expected = array (
-            'Post #1',
-            'Post #10',
-            'Post #11',
-            'Post #12',
-            'Post #13',
-            'Post #14',
-            'Post #15',
-            'Post #16',
-            'Post #17',
-            'Post #18',
-            'Post #19',
-            'Post #2',
-            'Post #20',
-            'Post #3',
-            'Post #4',
-            'Post #5',
-            'Post #6',
-            'Post #7',
-            'Post #8',
-            'Post #9',
+            'Post #1', 'Post #10', 'Post #11', 'Post #12', 'Post #13',
+            'Post #14', 'Post #15', 'Post #16', 'Post #17', 'Post #18',
+            'Post #19', 'Post #2', 'Post #20', 'Post #3', 'Post #4', 'Post #5',
+            'Post #6', 'Post #7', 'Post #8', 'Post #9',
         );
 
         $this->assertSame($expected, $lis);
