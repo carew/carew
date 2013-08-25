@@ -1,4 +1,4 @@
-{% block document_url %}
+{% block document_path %}
 {% spaceless -%}
     {% if '.' == carew.relativeRoot %}
         {{ document.path }}
@@ -35,7 +35,7 @@
         {% for document in documents %}
             <li class="{% block li_class '' %}">
                 {% block document_list %}
-                        <a href="{{ render_document_url(document) }}">
+                        <a href="{{ render_document_path(document) }}">
                             {{ render_document_title(document) }}
                         </a>
                 {% endblock %}
@@ -91,7 +91,7 @@
         <ul>
             {% for page_number, document in pages %}
                 <li{% if current_page == page_number %} class="active"{% endif %}>
-                    <a href="{{ render_document_url(document) }}">page {{ page_number }}</a>
+                    <a href="{{ render_document_path(document) }}">page {{ page_number }}</a>
                 </li>
             {% endfor %}
         </ul>

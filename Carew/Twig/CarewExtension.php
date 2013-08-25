@@ -18,8 +18,7 @@ class CarewExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            new \Twig_SimpleFunction('render_document_url',  array($this, 'renderDocumentUrl'),       array('is_safe' => array('html'), 'needs_environment' => true)),
-            new \Twig_SimpleFunction('render_document_path', array($this, 'renderDocumentUrl'),       array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('render_document_path', array($this, 'renderDocumentPath'),      array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_document_toc',  array($this, 'renderDocumentToc'),       array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_document_*',    array($this, 'renderDocumentAttribute'), array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_document',      array($this, 'renderDocument'),          array('is_safe' => array('html'), 'needs_environment' => true)),
@@ -30,9 +29,9 @@ class CarewExtension extends \Twig_Extension
         );
     }
 
-    public function renderDocumentUrl(\Twig_Environment $twig, Document $document)
+    public function renderDocumentPath(\Twig_Environment $twig, Document $document)
     {
-        return $this->renderDocumentAttribute($twig, 'url', $document);
+        return $this->renderDocumentAttribute($twig, 'path', $document);
     }
 
     public function renderDocumentToc(\Twig_Environment $twig, $toc)
