@@ -18,7 +18,16 @@
 
 {% block document_toc %}
 {% spaceless -%}
-    @TODO: TOC
+    <ul>
+        {% for child in children %}
+            <li>
+                <a href="#{{ child.id}}">{{ child.title }}</a>
+                {% if child.children %}
+                    {{ render_document_toc(child.children) }}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
 {%- endspaceless %}
 {% endblock %}
 

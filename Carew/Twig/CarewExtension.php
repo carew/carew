@@ -20,6 +20,7 @@ class CarewExtension extends \Twig_Extension
         return array(
             new \Twig_SimpleFunction('render_document_url',  array($this, 'renderDocumentUrl'),       array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_document_path', array($this, 'renderDocumentUrl'),       array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('render_document_toc',  array($this, 'renderDocumentToc'),       array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_document_*',    array($this, 'renderDocumentAttribute'), array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_document',      array($this, 'renderDocument'),          array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_documents',     array($this, 'renderDocuments'),         array('is_safe' => array('html'), 'needs_environment' => true)),
@@ -32,6 +33,21 @@ class CarewExtension extends \Twig_Extension
     public function renderDocumentUrl(\Twig_Environment $twig, Document $document)
     {
         return $this->renderDocumentAttribute($twig, 'url', $document);
+    }
+
+    public function renderDocumentToc(\Twig_Environment $twig, $toc)
+    {
+        if (is_object($toc) && $toc instanceof Document) {
+            $toc = $toc->getToc();
+        }
+
+        if (!is_array($toc)) {
+            throw new InvalidArgumentException('First argument given to render_document_toc must be a Document or an array of TOC');
+        }
+
+        $parameters['children'] = $toc;
+
+        return $this->renderBlock($twig, 'document_toc', $parameters);
     }
 
     public function renderDocumentAttribute(\Twig_Environment $twig, $attribute, Document $document)

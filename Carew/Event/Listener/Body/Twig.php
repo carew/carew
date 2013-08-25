@@ -97,7 +97,7 @@ class Twig implements EventSubscriberInterface
     {
         return array(
             Events::DOCUMENT_BODY => array(
-                array('preRender', 2),
+                array('preRender', 8),
                 array('postRender', 0),
             ),
         );

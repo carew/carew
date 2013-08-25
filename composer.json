@@ -18,6 +18,10 @@
         {
             "type": "git",
             "url": "https://github.com/lyrixx/Twig.git"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/lyrixx/HtmlTools.git"
         }
     ],
     "require": {
@@ -30,7 +34,8 @@
         "symfony/filesystem":       "~2.1",
         "symfony/finder":           "~2.1",
         "symfony/yaml":             "~2.1",
-        "twig/twig":                "dev-extra"
+        "twig/twig":                "dev-extra",
+        "yohang/htmltools":         "dev-cleanup"
     },
     "require-dev": {
         "symfony/dom-crawler":  "~2.2",
