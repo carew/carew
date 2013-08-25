@@ -8,7 +8,6 @@ use Carew\Event\Listener\Body\Toc;
 
 class TocTest extends \PHPUnit_Framework_TestCase
 {
-
     public function testOnDocument()
     {
         $document = new Document();
@@ -46,5 +45,28 @@ EOL;
         );
 
         $this->assertSame($tocExpected, $document->getToc());
+    }
+
+    public function testOnDocumentDoesNotAlterLink()
+    {
+        $document = new Document();
+        $document->setPath('index.html');
+        $body = <<<EOL
+<a href="{{ path(\'foobar\') }}">foobar</a>
+AAAAA
+<a href="{{ path(\'baba\') }}">baba</a>
+BBBBB
+<a href="{{ path(\'bar\') }}">bar</a>
+CCCCC
+<a href="{{ path(\'foobar\') }}">foobar</a>
+EOL;
+        $document->setBody($body);
+
+        $event = new CarewEvent(array($document));
+
+        $toc = new Toc();
+        $toc->onDocument($event);
+
+        $this->assertSame($body, $document->getBody());
     }
 }
