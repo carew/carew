@@ -37,14 +37,14 @@ class BuildTest extends AbstractTest
         $this->assertCount(3, $crawler->filter('ul'));
         // posts list
         $this->assertCount(4, $crawler->filter('ul')->eq(0)->filter('li'));
-        $this->assertSame('Good bye', trim($crawler->filter('ul')->eq(0)->filter('li')->eq(0)->text()));
+        $this->assertSame('Good Bye', trim($crawler->filter('ul')->eq(0)->filter('li')->eq(0)->text()));
         $this->assertSame('Hello', trim($crawler->filter('ul')->eq(0)->filter('li')->eq(3)->text()));
         // pages list
         $this->assertCount(1, $crawler->filter('ul')->eq(1)->filter('li'));
-        $this->assertSame('index', trim($crawler->filter('ul')->eq(1)->filter('li')->eq(0)->text()));
+        $this->assertSame('Index', trim($crawler->filter('ul')->eq(1)->filter('li')->eq(0)->text()));
         // api list
         $this->assertCount(1, $crawler->filter('ul')->eq(2)->filter('li'));
-        $this->assertSame('api', trim($crawler->filter('ul')->eq(2)->filter('li')->eq(0)->text()));
+        $this->assertSame('Api', trim($crawler->filter('ul')->eq(2)->filter('li')->eq(0)->text()));
 
         // Api
         $this->assertTrue(file_exists($webDir.'/api/api.html'));
@@ -131,7 +131,7 @@ EOL;
                 $class = $page == $i ? 'active' : '';
                 $this->assertSame($class, $crawler->filter('ul')->eq(1)->filter('li')->eq($i - 1)->attr('class'), sprintf('Class "active" is present only when $i == $page, ($i = %s, $page = %s)', $i, $page));
                 $this->assertSame('page '.$i, $crawler->filter('ul')->eq(1)->filter('li')->eq($i - 1)->text(), sprintf('($i = %s, $page = %s)', $i, $page));
-                $href = 1 == $i ? './index.html' : sprintf('./index-page-%s.html', $i);
+                $href = 1 == $i ? 'index.html' : sprintf('index-page-%s.html', $i);
                 $this->assertSame($href, $crawler->filter('ul')->eq(1)->filter('li')->eq($i - 1)->filter('a')->attr('href'), sprintf('($i = %s, $page = %s)', $i, $page));
             }
         }
@@ -141,9 +141,10 @@ EOL;
         sort($lis);
 
         $expected = array(
-            'Page1', 'Page10', 'Page11', 'Page12', 'Page13', 'Page14', 'Page2',
-            'Page3', 'Page4', 'Page5', 'Page6', 'Page7', 'Page8', 'Page9',
-            'index',
+            'Index', 'Page1', 'Page10', 'Page11', 'Page12', 'Page13', 'Page14',
+            'Page2', 'Page3', 'Page4', 'Page5', 'Page6', 'Page7', 'Page8',
+            'Page9',
+
         );
 
         $this->assertSame($expected, $lis);
@@ -212,7 +213,7 @@ EOL;
         $this->assertTrue(file_exists($webDir.'/2010/01/03/default-extends.html'));
         $crawler = new Crawler(file_get_contents($webDir.'/2010/01/03/default-extends.html'));
         $this->assertSame('default-extends', $crawler->filter('title')->text());
-        $this->assertSame('title:default-extends', $crawler->filter('h1')->text());
+        $this->assertSame('title:Default-Extends', $crawler->filter('h1')->text());
         $this->assertSame('Should be wrapped into a div', trim($crawler->filter('div.body')->text()));
     }
 

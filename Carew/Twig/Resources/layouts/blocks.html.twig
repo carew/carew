@@ -1,18 +1,16 @@
 {% block document_url %}
 {% spaceless -%}
-    {{ carew.relativeRoot }}/{{ document.path }}
+    {% if '.' == carew.relativeRoot %}
+        {{ document.path }}
+    {% else %}
+        {{ carew.relativeRoot }}/{{ document.path }}
+    {% endif %}
 {%- endspaceless %}
 {% endblock %}
 
 {% block document_title %}
 {% spaceless -%}
-    {{ document.title }}
-{%- endspaceless %}
-{% endblock %}
-
-{% block document_description %}
-{% spaceless -%}
-    {{ document.description }}
+    {{ document.title|title }}
 {%- endspaceless %}
 {% endblock %}
 
@@ -48,37 +46,55 @@
 {% endblock %}
 
 {% block post %}
-{% spaceless -%}
-    {{ document.metadatas.date|date('M d') }}: {{ document.title|title }}
-{%- endspaceless %}
+    <h2>
+        {{ document.title|title }}
+        <small>
+            {{ document.metadatas.date|date('M d') }}
+            {% if document.metadatas.author is defined %}
+                by {{ document.metadatas.author }}
+            {% endif %}
+        </small>
+    </h2>
+    {{ document.body }}
 {% endblock %}
 
 {% block page %}
 {% spaceless -%}
-    {{ document.title|title }}
+    <h2>
+        {{ document.title|title }}
+    </h2>
+    {{ document.body }}
 {%- endspaceless %}
 {% endblock %}
 
 {% block api %}
 {% spaceless -%}
-    {{ document.title|title }}
+    <h2>
+        {{ document.title|title }}
+    </h2>
+    {{ document.body }}
 {%- endspaceless %}
 {% endblock %}
 
 {% block unknown %}
 {% spaceless -%}
-    {{ document.title|title }}
+    <h2>
+        {{ document.title|title }}
+    </h2>
+    {{ document.body }}
 {%- endspaceless %}
 {% endblock %}
 
 {% block pagination %}
 {% spaceless %}
-    <ul>
-        {% for page_number, document in pages %}
-            <li{% if current_page == page_number %} class="active"{% endif %}>
-                <a href="{{ render_document_url(document) }}">page {{ page_number }}</a>
-            </li>
-        {% endfor %}
-    </ul>
+    {% if 1 < pages|length %}
+        <ul>
+            {% for page_number, document in pages %}
+                <li{% if current_page == page_number %} class="active"{% endif %}>
+                    <a href="{{ render_document_url(document) }}">page {{ page_number }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 {% endspaceless %}
 {% endblock %}

@@ -34,7 +34,18 @@ class Twig implements EventSubscriberInterface
             $maxesPerPage = $template->getMaxesPerPage();
 
             if (!$this->hasToPaginate($nbsItems, $maxesPerPage)) {
-                $document->setBody($template->render(array()));
+                $parameters = array();
+                foreach ($nbsItems as $key => $nbItems) {
+                    $parameters[sprintf('__offset_%d__', $key)] = 0;
+                    $parameters[sprintf('__pages_%d__', $key)] = array($document);
+                    $parameters[sprintf('__current_page_%d__', $key)] = 1;
+                }
+                try {
+                    $body = $template->render($parameters);
+                    $document->setBody($body);
+                } catch (\Twig_Error_Runtime $e) {
+                    throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
+                }
 
                 continue;
             }
@@ -62,7 +73,13 @@ class Twig implements EventSubscriberInterface
 
                     $parametersTmp[sprintf('__offset_%d__', $key)] =  ($nbPage - 1) * $maxesPerPage[$key];
                     $parametersTmp[sprintf('__current_page_%d__', $key)] =  $nbPage;
-                    $page->setBody($template->render($parametersTmp));
+                    try {
+                        $body = $template->render($parametersTmp);
+                    } catch (\Twig_Error_Runtime $e) {
+                        throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
+                    }
+                    $page->setBody($body);
+
                     $documents[] = $page;
                 }
             }
