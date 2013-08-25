@@ -35,7 +35,7 @@ class CarewExtension extends \Twig_Extension
         return $this->renderDocumentAttribute($twig, 'path', $document);
     }
 
-    public function renderDocumentToc(\Twig_Environment $twig, $toc)
+    public function renderDocumentToc(\Twig_Environment $twig, $toc, $deep = 0)
     {
         if (is_object($toc) && $toc instanceof Document) {
             $toc = $toc->getToc();
@@ -45,7 +45,14 @@ class CarewExtension extends \Twig_Extension
             throw new InvalidArgumentException('First argument given to render_document_toc must be a Document or an array of TOC');
         }
 
-        $parameters['children'] = $toc;
+        if (1 == count($toc)) {
+            $first = reset($toc);
+            if (!isset($first['index'])) {
+                $toc = $first['children'];
+            }
+        }
+
+        $parameters = array('children' => $toc, 'deep' => $deep);
 
         return $this->renderBlock($twig, 'document_toc', $parameters);
     }
@@ -115,7 +122,7 @@ class CarewExtension extends \Twig_Extension
         $documents = $globals['carew']->documents;
 
         if (!array_key_exists($filePath, $documents)) {
-            throw new InvalidArgumentException(sprintf('Unable to find path: "%s" in all documents', $filePath));
+            throw new \InvalidArgumentException(sprintf('Unable to find path: "%s" in all documents', $filePath));
         }
 
         return $this->renderDocumentPath($twig, $documents[$filePath]);
