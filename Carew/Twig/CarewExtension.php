@@ -18,7 +18,7 @@ class CarewExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            new \Twig_SimpleFunction('render_document_path', array($this, 'renderDocumentPath'),      array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('render_document_path', array($this, 'renderDocumentPath'),      array('needs_environment' => true)),
             new \Twig_SimpleFunction('render_document_toc',  array($this, 'renderDocumentToc'),       array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_document_*',    array($this, 'renderDocumentAttribute'), array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_document',      array($this, 'renderDocument'),          array('is_safe' => array('html'), 'needs_environment' => true)),
@@ -26,6 +26,7 @@ class CarewExtension extends \Twig_Extension
             new \Twig_SimpleFunction('render_pagination',    array($this, 'renderPagination'),        array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_*',             array($this, 'renderBlock'),             array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('paginate', function() { } ),
+            new \Twig_SimpleFunction('path',                 array($this, 'path'),                    array('needs_environment' => true)),
         );
     }
 
@@ -106,6 +107,18 @@ class CarewExtension extends \Twig_Extension
 
             throw $e;
         }
+    }
+
+    public function path(\Twig_Environment $twig, $filePath)
+    {
+        $globals = $twig->getGlobals();
+        $documents = $globals['carew']->documents;
+
+        if (!array_key_exists($filePath, $documents)) {
+            throw new InvalidArgumentException(sprintf('Unable to find path: "%s" in all documents', $filePath));
+        }
+
+        return $this->renderDocumentPath($twig, $documents[$filePath]);
     }
 
     public function getName()
