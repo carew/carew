@@ -64,10 +64,10 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Twig_Node_Expression_Filter', $nodeFilter);
         $this->assertNodeFilterHasSlice($nodeFilter, 6);
 
-        $extraNode = $stream->getNode('extra');
-        $this->assertInstanceOf('Twig_Node_Extra', $extraNode);
+        $blocksNode = $stream->getNode('blocks');
+        $this->assertInstanceOf('Twig_Node', $blocksNode);
 
-        $paginationNode = $extraNode->getNode('pagination');
+        $paginationNode = $blocksNode->getNode('pagination');
         $this->assertInstanceOf('Carew\Twig\Node\Pagination', $paginationNode);
 
         $this->assertInstanceOf('Twig_Node_Expression_Name', $paginationNode->getNode(0));
@@ -99,10 +99,10 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $this->assertNodeFilterHasSlice($nodeFilter, 10);
 
         // Tests on extra
-        $extraNode = $stream->getNode('extra');
-        $this->assertInstanceOf('Twig_Node_Extra', $extraNode);
+        $blocksNode = $stream->getNode('blocks');
+        $this->assertInstanceOf('Twig_Node', $blocksNode);
 
-        $paginationNode = $extraNode->getNode('pagination');
+        $paginationNode = $blocksNode->getNode('pagination');
         $this->assertInstanceOf('Carew\Twig\Node\Pagination', $paginationNode);
 
         $this->assertInstanceOf('Twig_Node_Expression_Name', $paginationNode->getNode(0));
@@ -143,10 +143,10 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         }
 
         // Test on extra
-        $extraNode = $stream->getNode('extra');
-        $this->assertInstanceOf('Twig_Node_Extra', $extraNode);
+        $blocksNode = $stream->getNode('blocks');
+        $this->assertInstanceOf('Twig_Node', $blocksNode);
 
-        $paginationNode = $extraNode->getNode('pagination');
+        $paginationNode = $blocksNode->getNode('pagination');
         $this->assertInstanceOf('Carew\Twig\Node\Pagination', $paginationNode);
 
         $this->assertInstanceOf('Twig_Node_Expression_Name', $paginationNode->getNode(0));

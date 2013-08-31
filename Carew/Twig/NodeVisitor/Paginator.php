@@ -62,7 +62,7 @@ class Paginator implements \Twig_NodeVisitorInterface
         $nodeToPaginate = $args->getNode(0);
 
         // Set-up the PaginationNode
-        $extra = $this->currentModule->getNode('extra');
+        $extra = $this->currentModule->getNode('blocks');
         if (!$extra->hasNode('pagination')) {
             $extra->setNode('pagination', new PaginationNode());
         }

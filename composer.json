@@ -17,10 +17,6 @@
     "repositories": [
         {
             "type": "git",
-            "url": "https://github.com/lyrixx/Twig.git"
-        },
-        {
-            "type": "git",
             "url": "https://github.com/lyrixx/HtmlTools.git"
         }
     ],
@@ -34,7 +30,7 @@
         "symfony/filesystem":       "~2.1",
         "symfony/finder":           "~2.1",
         "symfony/yaml":             "~2.1",
-        "twig/twig":                "dev-extra",
+        "twig/twig":                "~1.13",
         "yohang/htmltools":         "dev-cleanup"
     },
     "require-dev": {
