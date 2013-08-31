@@ -47,7 +47,7 @@ class CarewExtension extends \Twig_Extension
 
         if (1 == count($toc)) {
             $first = reset($toc);
-            if (!isset($first['index'])) {
+            if (!isset($first['title'])) {
                 $toc = $first['children'];
             }
         }
