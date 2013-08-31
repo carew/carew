@@ -84,7 +84,7 @@ class CoreExtension implements ExtensionInterface
     private function registerTwig(\Pimple $container)
     {
         $container['twig.loader'] = $container->share(function($container) {
-            $loader = new Twig_Loader_Filesystem();
+            $loader = new Twig_Loader_Filesystem(array());
 
            foreach ($container['themes'] as $theme) {
                 $path = $theme.'/layouts';
