@@ -18,25 +18,23 @@ class CarewExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            new \Twig_SimpleFunction('render_document_path', array($this, 'renderDocumentPath'),      array('needs_environment' => true)),
             new \Twig_SimpleFunction('render_document_toc',  array($this, 'renderDocumentToc'),       array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_document_*',    array($this, 'renderDocumentAttribute'), array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_document',      array($this, 'renderDocument'),          array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_documents',     array($this, 'renderDocuments'),         array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_pagination',    array($this, 'renderPagination'),        array('is_safe' => array('html'), 'needs_environment' => true)),
-            new \Twig_SimpleFunction('render_*',             array($this, 'renderBlock'),             array('is_safe' => array('html'), 'needs_environment' => true)),
-            new \Twig_SimpleFunction('paginate', function() { } ),
+            new \Twig_SimpleFunction('paginate',             function() { } ),
             new \Twig_SimpleFunction('path',                 array($this, 'path'),                    array('needs_environment' => true)),
+            new \Twig_SimpleFunction('link',                 array($this, 'link'),                    array('is_safe' => array('html'), 'needs_environment' => true)),
         );
     }
 
-    public function renderDocumentPath(\Twig_Environment $twig, Document $document)
+    public function renderDocumentToc(\Twig_Environment $twig, $toc = null, $deep = 0)
     {
-        return $this->renderDocumentAttribute($twig, 'path', $document);
-    }
+        if (null === $toc) {
+            $toc = $this->getCarewGlobals($twig)->document;
+        }
 
-    public function renderDocumentToc(\Twig_Environment $twig, $toc, $deep = 0)
-    {
         if (is_object($toc) && $toc instanceof Document) {
             $toc = $toc->getToc();
         }
@@ -57,8 +55,12 @@ class CarewExtension extends \Twig_Extension
         return $this->renderBlock($twig, 'document_toc', $parameters);
     }
 
-    public function renderDocumentAttribute(\Twig_Environment $twig, $attribute, Document $document)
+    public function renderDocumentAttribute(\Twig_Environment $twig, $attribute, Document $document = null)
     {
+        if (null === $document) {
+            $document = $this->getCarewGlobals($twig)->document;
+        }
+
         $parameters = array('document' => $document);
 
         return $this->renderBlock($twig, 'document_'.$attribute, $parameters);
@@ -125,11 +127,36 @@ class CarewExtension extends \Twig_Extension
             throw new \InvalidArgumentException(sprintf('Unable to find path: "%s" in all documents', $filePath));
         }
 
-        return $this->renderDocumentPath($twig, $documents[$filePath]);
+        return $this->renderDocumentAttribute($twig, 'path', $documents[$filePath]);
+    }
+
+    public function link(\Twig_Environment $twig, $filePath, $title = null, array $attrs = array())
+    {
+        $globals = $twig->getGlobals();
+        $documents = $globals['carew']->documents;
+
+        if (!array_key_exists($filePath, $documents)) {
+            throw new \InvalidArgumentException(sprintf('Unable to find path: "%s" in all documents', $filePath));
+        }
+
+        $parameters = array(
+            'document' => $documents[$filePath],
+            'title' => $title ?: $documents[$filePath]->getTitle(),
+            'attrs' => $attrs,
+        );
+
+        return $this->renderBlock($twig, 'document_link', $parameters);
     }
 
     public function getName()
     {
         return 'carew';
+    }
+
+    private function getCarewGlobals(\Twig_Environment $twig)
+    {
+        $globals = $twig->getGlobals();
+
+        return $globals['carew'];
     }
 }
