@@ -110,7 +110,7 @@ EOL;
 
         for ($page = 1; $page <= 4; $page++) {
             $path = 1 == $page ? 'index.html' : sprintf('index-page-%s.html', $page);
-            $this->assertTrue(file_exists($webDir.'/'.$path));
+            $this->assertTrue(file_exists($webDir.'/'.$path), $path);
 
             $crawler = new Crawler(file_get_contents($webDir.'/'.$path));
 
@@ -149,7 +149,7 @@ EOL;
 
         $this->assertSame($expected, $lis);
 
-        $this->deleteDir($webDir);
+        // $this->deleteDir($webDir);
     }
 
     public function testExecuteWithSiteAndMultiplePagination()

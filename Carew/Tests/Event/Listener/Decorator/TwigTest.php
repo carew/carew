@@ -1,10 +1,10 @@
 <?php
 
-namespace Carew\Tests\Event\Listener\Body;
+namespace Carew\Tests\Event\Listener\Decorator;
 
 use Carew\Document;
 use Carew\Event\CarewEvent;
-use Carew\Event\Listener\Body\Twig;
+use Carew\Event\Listener\Decorator\Twig;
 use Carew\Twig\CarewExtension;
 use Carew\Twig\Globals;
 use Symfony\Component\DomCrawler\Crawler;

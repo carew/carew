@@ -9,4 +9,6 @@ final class Events
     const DOCUMENTS = 'carew.documents';
 
     const DOCUMENT_BODY = 'carew.document.body';
+
+    const DOCUMENT_DECORATION = 'carew.document.decoration';
 }

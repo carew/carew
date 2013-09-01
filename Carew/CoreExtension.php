@@ -75,7 +75,7 @@ class CoreExtension implements ExtensionInterface
             $dispatcher->addSubscriber(new Listener\Metadata\Optimization());
             $dispatcher->addSubscriber(new Listener\Body\Markdown());
             $dispatcher->addSubscriber(new Listener\Body\Toc());
-            $dispatcher->addSubscriber(new Listener\Body\Twig($container['twig']));
+            $dispatcher->addSubscriber(new Listener\Decorator\Twig($container['twig']));
 
             return $dispatcher;
         });

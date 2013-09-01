@@ -48,7 +48,7 @@ class Build extends BaseCommand
             $input->getOption('verbose') and $output->writeln(sprintf('<info>Reading</info> <comment>%s</comment>', $folder));
             $files = $this->container['finder']->create()->in($folder)->files();
             foreach ($files as $file) {
-                $input->getOption('verbose') and $output->writeln(sprintf('  >> <comment>%s</comment>', (string) $file));
+                $input->getOption('verbose') and $output->writeln(sprintf('  >> <info>Reading</info> <comment>%s</comment>', (string) $file));
                 $document = $this->container['processor']->processFile($file, $folderRaw, $type);
                 $documents[$document->getFilePath()] = $document;
             }
@@ -62,14 +62,16 @@ class Build extends BaseCommand
         $input->getOption('verbose') and $output->writeln('<info>Cleaning target folder</info>');
         $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));
 
-        $input->getOption('verbose') and $output->writeln('<info>Compiling and Writing</info>');
+        $input->getOption('verbose') and $output->writeln('<info>Compiling</info>');
         foreach ($documents as $document) {
             $input->getOption('verbose') and $output->writeln(sprintf('  >> <info>Compiling</info> <comment>%s</comment>', $document->getPath()));
-            $documentsTmp = $this->container['processor']->processDocument($document);
-            if (!is_array($documentsTmp)) {
-                $documentsTmp = array($documentsTmp);
-            }
-            foreach ($documentsTmp as $documentTmp) {
+            $this->container['processor']->processDocument($document);
+        }
+
+        $input->getOption('verbose') and $output->writeln('<info>Writing</info>');
+        foreach ($documents as $document) {
+            $documentsTmps = $this->container['processor']->processDocumentDecoration($document);
+            foreach ($documentsTmps as $documentTmp) {
                 $input->getOption('verbose') and $output->writeln(sprintf('  >> <info>Writing</info> <comment>%s</comment>', $documentTmp->getPath()));
                 $this->container['processor']->write($documentTmp);
             }

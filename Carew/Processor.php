@@ -32,12 +32,10 @@ class Processor
         $event = new CarewEvent($document);
 
         try {
-            $document = $this->eventDispatcher->dispatch(Events::DOCUMENT_HEADER, $event)->getSubject();
+            return $this->eventDispatcher->dispatch(Events::DOCUMENT_HEADER, $event)->getSubject();
         } catch (\Exception $e) {
             throw new \LogicException(sprintf('Could not process: "%s".', (string) $file), 0 , $e);
         }
-
-        return $document;
     }
 
     public function processDocuments($documents)
@@ -64,15 +62,24 @@ class Processor
 
     public function processDocument(Document $document)
     {
-        $event = new CarewEvent(array($document));
+        $event = new CarewEvent($document);
         try {
-            $documents = $this->eventDispatcher->dispatch(Events::DOCUMENT_BODY, $event)->getSubject();
+            return $this->eventDispatcher->dispatch(Events::DOCUMENT_BODY, $event)->getSubject();
         } catch (\Exception $e) {
             throw new \LogicException(sprintf('Could not process: "%s".', (string) $document->getFile()), 0 , $e);
         }
-
-        return $documents;
     }
+
+    public function processDocumentDecoration(Document $document)
+    {
+        $event = new CarewEvent(array($document));
+        try {
+            return $this->eventDispatcher->dispatch(Events::DOCUMENT_DECORATION, $event)->getSubject();
+        } catch (\Exception $e) {
+            throw new \LogicException(sprintf('Could not write: "%s".', (string) $document->getFile()), 0 , $e);
+        }
+    }
+
 
     public function write(Document $document)
     {

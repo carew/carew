@@ -63,7 +63,7 @@
             {% endif %}
         </small>
     </h2>
-    {{ document.body }}
+    {{ document.body|raw }}
 {% endblock %}
 
 {% block page %}
@@ -71,7 +71,7 @@
     <h2>
         {{ document.title|title }}
     </h2>
-    {{ document.body }}
+    {{ document.body|raw }}
 {%- endspaceless %}
 {% endblock %}
 
@@ -80,7 +80,7 @@
     <h2>
         {{ document.title|title }}
     </h2>
-    {{ document.body }}
+    {{ document.body|raw }}
 {%- endspaceless %}
 {% endblock %}
 
@@ -89,7 +89,7 @@
     <h2>
         {{ document.title|title }}
     </h2>
-    {{ document.body }}
+    {{ document.body|raw }}
 {%- endspaceless %}
 {% endblock %}
 

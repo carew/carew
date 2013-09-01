@@ -114,6 +114,16 @@ class ProcessorTest extends AbstractTest
         $this->assertSame(1, $i);
     }
 
+    public function testProcessDocumentDecoration()
+    {
+        $i = 0;
+        $this->eventDispatcher->addListener(Events::DOCUMENT_DECORATION, function() use (&$i) { $i++; });
+
+        $this->processor->processDocumentDecoration(new Document());
+
+        $this->assertSame(1, $i);
+    }
+
     public function tearDown()
     {
         $this->processor = null;

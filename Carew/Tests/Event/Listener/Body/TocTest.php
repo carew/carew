@@ -17,7 +17,7 @@ class TocTest extends \PHPUnit_Framework_TestCase
 <h2>TLDR</h2>
 EOL
         );
-        $event = new CarewEvent(array($document));
+        $event = new CarewEvent($document);
 
         $toc = new Toc();
         $toc->onDocument($event);
@@ -62,7 +62,7 @@ CCCCC
 EOL;
         $document->setBody($body);
 
-        $event = new CarewEvent(array($document));
+        $event = new CarewEvent($document);
 
         $toc = new Toc();
         $toc->onDocument($event);

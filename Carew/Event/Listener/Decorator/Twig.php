@@ -1,6 +1,6 @@
 <?php
 
-namespace Carew\Event\Listener\Body;
+namespace Carew\Event\Listener\Decorator;
 
 use Carew\Document;
 use Carew\Event\CarewEvent;
@@ -25,7 +25,6 @@ class Twig implements EventSubscriberInterface
             }
 
             $this->setTwigGlobals($event, $document);
-
             // Force autoloading of Twig_Extension_StringLoader
             $this->twig->getExtension('string_loader');
 
@@ -33,7 +32,7 @@ class Twig implements EventSubscriberInterface
             $nbsItems = $template->getNbsItems(array());
             $maxesPerPage = $template->getMaxesPerPage();
 
-            if (!$this->hasToPaginate($nbsItems, $maxesPerPage)) {
+            if (!$this->haveToPaginate($nbsItems, $maxesPerPage)) {
                 $parameters = array();
                 foreach ($nbsItems as $key => $nbItems) {
                     $parameters[sprintf('__offset_%d__', $key)] = 0;
@@ -113,7 +112,7 @@ class Twig implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            Events::DOCUMENT_BODY => array(
+            Events::DOCUMENT_DECORATION => array(
                 array('preRender', 8),
                 array('postRender', 0),
             ),
@@ -134,7 +133,7 @@ class Twig implements EventSubscriberInterface
         return $this;
     }
 
-    private function hasToPaginate($nbsItems, $maxesPerPage)
+    private function haveToPaginate($nbsItems, $maxesPerPage)
     {
         if (!$nbsItems && !$maxesPerPage) {
             return false;
