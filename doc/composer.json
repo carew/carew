@@ -1,0 +1,18 @@
+{
+    "name": "carew/website",
+    "description": "Carew website",
+    "license": "MIT",
+    "homepage": "http://carew.github.com/",
+    "keywords": ["carew"],
+    "authors": [
+        {
+            "name": "Grégoire Pineau",
+            "email": "lyrixx@lyrixx.info"
+        }
+    ],
+    "require": {
+        "carew/theme-bootstrap"     : "2.0.*@dev",
+        "carew/plugin-sami"         : "2.0.*@dev",
+        "lyrixx/my-theme-bootstrap" : "2.0.*@dev"
+    }
+}
