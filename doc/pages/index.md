@@ -7,29 +7,42 @@ layout: doc2
 What is it?
 -----------
 
-**Carew** is another static site / blog generator.
-Write some blog post in [markdown](http://daringfireball.net/projects/markdown/),
-carew will render them in html.
+Carew is another static site / blog generator. Write some blog posts or pages in
+[markdown](http://daringfireball.net/projects/markdown/), Carew will render them
+in html.
+
+Features
+--------
+
+* Simple but extensible
+* Auto syntax highlighting
+* Auto generated navigation
+* Auto generated pagination
+* One theme base on Bootstrap
+* Shareable/Linkable SEO Friendly URLs
+* No need for php, ruby, python on the production server.
+* Git friendly
 
 Installation
 ------------
 
-The best way to start with carew, it's with the [carew boilerplate](https://github.com/carew/boilerplate):
-You will need [composer](http://getcomposer.org).
+The best way to start with carew, it's with the [carew
+boilerplate](https://github.com/carew/boilerplate): You will need
+[composer](http://getcomposer.org).
 
     $ php composer.phar create-project carew/boilerplate my_website
     $ cd my_website
     $ vendor/bin/carew carew:build
 
-That's all.
+That's all, you can browse the `web/` directory.
 
 Demo
 ----
 
-Do you want to see it in action? This doc uses carew ;)
-Have a look to the [codebase](https://github.com/carew/carew/tree/master/doc).
+Do you want to see it in action? This doc uses Carew ;) Have a look to the
+[codebase](https://github.com/carew/carew/tree/master/doc).
 
-By the way, if you use carew, let me know.
+By the way, if you use Carew, let me know.
 
 Why another one?
 ----------------
