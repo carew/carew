@@ -1,7 +1,7 @@
 ---
-title: Plugins
+title: How to use and create plugins?
 layout: doc2
-navigations: sub
+navigations: cookbook
 ---
 
 Existing Plugins
@@ -42,8 +42,8 @@ The plugin can access to:
 
 You can have a look to the `CoreExtension` for more information.
 
-Learn more about the carew architecture is the
-[internal chapter](<{{ path('pages/doc/internal.md') }}>).
+Learn more about the carew architecture is the {{ link('pages/cookbook/internal.md',
+'internal chapter') }}.
 
 You have created a plugin
 -------------------------
@@ -51,5 +51,5 @@ You have created a plugin
 You have created a plugin and you want to share it ?
 Write me an [email](mailto:lyrixx@lyrixx.info) and I will create a new
 repository on [github/carew](https://github.com/carew) for you, or send me a
-[pull request](https://github.com/carew/carew.github.com/edit/master/_carew/pages/doc/plugins.md)
+[pull request](https://github.com/carew/carew.github.com/edit/master/_carew/pages/cookbook/plugins.md)
 and add a new link.

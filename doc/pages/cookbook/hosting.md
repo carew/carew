@@ -1,7 +1,7 @@
 ---
-title: Hosting
+title: How to host a website build with carew?
 layout: doc2
-navigations: sub
+navigations: cookbook
 ---
 
 Behind a webserver

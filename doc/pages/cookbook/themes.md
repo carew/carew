@@ -1,7 +1,7 @@
 ---
-title: Themes
+title: How to use and create theme?
 layout: doc2
-navigations: sub
+navigations: cookbook
 ---
 
 <div class="pull-right">
@@ -91,9 +91,9 @@ Default layouts are in a special namespace `default_theme`:
 Blocks theming
 --------------
 
-With carew, you have [useful helper set](<{{ path('pages/doc/helper.md') }}>). Almost all
-helper are customizable thanks to special `blocks.html.twig`. Of course, you can
-overide this template:
+With carew, you have {{ link('pages/cookbook/helper.md', 'useful helper set')
+}}. Almost all helper are customizable thanks to special `blocks.html.twig`. Of
+course, you can overide this template:
 
     {% verbatim -%}
     {% use '@default_theme/blocks.html.twig' %} {# Reimport default blocks #}
@@ -125,5 +125,5 @@ You have created a theme?
 You have created a theme and you want to share it ? Write me an
 [email](mailto:lyrixx@lyrixx.info) and I will create a new repository on
 [github/carew](https://github.com/carew) for you, or send me a
-[pull request](https://github.com/carew/carew.github.com/edit/master/_carew/pages/doc/themes.md)
+[pull request](https://github.com/carew/carew.github.com/edit/master/_carew/pages/cookbook/themes.md)
 and add a new link.

@@ -87,7 +87,8 @@ Here a sample of front matter:
 
 * **layout:** Twig layout to be used for rendering the page. Defaults to
 `default`, which means `layouts/default.html.twig` is rendered unless specified
-otherwise. [See theme documentation for more informationn](<{{ path('pages/doc/themes.md') }}>).
+otherwise. {{ link('pages/cookbook/themes.md', 'See theme documentation for more
+information')}}
 
 * **title:** Title of the current document for display on the index, and for the
 title page.
@@ -125,8 +126,8 @@ add JavaScript, CSS and images in here.
 * **layouts:** The layouts are used to render the pages. They have a
 `.html.twig` suffix. You can create base templates and have more specific ones
 that extend them using the `extends` tag. The layouts are renderer with
-[Twig](http://twig.sensiolabs.com).
-[See theme documentation for more informationn](<{{ path('pages/doc/themes.md') }}>).
+[Twig](http://twig.sensiolabs.com). {{ link('pages/cookbook/themes.md', 'See theme
+documentation for more information') }}.
 
 * **pages:** Markdown files representing pages. Each one must begin with a YAML
 front matter. Here is a sample page:
@@ -151,8 +152,8 @@ will be sent to twig templates. Here is a sample:
           <head>
             <title>{% verbatim %}{{ site.title }}{% endverbatim %}</title>
 
-
-[See configuration documention for more information](<{{ path('pages/doc/configuration.md') }}>).
+{{ link('pages/cookbook/configuration.md', 'See configuration documention for more
+information') }}.
 
 ## Usage
 
@@ -177,4 +178,6 @@ Just run:
 
 ## What next?
 
-Why not read all [cookbooks](<{{ path('pages/cookbook.md') }}>)?
+Why not read all {{ link('pages/cookbook.md') }}?
+
+{{ render_documents(carew.navigations.cookbook) }}

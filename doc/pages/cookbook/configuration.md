@@ -1,7 +1,7 @@
 ---
-title: Configuration
+title: How to configure carew?
 layout: doc2
-navigations: sub
+navigations: cookbook
 ---
 
 You can configure carew thanks to `config.yml` file. This file should be in  the
@@ -30,5 +30,5 @@ values are available in your template with the following syntax:
     {%- endverbatim %}
 
 The `engine` section is used to configure carew's internal. Learn more about
-[theming](<{{ path('pages/doc/themes.md') }}>) and about
-[extension](<{{ path('pages/doc/plugins.md') }}>) in dedicated chapters.
+{{ link('pages/cookbook/themes.md', 'theming') }} and about
+{{ link('pages/cookbook/plugins.md', 'extension') }} in dedicated chapters.

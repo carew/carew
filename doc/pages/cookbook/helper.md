@@ -1,7 +1,7 @@
 ---
-title: Helper
+title: Usefull twig function
 layout: doc2
-navigations: sub
+navigations: cookbook
 ---
 
 <div class="pull-right">
@@ -63,7 +63,7 @@ Some examples:
 ## Functions
 
 **Note:** You can tweak generated content for almost all functions by overriding the
-`blocks.html.twig` template. See the {{ link('pages/doc/themes.md', 'theme
+`blocks.html.twig` template. See the {{ link('pages/cookbook/themes.md', 'theme
 chapter') }} for more information.
 
 ### path
