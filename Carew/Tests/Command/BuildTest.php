@@ -37,7 +37,7 @@ class BuildTest extends AbstractTest
         $this->assertCount(3, $crawler->filter('ul'));
         // posts list
         $this->assertCount(4, $crawler->filter('ul')->eq(0)->filter('li'));
-        $this->assertSame('Good Bye', trim($crawler->filter('ul')->eq(0)->filter('li')->eq(0)->text()));
+        $this->assertSame('Good bye', trim($crawler->filter('ul')->eq(0)->filter('li')->eq(0)->text()));
         $this->assertSame('Hello', trim($crawler->filter('ul')->eq(0)->filter('li')->eq(3)->text()));
         // pages list
         $this->assertCount(1, $crawler->filter('ul')->eq(1)->filter('li'));
@@ -213,7 +213,7 @@ EOL;
         $this->assertTrue(file_exists($webDir.'/2010/01/03/default-extends.html'));
         $crawler = new Crawler(file_get_contents($webDir.'/2010/01/03/default-extends.html'));
         $this->assertSame('default-extends', $crawler->filter('title')->text());
-        $this->assertSame('title:Default-Extends', $crawler->filter('h1')->text());
+        $this->assertSame('title:Default-extends', $crawler->filter('h1')->text());
         $this->assertSame('Should be wrapped into a div', trim($crawler->filter('div.body')->text()));
     }
 
