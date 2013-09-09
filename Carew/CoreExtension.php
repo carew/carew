@@ -49,6 +49,9 @@ class CoreExtension implements ExtensionInterface
             $config = array(
                 'site'   => array(),
                 'engine' => array(),
+                'post'   => array(
+                    'path_format' => '%year%/%month%/%day%/%slug%.html',
+                ),
             );
 
             if (file_exists($container['base_dir'].'/config.yml')) {
@@ -65,10 +68,10 @@ class CoreExtension implements ExtensionInterface
 
     private function registerEventDispatcher(\Pimple $container)
     {
-        $container['event_dispatcher'] = $container->share(function() {
+        $container['event_dispatcher'] = $container->share(function($container) {
             $dispatcher =  new EventDispatcher();
             $dispatcher->addSubscriber(new Listener\Metadata\Extraction());
-            $dispatcher->addSubscriber(new Listener\Metadata\Optimization());
+            $dispatcher->addSubscriber(new Listener\Metadata\Optimization($container['config']['post']['path_format']));
             $dispatcher->addSubscriber(new Listener\Body\UrlRewriter());
             $dispatcher->addSubscriber(new Listener\Body\Markdown());
 
