@@ -45,17 +45,26 @@ class CoreExtension implements ExtensionInterface
 
         $container['config'] = $container->share(function($container) {
             $config = array(
-                'site'   => array(),
-                'engine' => array(),
+                'site'    => array(),
+                'engine'  => array(),
                 'folders' => array(
                     'pages' => Document::TYPE_PAGE,
                     'posts' => Document::TYPE_POST,
                     'api'   => Document::TYPE_API,
                 ),
+                'post'    => array(
+                    'path_format' => '%year%/%month%/%day%/%slug%.html',
+                ),
             );
 
             if (file_exists($container['base_dir'].'/config.yml')) {
-                $config = array_merge_recursive($config, Yaml::parse($container['base_dir'].'/config.yml') ?: array());
+                $configYml = Yaml::parse($container['base_dir'].'/config.yml');
+                $config = array_merge_recursive($config, $configYml ?: array());
+
+                // @TODO fix merge problem with array_merge_recursive()
+                if (isset($configYml['post']['path_format'])) {
+                    $config['post']['path_format'] = $configYml['post']['path_format'];
+                }
             }
 
             return $config;
@@ -69,10 +78,10 @@ class CoreExtension implements ExtensionInterface
     private function registerEventDispatcher(\Pimple $container)
     {
         $container['event_dispatcher'] = $container->share(function($container) {
-            $dispatcher =  new EventDispatcher();
+            $dispatcher = new EventDispatcher();
 
             $dispatcher->addSubscriber(new Listener\Metadata\Extraction());
-            $dispatcher->addSubscriber(new Listener\Metadata\Optimization());
+            $dispatcher->addSubscriber(new Listener\Metadata\Optimization($container['config']['post']['path_format']));
             $dispatcher->addSubscriber(new Listener\Body\Markdown());
             $dispatcher->addSubscriber(new Listener\Body\Toc());
             $dispatcher->addSubscriber(new Listener\Decorator\Twig($container['twig']));

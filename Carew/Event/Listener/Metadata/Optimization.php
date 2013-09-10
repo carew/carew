@@ -9,6 +9,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class Optimization implements EventSubscriberInterface
 {
+    protected $postPathFormat;
+
+    public function __construct($postPathFormat)
+    {
+        $this->postPathFormat = $postPathFormat;
+    }
+
     public function onDocument(CarewEvent $event)
     {
         $document = $event->getSubject();
@@ -31,7 +38,11 @@ class Optimization implements EventSubscriberInterface
         $metadatas = $document->getMetadatas();
 
         if (!isset($metadatas['permalink'])) {
-            $document->setPath("$year/$month/$day/$slug.html");
+            $document->setPath(str_replace(
+                array('%year%', '%month%', '%day%', '%slug%'),
+                array($year, $month, $day, $slug),
+                $this->postPathFormat
+            ));
         }
     }
 
