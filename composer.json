@@ -14,12 +14,6 @@
             "email" : "igor@wiedler.ch"
         }
     ],
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/lyrixx/HtmlTools.git"
-        }
-    ],
     "require": {
         "cocur/slugify": "0.2.*",
         "michelf/php-markdown":     "1.3.*@dev",
@@ -31,7 +25,7 @@
         "symfony/finder":           "~2.1",
         "symfony/yaml":             "~2.1",
         "twig/twig":                "~1.13",
-        "yohang/htmltools":         "dev-cleanup"
+        "yohang/htmltools":         "~0.1"
     },
     "require-dev": {
         "symfony/dom-crawler":  "~2.2",
