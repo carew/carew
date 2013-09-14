@@ -55,7 +55,9 @@
 
 {% block post %}
     <h2>
-        {{ document.title|title }}
+        <a href="{{ render_document_path(document) }}">
+            {{ render_document_title(document) }}
+        </a>
         <small>
             {{ document.metadatas.date|date('M d') }}
             {% if document.metadatas.author is defined %}
@@ -69,7 +71,7 @@
 {% block page %}
 {% spaceless -%}
     <h2>
-        {{ document.title|title }}
+        {{ render_document_title(document) }}
     </h2>
     {{ document.body|raw }}
 {%- endspaceless %}
@@ -78,7 +80,7 @@
 {% block api %}
 {% spaceless -%}
     <h2>
-        {{ document.title|title }}
+        {{ render_document_title(document) }}
     </h2>
     {{ document.body|raw }}
 {%- endspaceless %}
@@ -87,7 +89,7 @@
 {% block unknown %}
 {% spaceless -%}
     <h2>
-        {{ document.title|title }}
+        {{ render_document_title(document) }}
     </h2>
     {{ document.body|raw }}
 {%- endspaceless %}
