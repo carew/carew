@@ -2,7 +2,7 @@
 
 namespace Carew\Command;
 
-use Cocur\Slugify\Slugify;
+use HtmlTools\Inflector;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,16 +11,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class GeneratePost extends BaseCommand
 {
-    private $slugify;
+    private $inflector;
     private $defaultDate;
 
-    public function __construct($slugify = null, $defaultDate = null)
+    public function __construct($inflector = null, $defaultDate = null)
     {
         if (null == $defaultDate) {
             $this->defaultDate = date('Y-m-d');
         }
 
-        $this->slugify = $slugify ?: new Slugify();
+        $this->inflector = $inflector ?: new Inflector();
 
         parent::__construct();
     }
@@ -56,7 +56,7 @@ EOL;
             '{{ title }}' => $title,
         ));
 
-        $slug = $this->slugify->slugify($title);
+        $slug = $this->inflector->urlize($title);
 
         $postDir = "$baseDir/posts";
         if (!file_exists($postDir)) {
