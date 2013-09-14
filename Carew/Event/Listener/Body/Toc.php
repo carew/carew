@@ -37,8 +37,13 @@ class Toc implements EventSubscriberInterface
             return sprintf('href="%s"', '%%%%%%%%%%%%%%%%%%%%');
         }, $document->getBody());
 
-        $document->setToc($this->htmlTools->buildTOC($document->getBody()));
-        $body = $this->htmlTools->addHeadingsId($body, 'h1, h2, h3, h4, h5, h6', true);
+        try {
+            $document->setToc($this->htmlTools->buildTOC($document->getBody()));
+            $body = $this->htmlTools->addHeadingsId($body, 'h1, h2, h3, h4, h5, h6', true);
+        } catch (\Exception $e) {
+            // TODO: add a message when failing.
+            return;
+        }
 
         $i = 0;
         $body = preg_replace_callback('/href="(?P<url>%%%%%%%%%%%%%%%%%%%%)"/', function($matches) use (&$i, $urls) {
