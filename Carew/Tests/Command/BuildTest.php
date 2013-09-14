@@ -118,7 +118,7 @@ EOL;
             $this->assertCount(2, $crawler->filter('ul'));
 
             // 14 pages + 1 index = 15 = 4 (item by page) * 3 (pages) + 3 (item on the last page)
-            $this->assertCount(4 == $page ? 3 : 4, $crawler->filter('ul')->eq(0)->filter('li'));
+            $this->assertCount(4 == $page ? 3 : 4, $crawler->filter('ul')->eq(0)->filter('li'), "\$page == $page");
             foreach ($crawler->filter('ul')->eq(0)->filter('li') as $li) {
                 $lis[] = trim($li->textContent);
             }
@@ -158,6 +158,44 @@ EOL;
         list($application, $statusCode) = $this->runApplication(dirname($webDir));
 
         $this->assertSame(0, $statusCode);
+
+        $this->deleteDir($webDir);
+    }
+
+    public function testExecuteWithSiteAndTag()
+    {
+        $this->deleteDir($webDir = __DIR__.'/fixtures/site-with-tags/web');
+        list($application, $statusCode) = $this->runApplication(dirname($webDir));
+
+        $this->assertSame(0, $statusCode);
+
+        $this->assertTrue(file_exists($webDir.'/tags/index.html'));
+        $crawler = new Crawler(file_get_contents($webDir.'/tags/index.html'));
+        $this->assertSame('Tags', $crawler->filter('title')->text());
+        $this->assertSame('Tags', $crawler->filter('h1')->text());
+        $this->assertCount(1, $crawler->filter('ul'));
+        $this->assertCount(3, $crawler->filter('li'));
+
+        $this->assertTrue(file_exists($webDir.'/tags/tag1.html'));
+        $crawler = new Crawler(file_get_contents($webDir.'/tags/tag1.html'));
+        $this->assertSame('Tag #tag1', $crawler->filter('title')->text());
+        $this->assertSame('Tag #tag1', $crawler->filter('h1')->text());
+        $this->assertCount(1, $crawler->filter('ul'));
+        $this->assertCount(5, $crawler->filter('li'));
+
+        $this->assertTrue(file_exists($webDir.'/tags/tag2.html'));
+        $crawler = new Crawler(file_get_contents($webDir.'/tags/tag2.html'));
+        $this->assertSame('Tag #tag2', $crawler->filter('title')->text());
+        $this->assertSame('Tag #tag2', $crawler->filter('h1')->text());
+        $this->assertCount(1, $crawler->filter('ul'));
+        $this->assertCount(5, $crawler->filter('li'));
+
+        $this->assertTrue(file_exists($webDir.'/tags/tag3.html'));
+        $crawler = new Crawler(file_get_contents($webDir.'/tags/tag3.html'));
+        $this->assertSame('Tag #tag3', $crawler->filter('title')->text());
+        $this->assertSame('Tag #tag3', $crawler->filter('h1')->text());
+        $this->assertCount(1, $crawler->filter('ul'));
+        $this->assertCount(4, $crawler->filter('li'));
 
         $this->deleteDir($webDir);
     }

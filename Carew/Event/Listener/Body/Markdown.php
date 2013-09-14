@@ -20,6 +20,10 @@ class Markdown implements EventSubscriberInterface
     {
         $document = $event->getSubject();
 
+        if (null === $document->getFile()) {
+            return;
+        }
+
         $extension = $document->getFile()->getExtension();
         if ('md' !== $extension) {
             if ('twig' !== $extension) {

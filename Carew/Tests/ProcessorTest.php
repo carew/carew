@@ -3,8 +3,9 @@
 namespace Carew\Tests;
 
 use Carew\Document;
-use Carew\Processor;
 use Carew\Event\Events;
+use Carew\Processor;
+use Carew\Twig\Globals;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -47,7 +48,7 @@ class ProcessorTest extends AbstractTest
 
         $this->eventDispatcher->addListener(Events::DOCUMENTS, function() use (&$i) { $i++; });
 
-        $documents = $this->processor->processDocuments($documents);
+        $documents = $this->processor->processDocuments($documents, new Globals());
 
         $this->assertSame(1, $i);
         $this->assertCount(2, $documents);

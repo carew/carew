@@ -38,12 +38,11 @@ class Processor
         }
     }
 
-    public function processDocuments($documents)
+    public function processDocuments($documents, $globals)
     {
-        $event = new CarewEvent($documents);
-        $this->eventDispatcher->dispatch(Events::DOCUMENTS, $event);
+        $event = new CarewEvent($documents, array('globals' => $globals));
 
-        return $event->getSubject();
+        return $this->eventDispatcher->dispatch(Events::DOCUMENTS, $event)->getSubject();
     }
 
     public function processGlobals($documents, Globals $globals = null)
@@ -79,7 +78,6 @@ class Processor
             throw new \LogicException(sprintf('Could not write: "%s".', (string) $document->getFile()), 0 , $e);
         }
     }
-
 
     public function write(Document $document)
     {

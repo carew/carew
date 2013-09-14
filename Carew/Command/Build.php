@@ -54,10 +54,12 @@ class Build extends BaseCommand
             }
         }
 
-        $input->getOption('verbose') and $output->writeln('<info>Processing all documents</info>');
-        $documents = $this->container['processor']->processDocuments($documents);
+        $input->getOption('verbose') and $output->writeln('<info>Processing globals</info>');
         $globals = $this->container['twig']->getGlobals();
         $this->container['processor']->processGlobals($documents, $globals['carew']);
+
+        $input->getOption('verbose') and $output->writeln('<info>Processing all documents</info>');
+        $documents = $this->container['processor']->processDocuments($documents, $globals['carew']);
 
         $input->getOption('verbose') and $output->writeln('<info>Cleaning target folder</info>');
         $this->container['filesystem']->remove($this->container['finder']->in($webDir)->exclude(basename(realpath($baseDir))));
