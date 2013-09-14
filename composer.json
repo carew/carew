@@ -34,7 +34,7 @@
     "autoload": {
         "psr-0": { "Carew": "" }
     },
-    "bin": ["carew"],
+    "bin": ["bin/carew"],
     "extra": {
         "branch-alias": {
             "dev-master": "2.0.x-dev"
