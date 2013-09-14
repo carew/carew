@@ -28,7 +28,9 @@
     },
     "require-dev": {
         "symfony/dom-crawler":  "~2.2",
-        "symfony/css-selector": "~2.2"
+        "symfony/css-selector": "~2.2",
+        "carew/theme-bootstrap" : "~2.0@dev",
+        "lyrixx/my-theme-bootstrap" : "~2.0@dev"
     },
     "autoload": {
         "psr-0": { "Carew": "" }

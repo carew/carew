@@ -8,12 +8,9 @@ site:
 
 engine:
     themes:
-        - %dir%/vendor/lyrixx/my-theme-bootstrap
-        - %dir%/vendor/carew/theme-bootstrap
+        - %dir%/../vendor/lyrixx/my-theme-bootstrap
+        - %dir%/../vendor/carew/theme-bootstrap
     extensions:
-        # - Carew\Plugin\Toc\TocExtension
-        # - Carew\Plugin\Highlight\HighlightExtension
-        # - Carew\Plugin\Pagination\PaginationExtension
         # - Carew\Plugin\Sami\SamiExtension
 
 sami:
