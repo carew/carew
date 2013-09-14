@@ -263,7 +263,7 @@ EOL;
         $application = new ApplicationTester($carew);
 
         $input = array(
-            'command' => 'carew:build',
+            'command' => 'build',
             '--base-dir' => $fixturesPath,
             '--web-dir' => $fixturesPath.'/web',
             '--verbose' => true,

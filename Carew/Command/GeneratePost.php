@@ -28,7 +28,7 @@ class GeneratePost extends BaseCommand
     protected function configure()
     {
         $this
-            ->setName('carew:generate:post')
+            ->setName('generate:post')
             ->setDescription('Generate a new post')
             ->setDefinition(array(
                 new InputArgument('title', InputArgument::REQUIRED, 'The title'),

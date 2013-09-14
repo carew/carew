@@ -21,7 +21,7 @@ class Build extends BaseCommand
     protected function configure()
     {
         $this
-            ->setName('carew:build')
+            ->setName('build')
             ->setDescription('Builds static html files from markdown source')
             ->setDefinition(array(
                 new InputOption('--web-dir', null, InputOption::VALUE_REQUIRED, 'Where to write generated content', getcwd().'/web'),
