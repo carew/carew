@@ -148,6 +148,21 @@ class Document
         return $this->type;
     }
 
+    public function isTypePost()
+    {
+        return self::TYPE_POST == $this->type;
+    }
+
+    public function isTypePage()
+    {
+        return self::TYPE_PAGE == $this->type;
+    }
+
+    public function isTypeApi()
+    {
+        return self::TYPE_API == $this->type;
+    }
+
     public function getVars()
     {
         return $this->vars;
