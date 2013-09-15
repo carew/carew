@@ -10,9 +10,10 @@
         <meta name="author" content="{{ carew.document.author_name|default(carew.site.author_name|default('')) }}" />
 
         {% if carew.site.url_absolute is defined -%}
-            <link rel="alternate" href="{{ carew.relativeRoot }}/index.atom" type="application/atom+xml" title="{{ carew.site.title|default('') }}" />
-            <link rel="canonical" href="{{ carew.site.url_absolute }}/{{ carew.document.path }}" />
+            <link rel="canonical" href="{{ carew.site.url_absolute }}/{{ carew.document.path }}"/>
+            <link rel="alternate" href="{{ carew.site.url_absolute }}/feed/atom.xml" type="application/atom+xml" title="{{ carew.site.title|default('') }}"/>
         {%- endif %}
+
     </head>
 
     <body>
