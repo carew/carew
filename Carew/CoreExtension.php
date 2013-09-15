@@ -96,7 +96,14 @@ class CoreExtension implements ExtensionInterface
             }
             $loader->addPath(__DIR__.'/Twig/Resources/layouts');
             $loader->addPath(__DIR__.'/Twig/Resources/layouts', 'default_theme');
-            $loader->addPath($container['base_dir']);
+            if (isset($container['config']['engine']['theme_base_dir'])) {
+                if (!is_string($container['config']['engine']['theme_base_dir'])) {
+                    throw new \InvalidArgumentException('The config.engine.theme_base_dir is not a string');
+                }
+                $loader->addPath(str_replace('%dir%', $container['base_dir'], $container['config']['engine']['theme_base_dir']));
+            } else {
+                $loader->addPath($container['base_dir']);
+            }
 
             return $loader;
         });
