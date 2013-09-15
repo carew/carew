@@ -12,7 +12,7 @@ class Document
     const TYPE_UNKNOWN = 'unknown';
 
     private $body;
-    private $bodyWithoutLayout;
+    private $bodyDecorated;
     private $file;
     private $filePath;
     private $layout;
@@ -41,18 +41,18 @@ class Document
         if ($file && is_file($file)) {
             $this->path = $file->getBaseName();
             $this->title = $file->getBaseName();
-            $this->body = file_get_contents($file);
+            $this->body = $this->bodyDecorated = file_get_contents($file);
         }
     }
 
-    public function getBodyWithoutLayout()
+    public function getBodyDecorated()
     {
-        return $this->bodyWithoutLayout;
+        return $this->bodyDecorated;
     }
 
-    public function setBodyWithoutLayout($bodyWithoutLayout)
+    public function setBodyDecorated($bodyDecorated)
     {
-        $this->bodyWithoutLayout = $bodyWithoutLayout;
+        $this->bodyDecorated = $bodyDecorated;
 
         return $this;
     }

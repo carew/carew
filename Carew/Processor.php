@@ -83,7 +83,7 @@ class Processor
     {
         $target = $this->target.'/'.$document->getPath();
         $this->filesystem->mkdir(dirname($target));
-        file_put_contents($target, $document->getBody());
+        file_put_contents($target, $document->getBodyDecorated());
     }
 
     private function sortByDate($documents)

@@ -41,7 +41,7 @@ class Twig implements EventSubscriberInterface
                 }
                 try {
                     $body = $template->render($parameters);
-                    $document->setBody($body)->setBodyWithoutLayout($body);
+                    $document->setBody($body);
                 } catch (\Twig_Error_Runtime $e) {
                     throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
                 }
@@ -62,7 +62,7 @@ class Twig implements EventSubscriberInterface
             }
 
             $body = $template->render($parameters);
-            $document->setBody($body)->setBodyWithoutLayout($body);
+            $document->setBody($body);
 
             foreach ($paginations as $key => $pages) {
                 $parametersTmp = $parameters;
@@ -78,7 +78,7 @@ class Twig implements EventSubscriberInterface
                     } catch (\Twig_Error_Runtime $e) {
                         throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
                     }
-                    $page->setBody($body)->setBodyWithoutLayout($body);
+                    $page->setBody($body);
 
                     $documents[] = $page;
                 }
@@ -94,6 +94,8 @@ class Twig implements EventSubscriberInterface
 
         foreach ($documents as $document) {
             if (false === $document->getLayout()) {
+                $document->setBodyDecorated($document->getBody());
+
                 continue;
             }
 
@@ -104,7 +106,7 @@ class Twig implements EventSubscriberInterface
                 $layout .= '.html.twig';
             }
 
-            $document->setBody($this->twig->render($layout));
+            $document->setBodyDecorated($this->twig->render($layout));
         }
 
         $event->setSubject($documents);

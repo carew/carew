@@ -267,7 +267,7 @@ EOL
         $event = new CarewEvent(array($document));
         $this->twigListenner->postRender($event);
 
-        $this->assertSame($expected, $document->getBody());
+        $this->assertSame($expected, $document->getBodyDecorated());
     }
 
     public function getPostRenderWithLayoutTests()
@@ -308,7 +308,7 @@ EOL;
 "bar"
 "value"
 EOL;
-        $this->assertSame($expected, $document->getBody());
+        $this->assertSame($expected, $document->getBodyDecorated());
     }
 
     public function tearDown()
