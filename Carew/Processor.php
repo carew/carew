@@ -75,7 +75,7 @@ class Processor
         try {
             return $this->eventDispatcher->dispatch(Events::DOCUMENT_DECORATION, $event)->getSubject();
         } catch (\Exception $e) {
-            throw new \LogicException(sprintf('Could not write: "%s".', (string) $document->getFile()), 0 , $e);
+            throw new \LogicException(sprintf('Could not write: "%s".', (string) $document->getPath()), 0 , $e);
         }
     }
 

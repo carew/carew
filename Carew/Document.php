@@ -12,6 +12,7 @@ class Document
     const TYPE_UNKNOWN = 'unknown';
 
     private $body;
+    private $bodyWithoutLayout;
     private $file;
     private $filePath;
     private $layout;
@@ -42,6 +43,18 @@ class Document
             $this->title = $file->getBaseName();
             $this->body = file_get_contents($file);
         }
+    }
+
+    public function getBodyWithoutLayout()
+    {
+        return $this->bodyWithoutLayout;
+    }
+
+    public function setBodyWithoutLayout($bodyWithoutLayout)
+    {
+        $this->bodyWithoutLayout = $bodyWithoutLayout;
+
+        return $this;
     }
 
     public function getBody()

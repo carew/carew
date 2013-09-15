@@ -28,7 +28,7 @@ class Twig implements EventSubscriberInterface
             // Force autoloading of Twig_Extension_StringLoader
             $this->twig->getExtension('string_loader');
 
-            $template = twig_template_from_string($this->twig, $document->getBody());
+            $template = twig_template_from_string($this->twig, $document->getBody() ?: '');
             $nbsItems = $template->getNbsItems(array());
             $maxesPerPage = $template->getMaxesPerPage();
 
@@ -41,7 +41,7 @@ class Twig implements EventSubscriberInterface
                 }
                 try {
                     $body = $template->render($parameters);
-                    $document->setBody($body);
+                    $document->setBody($body)->setBodyWithoutLayout($body);
                 } catch (\Twig_Error_Runtime $e) {
                     throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
                 }
@@ -61,7 +61,8 @@ class Twig implements EventSubscriberInterface
                 $parameters[sprintf('__current_page_%d__', $key)] = 1;
             }
 
-            $document->setBody($template->render($parameters));
+            $body = $template->render($parameters);
+            $document->setBody($body)->setBodyWithoutLayout($body);
 
             foreach ($paginations as $key => $pages) {
                 $parametersTmp = $parameters;
@@ -77,7 +78,7 @@ class Twig implements EventSubscriberInterface
                     } catch (\Twig_Error_Runtime $e) {
                         throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
                     }
-                    $page->setBody($body);
+                    $page->setBody($body)->setBodyWithoutLayout($body);
 
                     $documents[] = $page;
                 }
