@@ -5,11 +5,13 @@ site:
     author_email: lyrixx@lyrixx.info
     author_url:   http://gregoirepineau.fr
     gh_url:       https://github.com/carew/carew
+    url_absolute: http://carew.github.io
 
 engine:
     themes:
         - %dir%/../vendor/lyrixx/my-theme-bootstrap
         - %dir%/../vendor/carew/theme-bootstrap
+    theme_base_dir: %dir%/..
     extensions:
         # - Carew\Plugin\Sami\SamiExtension
 
