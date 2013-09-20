@@ -161,20 +161,20 @@ information') }}.
 
 In order to build the site, you can use the `build` command:
 
-    $ vendor/bin/carew build
+    $ bin/carew build
 
 This will populate the `web` directory with a set of files that can be deployed
 onto any static web server.
 
 You can change input / ouput directory. Run for more information:
 
-    $ vendor/bin/carew help build
+    $ bin/carew help build
 
 ### Create a new blog post
 
 Just run:
 
-    $ vendor/bin/carew carew:generate:post [--date="..."] "title"
+    $ bin/carew carew:generate:post [--date="..."] "title"
 
 ## What next?
 

@@ -32,7 +32,7 @@ boilerplate](https://github.com/carew/boilerplate): You will need
 
     $ php composer.phar create-project carew/boilerplate my_website -s dev
     $ cd my_website
-    $ vendor/bin/carew build
+    $ bin/carew build
 
 That's all, you can browse the `web/` directory.
 
