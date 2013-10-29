@@ -40,7 +40,7 @@ class CarewExtension extends \Twig_Extension
         }
 
         if (!is_array($toc)) {
-            throw new InvalidArgumentException('First argument given to render_document_toc must be a Document or an array of TOC');
+            throw new \InvalidArgumentException('First argument given to render_document_toc must be a Document or an array of TOC');
         }
 
         if (1 == count($toc)) {

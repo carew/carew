@@ -12,7 +12,7 @@ class Toc implements EventSubscriberInterface
 {
     private $htmlTools;
 
-    public function __construct(HtmlTools $htmlTools = null)
+    public function __construct(HtmlHelpers $htmlTools = null)
     {
         $this->htmlTools = $htmlTools ?: new HtmlHelpers();
     }
