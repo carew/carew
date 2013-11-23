@@ -21,6 +21,7 @@ class Carew extends Application
         $this->container = new \Pimple();
         $this->container['carew'] = $this;
 
+        $this->add(new Commands\Serve());
         $this->add(new Commands\GeneratePost());
         $this->add(new Commands\Build($this->container));
     }
