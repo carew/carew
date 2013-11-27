@@ -9,17 +9,15 @@ use Carew\Twig\Globals;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Finder\SplFileInfo;
 
-class ProcessorTest extends AbstractTest
+class ProcessorTest extends \PHPUnit_Framework_TestCase
 {
     private $processor;
     private $eventDispatcher;
-    private $target;
 
     public function setUp()
     {
-        $this->target = static::createTempDir();
         $this->eventDispatcher = new EventDispatcher();
-        $this->processor = new Processor($this->target, $this->eventDispatcher);
+        $this->processor = new Processor($this->eventDispatcher);
     }
 
     public function testProcess()
@@ -127,8 +125,7 @@ class ProcessorTest extends AbstractTest
 
     public function tearDown()
     {
+        $this->eventDispatcher = null;
         $this->processor = null;
-        static::deleteDir($this->target);
-        $this->target = null;
     }
 }

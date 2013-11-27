@@ -32,7 +32,7 @@ class Build extends BaseCommand
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $baseDir = $this->container['base_dir'];
-        $webDir = $this->container['web_dir'] = $input->getOption('web-dir');
+        $webDir = $input->getOption('web-dir');
 
         $this->container['builder']->build($output, $input, $baseDir, $webDir);
     }

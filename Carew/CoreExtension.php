@@ -27,7 +27,7 @@ class CoreExtension implements ExtensionInterface
         });
 
         $container['processor'] = $container->share(function ($container) {
-            return new Processor($container['web_dir'], $container['event_dispatcher'], $container['filesystem']);
+            return new Processor($container['event_dispatcher'], $container['filesystem']);
         });
 
         $container['filesystem'] = $container->share(function ($container) {
@@ -44,8 +44,6 @@ class CoreExtension implements ExtensionInterface
         $container['default.date'] = $container->protect(function () {
             return date('Y-m-d');
         });
-
-        $container['web_dir'] = $container['base_dir'].'/web';
 
         $container['config'] = $container->share(function ($container) {
             $config = array(
