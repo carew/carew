@@ -149,7 +149,7 @@ EOL;
 
         $this->assertSame($expected, $lis);
 
-        // $this->deleteDir($webDir);
+        $this->deleteDir($webDir);
     }
 
     public function testExecuteWithSiteAndMultiplePagination()
