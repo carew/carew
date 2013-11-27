@@ -9,15 +9,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Build extends BaseCommand
 {
-    private $container;
-
-    public function __construct(\Pimple $container)
-    {
-        $this->container = $container;
-
-        parent::__construct();
-    }
-
     protected function configure()
     {
         $this
@@ -31,9 +22,9 @@ class Build extends BaseCommand
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $baseDir = $this->container['base_dir'];
+        $baseDir = $input->getOption('base-dir');
         $webDir = $input->getOption('web-dir');
 
-        $this->container['builder']->build($output, $input, $baseDir, $webDir);
+        $this->getApplication()->getBuilder()->build($output, $input, $baseDir, $webDir);
     }
 }
