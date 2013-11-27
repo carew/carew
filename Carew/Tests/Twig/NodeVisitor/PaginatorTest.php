@@ -173,8 +173,8 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
     {
         $env = new \Twig_Environment(new \Twig_Loader_String(), array('cache' => false, 'autoescape' => false, 'optimizations' => 0));
         $env->addNodeVisitor(new Paginator());
-        $env->addFunction(new \Twig_SimpleFunction('paginate', function() { }));
-        $env->addFunction(new \Twig_SimpleFunction('render_documents', function() { }));
+        $env->addFunction(new \Twig_SimpleFunction('paginate', function () { }));
+        $env->addFunction(new \Twig_SimpleFunction('render_documents', function () { }));
         $env->addGlobal('collection', range(1, 100));
 
         return $env;

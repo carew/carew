@@ -95,7 +95,7 @@ class Carew extends Application
 
     private function loadThemes()
     {
-        $this->container['themes'] = $this->container->share($this->container->extend('themes', function($themesPath, $container) {
+        $this->container['themes'] = $this->container->share($this->container->extend('themes', function ($themesPath, $container) {
             $config = $container['config'];
             if (isset($config['engine']['themes'])) {
                 if (!is_array($themes = $config['engine']['themes'])) {

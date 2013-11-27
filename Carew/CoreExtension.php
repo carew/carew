@@ -22,28 +22,28 @@ class CoreExtension implements ExtensionInterface
         $this->registerEventDispatcher($container);
         $this->registerTwig($container);
 
-        $container['processor'] = $container->share(function($container) {
+        $container['processor'] = $container->share(function ($container) {
             return new Processor($container['web_dir'], $container['event_dispatcher'], $container['filesystem']);
         });
 
-        $container['filesystem'] = $container->share(function($container) {
+        $container['filesystem'] = $container->share(function ($container) {
             return new Filesystem();
         });
 
-        $container['finder'] = function($container) {
+        $container['finder'] = function ($container) {
             return new Finder();
         };
     }
 
     private function registerConfig(\Pimple $container)
     {
-        $container['default.date'] = $container->protect(function() {
+        $container['default.date'] = $container->protect(function () {
             return date('Y-m-d');
         });
 
         $container['web_dir'] = $container['base_dir'].'/web';
 
-        $container['config'] = $container->share(function($container) {
+        $container['config'] = $container->share(function ($container) {
             $config = array(
                 'site'   => array(),
                 'engine' => array(),
@@ -61,14 +61,14 @@ class CoreExtension implements ExtensionInterface
             return $config;
         });
 
-        $container['themes'] = $container->share(function($container) {
+        $container['themes'] = $container->share(function ($container) {
             return array($container['base_dir']);
         });
     }
 
     private function registerEventDispatcher(\Pimple $container)
     {
-        $container['event_dispatcher'] = $container->share(function($container) {
+        $container['event_dispatcher'] = $container->share(function ($container) {
             $dispatcher =  new EventDispatcher();
 
             $dispatcher->addSubscriber(new Listener\Metadata\Extraction());
@@ -85,7 +85,7 @@ class CoreExtension implements ExtensionInterface
 
     private function registerTwig(\Pimple $container)
     {
-        $container['twig.loader'] = $container->share(function($container) {
+        $container['twig.loader'] = $container->share(function ($container) {
             $loader = new Twig_Loader_Filesystem(array());
 
            foreach ($container['themes'] as $theme) {
@@ -108,7 +108,7 @@ class CoreExtension implements ExtensionInterface
             return $loader;
         });
 
-        $container['twig'] = $container->share(function($container) {
+        $container['twig'] = $container->share(function ($container) {
             $twig = new Twig_Environment($container['twig.loader'], array(
                 'strict_variables' => true,
                 'debug' => true,

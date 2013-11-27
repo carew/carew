@@ -27,7 +27,7 @@ class ProcessorTest extends AbstractTest
         $file = new SplFileInfo(__FILE__, '', basename(__FILE__));
 
         $i = 0;
-        $this->eventDispatcher->addListener(Events::DOCUMENT_HEADER, function() use (&$i) { $i++; });
+        $this->eventDispatcher->addListener(Events::DOCUMENT_HEADER, function () use (&$i) { $i++; });
 
         $document = $this->processor->processFile($file, 'simulate-a-path');
 
@@ -46,7 +46,7 @@ class ProcessorTest extends AbstractTest
 
         $i = 0;
 
-        $this->eventDispatcher->addListener(Events::DOCUMENTS, function() use (&$i) { $i++; });
+        $this->eventDispatcher->addListener(Events::DOCUMENTS, function () use (&$i) { $i++; });
 
         $documents = $this->processor->processDocuments($documents, new Globals());
 
@@ -108,7 +108,7 @@ class ProcessorTest extends AbstractTest
     public function testProcessBody()
     {
         $i = 0;
-        $this->eventDispatcher->addListener(Events::DOCUMENT_BODY, function() use (&$i) { $i++; });
+        $this->eventDispatcher->addListener(Events::DOCUMENT_BODY, function () use (&$i) { $i++; });
 
         $this->processor->processDocument(new Document());
 
@@ -118,7 +118,7 @@ class ProcessorTest extends AbstractTest
     public function testProcessDocumentDecoration()
     {
         $i = 0;
-        $this->eventDispatcher->addListener(Events::DOCUMENT_DECORATION, function() use (&$i) { $i++; });
+        $this->eventDispatcher->addListener(Events::DOCUMENT_DECORATION, function () use (&$i) { $i++; });
 
         $this->processor->processDocumentDecoration(new Document());
 

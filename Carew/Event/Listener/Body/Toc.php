@@ -31,7 +31,7 @@ class Toc implements EventSubscriberInterface
 
         $urls = array();
 
-        $body = preg_replace_callback('/href="(?P<url>.*)"/', function($matches) use (&$urls) {
+        $body = preg_replace_callback('/href="(?P<url>.*)"/', function ($matches) use (&$urls) {
             $urls[] = $matches['url'];
 
             return sprintf('href="%s"', '%%%%%%%%%%%%%%%%%%%%');
@@ -46,7 +46,7 @@ class Toc implements EventSubscriberInterface
         }
 
         $i = 0;
-        $body = preg_replace_callback('/href="(?P<url>%%%%%%%%%%%%%%%%%%%%)"/', function($matches) use (&$i, $urls) {
+        $body = preg_replace_callback('/href="(?P<url>%%%%%%%%%%%%%%%%%%%%)"/', function ($matches) use (&$i, $urls) {
             return sprintf('href="%s"', $urls[$i++]);
         }, $body);
 
