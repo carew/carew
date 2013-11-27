@@ -46,8 +46,8 @@ class CoreExtension implements ExtensionInterface
                 'site'   => array(),
                 'engine' => array(),
                 'folders' => array(
-                    'pages' => Document::TYPE_PAGE,
                     'posts' => Document::TYPE_POST,
+                    'pages' => Document::TYPE_PAGE,
                     'api'   => Document::TYPE_API,
                 ),
             );
