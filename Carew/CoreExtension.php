@@ -41,10 +41,6 @@ class CoreExtension implements ExtensionInterface
 
     private function registerConfig(\Pimple $container)
     {
-        $container['default.date'] = $container->protect(function () {
-            return date('Y-m-d');
-        });
-
         $container['config'] = $container->share(function ($container) {
             $config = array(
                 'site'   => array(),
