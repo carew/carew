@@ -19,12 +19,12 @@ class Twig implements EventSubscriberInterface
     public function preRender(CarewEvent $event)
     {
         $documents = $event->getSubject();
-        foreach ($documents as $k => $document) {
+        foreach ($documents as $document) {
             if (false === $document->getLayout()) {
                 continue;
             }
 
-            $this->setTwigGlobals($event, $document);
+            $this->setTwigGlobals($document);
             // Force autoloading of Twig_Extension_StringLoader
             $this->twig->getExtension('string_loader');
 
@@ -40,8 +40,7 @@ class Twig implements EventSubscriberInterface
                     $parameters[sprintf('__current_page_%d__', $key)] = 1;
                 }
                 try {
-                    $body = $template->render($parameters);
-                    $document->setBody($body);
+                    $document->setBody($template->render($parameters));
                 } catch (\Twig_Error_Runtime $e) {
                     throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
                 }
@@ -61,7 +60,11 @@ class Twig implements EventSubscriberInterface
                 $parameters[sprintf('__current_page_%d__', $key)] = 1;
             }
 
-            $body = $template->render($parameters);
+            try {
+                $body = $template->render($parameters);
+            } catch (\Twig_Error_Runtime $e) {
+                throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
+            }
             $document->setBody($body);
 
             foreach ($paginations as $key => $pages) {
@@ -99,7 +102,7 @@ class Twig implements EventSubscriberInterface
                 continue;
             }
 
-            $this->setTwigGlobals($event, $document);
+            $this->setTwigGlobals($document);
 
             $layout = $document->getLayout();
             if (false === strpos($layout, '.twig')) {
@@ -122,7 +125,7 @@ class Twig implements EventSubscriberInterface
         );
     }
 
-    private function setTwigGlobals(CarewEvent $event, Document $document)
+    private function setTwigGlobals(Document $document)
     {
         $twigGlobals = $this->twig->getGlobals();
         $globals = $twigGlobals['carew'];
