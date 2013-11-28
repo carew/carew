@@ -3,13 +3,13 @@
 namespace Carew\Command;
 
 use HtmlTools\Inflector;
-use Symfony\Component\Console\Command\Command as BaseCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class GeneratePost extends BaseCommand
+class GeneratePost extends Command
 {
     private $inflector;
     private $defaultDate;

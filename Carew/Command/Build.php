@@ -2,12 +2,12 @@
 
 namespace Carew\Command;
 
-use Symfony\Component\Console\Command\Command as BaseCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Build extends BaseCommand
+class Build extends Command
 {
     protected function configure()
     {
