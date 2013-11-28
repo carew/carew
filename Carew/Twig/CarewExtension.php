@@ -120,28 +120,26 @@ class CarewExtension extends \Twig_Extension
 
     public function path(\Twig_Environment $twig, $filePath)
     {
-        $globals = $twig->getGlobals();
-        $documents = $globals['carew']->documents;
+        $document = $filePath;
 
-        if (!array_key_exists($filePath, $documents)) {
-            throw new \InvalidArgumentException(sprintf('Unable to find path: "%s" in all documents', $filePath));
+        if (!$document instanceof Document) {
+            $document = $this->getDocumentWithPath($twig, $filePath);
         }
 
-        return $this->renderDocumentAttribute($twig, 'path', $documents[$filePath]);
+        return $this->renderDocumentAttribute($twig, 'path', $document);
     }
 
     public function link(\Twig_Environment $twig, $filePath, $title = null, array $attrs = array())
     {
-        $globals = $twig->getGlobals();
-        $documents = $globals['carew']->documents;
+        $document = $filePath;
 
-        if (!array_key_exists($filePath, $documents)) {
-            throw new \InvalidArgumentException(sprintf('Unable to find path: "%s" in all documents', $filePath));
+        if (!$document instanceof Document) {
+            $document = $this->getDocumentWithPath($twig, $filePath);
         }
 
         $parameters = array(
-            'document' => $documents[$filePath],
-            'title' => $title ?: $documents[$filePath]->getTitle(),
+            'document' => $document,
+            'title' => $title ?: $document->getTitle(),
             'attrs' => $attrs,
         );
 
@@ -151,6 +149,18 @@ class CarewExtension extends \Twig_Extension
     public function getName()
     {
         return 'carew';
+    }
+
+    private function getDocumentWithPath($twig, $filePath)
+    {
+        $globals = $twig->getGlobals();
+        $documents = $globals['carew']->documents;
+
+        if (!array_key_exists($filePath, $documents)) {
+            throw new \InvalidArgumentException(sprintf('Unable to find path: "%s" in all documents', $filePath));
+        }
+
+        return $documents[$filePath];
     }
 
     private function getCarewGlobals(\Twig_Environment $twig)
