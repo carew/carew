@@ -3,11 +3,18 @@
 namespace Carew\Twig;
 
 use Carew\Document;
-
+use Carew\Event\Listener\Decorator\Twig;
 use Carew\Twig\NodeVisitor\Paginator;
 
 class CarewExtension extends \Twig_Extension
 {
+    private $container;
+
+    public function __construct(\Pimple $container)
+    {
+        $this->container = $container;
+    }
+
     public function getNodeVisitors()
     {
         return array(
@@ -68,9 +75,9 @@ class CarewExtension extends \Twig_Extension
 
     public function renderDocument(\Twig_Environment $twig, Document $document)
     {
-        $parameters = array('document' => $document);
+        $this->container['listener.twig']->preRenderDocument($document);
 
-        return $this->renderBlock($twig, $document->getType(), $parameters);
+        return $document->getBody();
     }
 
     public function renderDocuments(\Twig_Environment $twig, array $documents = array(), array $pages = array(), $currentPage = null)

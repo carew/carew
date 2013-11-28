@@ -24,7 +24,7 @@ class TwigTest extends \PHPUnit_Framework_TestCase
             'base_template_class' => 'Carew\Twig\Template',
         ));
         $this->twig->addExtension(new \Twig_Extension_StringLoader());
-        $this->twig->addExtension(new CarewExtension());
+        $this->twig->addExtension(new CarewExtension(new \Pimple()));
         $this->twig->addGlobal('carew', new Globals());
 
         $this->twigListenner = new Twig($this->twig);

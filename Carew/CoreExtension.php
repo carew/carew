@@ -66,6 +66,9 @@ class CoreExtension implements ExtensionInterface
 
     private function registerEventDispatcher(\Pimple $container)
     {
+        $container['listener.twig'] = $container->share(function ($container) {
+            return new Listener\Decorator\Twig($container['twig']);
+        });
         $container['event_dispatcher'] = $container->share(function ($container) {
             $dispatcher =  new EventDispatcher();
 
@@ -75,7 +78,7 @@ class CoreExtension implements ExtensionInterface
             $dispatcher->addSubscriber(new Listener\Body\Toc());
             $dispatcher->addSubscriber(new Listener\Documents\Tags());
             $dispatcher->addSubscriber(new Listener\Documents\Feed());
-            $dispatcher->addSubscriber(new Listener\Decorator\Twig($container['twig']));
+            $dispatcher->addSubscriber($container['listener.twig']);
 
             return $dispatcher;
         });
@@ -118,7 +121,8 @@ class CoreExtension implements ExtensionInterface
 
             $twig->addExtension(new \Twig_Extension_Debug());
             $twig->addExtension(new \Twig_Extension_StringLoader());
-            $twig->addExtension(new CarewExtension());
+            // We have to inject the container to avoid a cyclic dependency;
+            $twig->addExtension(new CarewExtension($container));
 
             return $twig;
         });
