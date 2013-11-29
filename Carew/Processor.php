@@ -51,7 +51,7 @@ class Processor
         $globalsData['documents'] = $documents;
 
         foreach (array('tags', 'navigations') as $key) {
-            $globalsData[$key] = $this->buildCollectionWithDocumentMethod($documents, 'get'.ucfirst($key));
+            $globalsData[$key] = $this->buildCollectionsWithDocumentMethod($documents, 'get'.ucfirst($key));
         }
 
         return $globals->fromArray($globalsData);
@@ -123,20 +123,22 @@ class Processor
         return $documents;
     }
 
-    private function buildCollectionWithDocumentMethod($documents, $method)
+    private function buildCollectionsWithDocumentMethod($documents, $method)
     {
-        $collection = array();
+        $collections = array();
         foreach ($documents as $document) {
             $items = (array) $document->{$method}();
             foreach ($items as $item) {
-                if (!array_key_exists($item, $collection)) {
-                    $collection[$item] = array();
+                if (!array_key_exists($item, $collections)) {
+                    $collections[$item] = array();
                 }
-                $collection[$item][$document->getFilePath()] = $document;
+                $collections[$item][$document->getFilePath()] = $document;
             }
         }
 
-        return $collection;
+        $collections = array_map(array($this, 'sortByDate'), $collections);
+
+        return $collections;
     }
 
     private function buildCollectionsWithType($documents)
