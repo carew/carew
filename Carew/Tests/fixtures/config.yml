@@ -2,3 +2,4 @@ site:
     author: gregoire pineau
 engine:
     themes: %dir%/vendor
+    post_permalink_format: "%slug%-%month%-%year%-%format%-foobar"

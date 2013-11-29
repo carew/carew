@@ -3,6 +3,7 @@
 namespace Carew;
 
 use Carew\Event\Listener;
+use Carew\Helper\Path;
 use Carew\Twig\CarewExtension;
 use Carew\Twig\Globals;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -30,6 +31,10 @@ class CoreExtension implements ExtensionInterface
             return new Processor($container['event_dispatcher'], $container['filesystem']);
         });
 
+        $container['helper.path'] = $container->share(function ($container) {
+            return new Path();
+        });
+
         $container['filesystem'] = $container->share(function ($container) {
             return new Filesystem();
         });
@@ -46,7 +51,9 @@ class CoreExtension implements ExtensionInterface
         $container['config'] = $container->share(function ($container) {
             $config = array(
                 'site' => array(),
-                'engine' => array(),
+                'engine' => array(
+                    'post_permalink_format' => '%year%/%month%/%day%/%slug%.html'
+                ),
                 'folders' => array(
                     'posts' => Document::TYPE_POST,
                     'pages' => Document::TYPE_PAGE,
@@ -55,7 +62,7 @@ class CoreExtension implements ExtensionInterface
             );
 
             if (file_exists($container['base_dir'].'/config.yml')) {
-                $config = array_merge_recursive($config, Yaml::parse($container['base_dir'].'/config.yml') ?: array());
+                $config = array_replace_recursive($config, Yaml::parse($container['base_dir'].'/config.yml') ?: array());
             }
 
             return $config;
@@ -84,8 +91,8 @@ class CoreExtension implements ExtensionInterface
         $container['event_dispatcher'] = $container->share(function ($container) {
             $dispatcher =  new EventDispatcher();
 
-            $dispatcher->addSubscriber(new Listener\Metadata\Extraction());
-            $dispatcher->addSubscriber(new Listener\Metadata\Optimization());
+            $dispatcher->addSubscriber(new Listener\Metadata\Extraction($container['helper.path']));
+            $dispatcher->addSubscriber(new Listener\Metadata\Optimization($container['config']['engine']['post_permalink_format'], $container['helper.path']));
             $dispatcher->addSubscriber(new Listener\Body\Markdown());
             $dispatcher->addSubscriber(new Listener\Body\Toc());
             $dispatcher->addSubscriber(new Listener\Documents\Tags());

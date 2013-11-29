@@ -5,10 +5,20 @@ namespace Carew\Event\Listener\Metadata;
 use Carew\Document;
 use Carew\Event\CarewEvent;
 use Carew\Event\Events;
+use Carew\Helper\Path;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class Optimization implements EventSubscriberInterface
 {
+    private $permalinkFormat;
+    private $path;
+
+    public function __construct($permalinkFormat = '%year%/%month%/%day%/%slug%.html', Path $path = null)
+    {
+        $this->permalinkFormat = $permalinkFormat;
+        $this->path = $path ?: new Path();
+    }
+
     public function onDocument(CarewEvent $event)
     {
         $document = $event->getSubject();
@@ -31,7 +41,13 @@ class Optimization implements EventSubscriberInterface
         $metadatas = $document->getMetadatas();
 
         if (!isset($metadatas['permalink'])) {
-            $document->setPath("$year/$month/$day/$slug.html");
+            $path = strtr($this->permalinkFormat, array(
+                '%year%' => $year,
+                '%month%' => $month,
+                '%day%' => $day,
+                '%slug%' => $slug,
+            ));
+            $document->setPath($this->path->generatePath($path));
         }
     }
 

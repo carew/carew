@@ -26,11 +26,14 @@ class CoreExtensionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Carew\Builder', $container['builder']);
         $this->assertInstanceOf('Carew\Processor', $container['processor']);
+        $this->assertInstanceOf('Carew\Helper\Path', $container['helper.path']);
         $this->assertInstanceOf('Symfony\Component\Filesystem\Filesystem', $container['filesystem']);
         $this->assertInstanceOf('Symfony\Component\Finder\Finder', $container['finder']);
         $this->assertSame(array(
             'site' => array(),
-            'engine' => array(),
+            'engine' => array(
+                'post_permalink_format' => '%year%/%month%/%day%/%slug%.html',
+            ),
             'folders' => array(
                 'posts' => Document::TYPE_POST,
                 'pages' => Document::TYPE_PAGE,
@@ -54,7 +57,8 @@ class CoreExtensionTest extends \PHPUnit_Framework_TestCase
                 'author' => 'gregoire pineau',
             ),
             'engine' => array(
-                'themes' => '%dir%/vendor'
+                'post_permalink_format' => '%slug%-%month%-%year%-%format%-foobar',
+                'themes' => '%dir%/vendor',
             ),
             'folders' => array(
                 'posts' => Document::TYPE_POST,
