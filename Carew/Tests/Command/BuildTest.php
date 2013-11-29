@@ -12,9 +12,9 @@ use Symfony\Component\DomCrawler\Crawler;
  */
 class BuildTest extends AbstractTest
 {
-    public function testExecuteWithSite1()
+    public function testExecuteWithRegularSite()
     {
-        $this->deleteDir($webDir = __DIR__.'/fixtures/site1/web');
+        $this->deleteDir($webDir = __DIR__.'/fixtures/site/web');
         list($application, $statusCode) = $this->runApplication(dirname($webDir));
 
         $this->assertSame(0, $statusCode);
@@ -57,9 +57,9 @@ class BuildTest extends AbstractTest
         $this->deleteDir($webDir);
     }
 
-    public function testExecuteWithSiteAndToc()
+    public function testExecuteToc()
     {
-        $this->deleteDir($webDir = __DIR__.'/fixtures/site-with-toc/web');
+        $this->deleteDir($webDir = __DIR__.'/fixtures/toc/web');
         list($application, $statusCode) = $this->runApplication(dirname($webDir));
 
         $this->assertSame(0, $statusCode);
@@ -86,9 +86,9 @@ EOL;
         $this->deleteDir($webDir);
     }
 
-    public function testExecuteWithSiteAndPagination()
+    public function testExecutePagination()
     {
-        $this->deleteDir($webDir = __DIR__.'/fixtures/site-with-pagination/web');
+        $this->deleteDir($webDir = __DIR__.'/fixtures/pagination/web');
         list($application, $statusCode) = $this->runApplication(dirname($webDir));
 
         $this->assertSame(0, $statusCode);
@@ -139,9 +139,9 @@ EOL;
         $this->deleteDir($webDir);
     }
 
-    public function testExecuteWithSiteAndMultiplePagination()
+    public function testExecuteMultiplePagination()
     {
-        $this->deleteDir($webDir = __DIR__.'/fixtures/site-with-multiple-pagination/web');
+        $this->deleteDir($webDir = __DIR__.'/fixtures/multiple-pagination/web');
         list($application, $statusCode) = $this->runApplication(dirname($webDir));
 
         $this->assertSame(0, $statusCode);
@@ -149,9 +149,9 @@ EOL;
         $this->deleteDir($webDir);
     }
 
-    public function testExecuteWithSiteAndTag()
+    public function testExecuteTags()
     {
-        $this->deleteDir($webDir = __DIR__.'/fixtures/site-with-tags/web');
+        $this->deleteDir($webDir = __DIR__.'/fixtures/tags/web');
         list($application, $statusCode) = $this->runApplication(dirname($webDir));
 
         $this->assertSame(0, $statusCode);
