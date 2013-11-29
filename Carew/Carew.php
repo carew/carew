@@ -23,7 +23,7 @@ class Carew extends Application
 
         $this->add(new Commands\Serve());
         $this->add(new Commands\GeneratePost());
-        $this->add(new Commands\Build($this->container));
+        $this->add(new Commands\Build());
     }
 
     public function registerExtension(ExtensionInterface $extension)
@@ -41,6 +41,11 @@ class Carew extends Application
     public function getEventDispatcher()
     {
         return $this->container['event_dispatcher'];
+    }
+
+    public function getBuilder()
+    {
+        return $this->container['builder'];
     }
 
     public function doRun(InputInterface $input, OutputInterface $output)

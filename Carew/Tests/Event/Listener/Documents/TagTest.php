@@ -22,7 +22,7 @@ class TagTest extends \PHPUnit_Framework_TestCase
             $documents[] = $document;
         }
 
-        $processor = new Processor('web/');
+        $processor = new Processor();
         $globals = $processor->processGlobals($documents);
 
         $event = new CarewEvent($documents, array('globals' => $globals));

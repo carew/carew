@@ -13,13 +13,11 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class Processor
 {
-    private $target;
     private $eventDispatcher;
     private $filesystem;
 
-    public function __construct($target, EventDispatcherInterface $eventDispatcher = null, Filesystem $filesystem = null)
+    public function __construct(EventDispatcherInterface $eventDispatcher = null, Filesystem $filesystem = null)
     {
-        $this->target = $target;
         $this->eventDispatcher = $eventDispatcher ?: new EventDispatcher();
         $this->filesystem = $filesystem ?: new Filesystem();
     }
@@ -79,9 +77,9 @@ class Processor
         }
     }
 
-    public function write(Document $document)
+    public function write(Document $document, $to)
     {
-        $target = $this->target.'/'.$document->getPath();
+        $target = $to.'/'.$document->getPath();
         $this->filesystem->mkdir(dirname($target));
         file_put_contents($target, $document->getBodyDecorated());
     }

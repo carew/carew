@@ -19,73 +19,81 @@ class Twig implements EventSubscriberInterface
     public function preRender(CarewEvent $event)
     {
         $documents = $event->getSubject();
-        foreach ($documents as $k => $document) {
+        foreach ($documents as $document) {
             if (false === $document->getLayout()) {
                 continue;
             }
 
-            $this->setTwigGlobals($event, $document);
-            // Force autoloading of Twig_Extension_StringLoader
-            $this->twig->getExtension('string_loader');
-
-            $template = twig_template_from_string($this->twig, $document->getBody() ?: '');
-            $nbsItems = $template->getNbsItems(array());
-            $maxesPerPage = $template->getMaxesPerPage();
-
-            if (!$this->haveToPaginate($nbsItems, $maxesPerPage)) {
-                $parameters = array();
-                foreach ($nbsItems as $key => $nbItems) {
-                    $parameters[sprintf('__offset_%d__', $key)] = 0;
-                    $parameters[sprintf('__pages_%d__', $key)] = array($document);
-                    $parameters[sprintf('__current_page_%d__', $key)] = 1;
-                }
-                try {
-                    $body = $template->render($parameters);
-                    $document->setBody($body);
-                } catch (\Twig_Error_Runtime $e) {
-                    throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
-                }
-
-                continue;
-            }
-
-            $parameters = array();
-            $paginations = array();
-            foreach ($nbsItems as $key => $nbItems) {
-                $nbPages = ceil($nbItems / $maxesPerPage[$key]);
-
-                $paginations[$key] = $this->generatePages($document, $nbPages, 0 == $key, $key);
-
-                $parameters[sprintf('__offset_%d__', $key)] = 0;
-                $parameters[sprintf('__pages_%d__', $key)] = $paginations[$key];
-                $parameters[sprintf('__current_page_%d__', $key)] = 1;
-            }
-
-            $body = $template->render($parameters);
-            $document->setBody($body);
-
-            foreach ($paginations as $key => $pages) {
-                $parametersTmp = $parameters;
-                foreach ($pages as $nbPage => $page) {
-                    if (1 == $nbPage) {
-                        continue;
-                    }
-
-                    $parametersTmp[sprintf('__offset_%d__', $key)] =  ($nbPage - 1) * $maxesPerPage[$key];
-                    $parametersTmp[sprintf('__current_page_%d__', $key)] =  $nbPage;
-                    try {
-                        $body = $template->render($parametersTmp);
-                    } catch (\Twig_Error_Runtime $e) {
-                        throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
-                    }
-                    $page->setBody($body);
-
-                    $documents[] = $page;
-                }
-            }
+            $this->preRenderDocument($document, $documents);
         }
 
         $event->setSubject($documents);
+    }
+
+    public function preRenderDocument(Document $document, array &$documents = array())
+    {
+        $this->setTwigGlobals($document);
+        // Force autoloading of Twig_Extension_StringLoader
+        $this->twig->getExtension('string_loader');
+
+        $template = twig_template_from_string($this->twig, $document->getBody() ?: '');
+        $nbsItems = $template->getNbsItems(array());
+        $maxesPerPage = $template->getMaxesPerPage();
+
+        if (!$this->haveToPaginate($nbsItems, $maxesPerPage)) {
+            $parameters = array();
+            foreach ($nbsItems as $key => $nbItems) {
+                $parameters[sprintf('__offset_%d__', $key)] = 0;
+                $parameters[sprintf('__pages_%d__', $key)] = array($document);
+                $parameters[sprintf('__current_page_%d__', $key)] = 1;
+            }
+            try {
+                $document->setBody($template->render($parameters));
+            } catch (\Twig_Error_Runtime $e) {
+                throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
+            }
+
+            return;
+        }
+
+        $parameters = array();
+        $paginations = array();
+        foreach ($nbsItems as $key => $nbItems) {
+            $nbPages = ceil($nbItems / $maxesPerPage[$key]);
+
+            $paginations[$key] = $this->generatePages($document, $nbPages, 0 == $key, $key);
+
+            $parameters[sprintf('__offset_%d__', $key)] = 0;
+            $parameters[sprintf('__pages_%d__', $key)] = $paginations[$key];
+            $parameters[sprintf('__current_page_%d__', $key)] = 1;
+        }
+
+        try {
+            $body = $template->render($parameters);
+        } catch (\Twig_Error_Runtime $e) {
+            throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
+        }
+        $document->setBody($body);
+
+        foreach ($paginations as $key => $pages) {
+            $parametersTmp = $parameters;
+            foreach ($pages as $nbPage => $page) {
+                if (1 == $nbPage) {
+                    continue;
+                }
+
+                $parametersTmp[sprintf('__offset_%d__', $key)] =  ($nbPage - 1) * $maxesPerPage[$key];
+                $parametersTmp[sprintf('__current_page_%d__', $key)] =  $nbPage;
+                try {
+                    $body = $template->render($parametersTmp);
+                } catch (\Twig_Error_Runtime $e) {
+                    throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
+                }
+                $page->setBody($body);
+
+                $documents[] = $page;
+            }
+        }
     }
 
     public function postRender(CarewEvent $event)
@@ -99,7 +107,7 @@ class Twig implements EventSubscriberInterface
                 continue;
             }
 
-            $this->setTwigGlobals($event, $document);
+            $this->setTwigGlobals($document);
 
             $layout = $document->getLayout();
             if (false === strpos($layout, '.twig')) {
@@ -122,7 +130,7 @@ class Twig implements EventSubscriberInterface
         );
     }
 
-    private function setTwigGlobals(CarewEvent $event, Document $document)
+    private function setTwigGlobals(Document $document)
     {
         $twigGlobals = $this->twig->getGlobals();
         $globals = $twigGlobals['carew'];

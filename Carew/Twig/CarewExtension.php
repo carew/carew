@@ -3,11 +3,18 @@
 namespace Carew\Twig;
 
 use Carew\Document;
-
+use Carew\Event\Listener\Decorator\Twig;
 use Carew\Twig\NodeVisitor\Paginator;
 
 class CarewExtension extends \Twig_Extension
 {
+    private $container;
+
+    public function __construct(\Pimple $container)
+    {
+        $this->container = $container;
+    }
+
     public function getNodeVisitors()
     {
         return array(
@@ -68,9 +75,9 @@ class CarewExtension extends \Twig_Extension
 
     public function renderDocument(\Twig_Environment $twig, Document $document)
     {
-        $parameters = array('document' => $document);
+        $this->container['listener.twig']->preRenderDocument($document);
 
-        return $this->renderBlock($twig, $document->getType(), $parameters);
+        return $document->getBody();
     }
 
     public function renderDocuments(\Twig_Environment $twig, array $documents = array(), array $pages = array(), $currentPage = null)
@@ -120,28 +127,26 @@ class CarewExtension extends \Twig_Extension
 
     public function path(\Twig_Environment $twig, $filePath)
     {
-        $globals = $twig->getGlobals();
-        $documents = $globals['carew']->documents;
+        $document = $filePath;
 
-        if (!array_key_exists($filePath, $documents)) {
-            throw new \InvalidArgumentException(sprintf('Unable to find path: "%s" in all documents', $filePath));
+        if (!$document instanceof Document) {
+            $document = $this->getDocumentWithPath($twig, $filePath);
         }
 
-        return $this->renderDocumentAttribute($twig, 'path', $documents[$filePath]);
+        return $this->renderDocumentAttribute($twig, 'path', $document);
     }
 
     public function link(\Twig_Environment $twig, $filePath, $title = null, array $attrs = array())
     {
-        $globals = $twig->getGlobals();
-        $documents = $globals['carew']->documents;
+        $document = $filePath;
 
-        if (!array_key_exists($filePath, $documents)) {
-            throw new \InvalidArgumentException(sprintf('Unable to find path: "%s" in all documents', $filePath));
+        if (!$document instanceof Document) {
+            $document = $this->getDocumentWithPath($twig, $filePath);
         }
 
         $parameters = array(
-            'document' => $documents[$filePath],
-            'title' => $title ?: $documents[$filePath]->getTitle(),
+            'document' => $document,
+            'title' => $title ?: $document->getTitle(),
             'attrs' => $attrs,
         );
 
@@ -151,6 +156,18 @@ class CarewExtension extends \Twig_Extension
     public function getName()
     {
         return 'carew';
+    }
+
+    private function getDocumentWithPath($twig, $filePath)
+    {
+        $globals = $twig->getGlobals();
+        $documents = $globals['carew']->documents;
+
+        if (!array_key_exists($filePath, $documents)) {
+            throw new \InvalidArgumentException(sprintf('Unable to find path: "%s" in all documents', $filePath));
+        }
+
+        return $documents[$filePath];
     }
 
     private function getCarewGlobals(\Twig_Environment $twig)
