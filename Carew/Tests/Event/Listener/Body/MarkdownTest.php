@@ -27,10 +27,10 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
         $document = $this->createDocument($file);
         $event = new CarewEvent($document);
 
-        $markdownParser = $this->getMock('Michelf\Markdown');
+        $markdownParser = $this->getMock('Parsedown');
         $markdownParser
             ->expects($this->exactly($expected))
-            ->method('transform')
+            ->method('parse')
         ;
 
         $extraction = new Markdown($markdownParser);
@@ -41,13 +41,13 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
     public function testParseTwigLink()
     {
         $document = $this->createDocument('simple.md.twig');
-        $document->setBody('[homepage](<{{ carew.relativeRoot }}>)');
+        $document->setBody('[homepage]({{ carew.relativeRoot }})');
         $event = new CarewEvent($document);
 
         $extraction = new Markdown();
         $extraction->onDocument($event);
 
-        $this->assertSame('<p><a href="{{ carew.relativeRoot }}">homepage</a></p>'."\n", $document->getBody());
+        $this->assertSame('<p><a href="{{ carew.relativeRoot }}">homepage</a></p>', $document->getBody());
 
     }
 

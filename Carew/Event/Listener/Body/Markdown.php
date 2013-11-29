@@ -4,7 +4,7 @@ namespace Carew\Event\Listener\Body;
 
 use Carew\Event\Events;
 use Carew\Event\CarewEvent;
-use Michelf\MarkdownExtra as MarkdownParser;
+use Parsedown as MarkdownParser;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class Markdown implements EventSubscriberInterface
@@ -36,7 +36,7 @@ class Markdown implements EventSubscriberInterface
             }
         }
 
-        $document->setBody($this->markdownParser->transform($document->getBody()));
+        $document->setBody($this->markdownParser->parse($document->getBody()));
     }
 
     public static function getSubscribedEvents()
