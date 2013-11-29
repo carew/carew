@@ -41,14 +41,16 @@ class CoreExtension implements ExtensionInterface
 
     private function registerConfig(\Pimple $container)
     {
+        $container['base_dir'] = getcwd();
+
         $container['config'] = $container->share(function ($container) {
             $config = array(
-                'site'   => array(),
+                'site' => array(),
                 'engine' => array(),
                 'folders' => array(
                     'posts' => Document::TYPE_POST,
                     'pages' => Document::TYPE_PAGE,
-                    'api'   => Document::TYPE_API,
+                    'api' => Document::TYPE_API,
                 ),
             );
 
@@ -60,7 +62,17 @@ class CoreExtension implements ExtensionInterface
         });
 
         $container['themes'] = $container->share(function ($container) {
-            return array($container['base_dir']);
+            $themesPath = array($container['base_dir']);
+
+            $config = $container['config'];
+            if (isset($config['engine']['themes'])) {
+                $themes = (array) $config['engine']['themes'];
+                foreach ($themes as $theme) {
+                    $themesPath[] = str_replace('%dir%', $container['base_dir'], $theme);
+                }
+            }
+
+            return $themesPath;
         });
     }
 
@@ -90,8 +102,7 @@ class CoreExtension implements ExtensionInterface
             $loader = new Twig_Loader_Filesystem(array());
 
            foreach ($container['themes'] as $theme) {
-                $path = $theme.'/layouts';
-                if (is_dir($path)) {
+                if (is_dir($path = $theme.'/layouts')) {
                     $loader->addPath($path);
                 }
             }

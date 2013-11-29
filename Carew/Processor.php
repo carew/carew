@@ -32,7 +32,7 @@ class Processor
         try {
             return $this->eventDispatcher->dispatch(Events::DOCUMENT_HEADER, $event)->getSubject();
         } catch (\Exception $e) {
-            throw new \LogicException(sprintf('Could not process: "%s".', (string) $file), 0 , $e);
+            throw new \LogicException(sprintf('Could not process "%s": "%s".', $file->getRelativePathname(), $e->getMessage()), 0 , $e);
         }
     }
 
@@ -63,7 +63,11 @@ class Processor
         try {
             return $this->eventDispatcher->dispatch(Events::DOCUMENT_BODY, $event)->getSubject();
         } catch (\Exception $e) {
-            throw new \LogicException(sprintf('Could not process: "%s".', (string) $document->getFile()), 0 , $e);
+            if ($document->getFile()) {
+                throw new \LogicException(sprintf('Could not process "%s": "%s".', $document->getFile()->getRelativePathname(), $e->getMessage()), 0 , $e);
+            }
+
+            throw new \LogicException(sprintf('Could not process "%s": "%s".', $document->getBody(), $e->getMessage()), 0 , $e);
         }
     }
 
@@ -73,7 +77,11 @@ class Processor
         try {
             return $this->eventDispatcher->dispatch(Events::DOCUMENT_DECORATION, $event)->getSubject();
         } catch (\Exception $e) {
-            throw new \LogicException(sprintf('Could not write: "%s".', (string) $document->getPath()), 0 , $e);
+            if ($document->getFile()) {
+                throw new \LogicException(sprintf('Could not process "%s": "%s".', $document->getFile()->getRelativePathname(), $e->getMessage()), 0 , $e);
+            }
+
+            throw new \LogicException(sprintf('Could not process "%s": "%s".', $document->getBody(), $e->getMessage()), 0 , $e);
         }
     }
 
@@ -89,12 +97,16 @@ class Processor
         uasort($documents, function ($a, $b) {
             $aMetadatas = $a->getMetadatas();
             $bMetadatas = $b->getMetadatas();
-            if (!array_key_exists('date', $aMetadatas) || !array_key_exists('date', $bMetadatas)) {
-                return 0;
+            if (!array_key_exists('date', $aMetadatas)) {
+                return -1;
+            }
+
+            if (!array_key_exists('date', $bMetadatas)) {
+                return 1;
             }
 
             if ($aMetadatas['date'] == $bMetadatas['date']) {
-                return 0;
+                return -1;
             }
 
             return ($aMetadatas['date'] < $bMetadatas['date']) ? -1 : 1;

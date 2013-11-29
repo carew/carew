@@ -1,0 +1,4 @@
+site:
+    author: gregoire pineau
+engine:
+    themes: %dir%/vendor

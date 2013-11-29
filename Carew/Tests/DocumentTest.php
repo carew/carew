@@ -3,9 +3,46 @@
 namespace Carew\Tests;
 
 use Carew\Document;
+use Symfony\Component\Finder\SplFileInfo;
 
 class DocumentTest extends \PHPUnit_Framework_TestCase
 {
+    public function testConstructor()
+    {
+        $document = new Document(new SplFileInfo(__FILE__, '.', '.'));
+
+        $this->assertSame(file_get_contents(__FILE__), $document->getBody());
+        $this->assertSame(file_get_contents(__FILE__), $document->getBodyDecorated());
+        $this->assertSame('DocumentTest.php', $document->getPath());
+    }
+
+    public function testType()
+    {
+        $document = new Document(null, null, Document::TYPE_UNKNOWN);
+        $this->assertSame(Document::TYPE_UNKNOWN, $document->getType());
+        $this->assertFalse($document->isTypePost());
+        $this->assertFalse($document->isTypePage());
+        $this->assertFalse($document->isTypeApi());
+
+        $document = new Document(null, null, Document::TYPE_PAGE);
+        $this->assertSame(Document::TYPE_PAGE, $document->getType());
+        $this->assertFalse($document->isTypePost());
+        $this->assertTrue($document->isTypePage());
+        $this->assertFalse($document->isTypeApi());
+
+        $document = new Document(null, null, Document::TYPE_POST);
+        $this->assertSame(Document::TYPE_POST, $document->getType());
+        $this->assertTrue($document->isTypePost());
+        $this->assertFalse($document->isTypePage());
+        $this->assertFalse($document->isTypeApi());
+
+        $document = new Document(null, null, Document::TYPE_API);
+        $this->assertSame(Document::TYPE_API, $document->getType());
+        $this->assertFalse($document->isTypePost());
+        $this->assertFalse($document->isTypePage());
+        $this->assertTrue($document->isTypeApi());
+    }
+
     public function getGetRootPathTests()
     {
         return array(

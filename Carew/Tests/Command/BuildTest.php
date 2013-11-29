@@ -206,26 +206,10 @@ EOL;
         $this->deleteDir($webDir);
     }
 
-    public function testExecuteWithConfigThrowExceptionIfExtensionClassDoesNotExists()
-    {
-        list($application, $statusCode) = $this->runApplication(__DIR__.'/fixtures/config-exception-class-not-exists');
-
-        $this->assertSame(1, $statusCode);
-        $this->assertContains('The class "FooBar" does not exists. See "config.yml".', $application->getDisplay());
-    }
-
-    public function testExecuteWithConfigThrowExceptionIfExtensionClassDoesNotImplementsInterface()
-    {
-        list($application, $statusCode) = $this->runApplication(__DIR__.'/fixtures/config-exception-class-not-implements');
-
-        $this->assertSame(1, $statusCode);
-        $this->assertContains('The class "stdClass" does not implements ExtensionInterface. See "config.yml".', $application->getDisplay());
-    }
-
     public function testExecuteWithConfigTheme()
     {
         $this->deleteDir($webDir = __DIR__.'/fixtures/theme/web');
-        list(, $statusCode) = $this->runApplication(dirname($webDir));
+        list($application, $statusCode) = $this->runApplication(dirname($webDir));
 
         $this->assertSame(0, $statusCode);
 

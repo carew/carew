@@ -21,6 +21,8 @@ class Carew extends Application
         $this->container = new \Pimple();
         $this->container['carew'] = $this;
 
+        $this->registerExtension(new CoreExtension());
+
         $this->add(new Commands\Serve());
         $this->add(new Commands\GeneratePost());
         $this->add(new Commands\Build());
@@ -50,17 +52,20 @@ class Carew extends Application
 
     public function doRun(InputInterface $input, OutputInterface $output)
     {
-        $baseDir = realpath($input->getParameterOption('--base-dir'));
+        if ($input->hasParameterOption('--base-dir')) {
+            $baseDir = realpath($input->getParameterOption('--base-dir'));
 
-        if (!is_dir($baseDir)) {
-            throw new \InvalidArgumentException(sprintf('Base dir doest not exists or it is not a directory: "%s"', $baseDir));
+            if (!is_dir($baseDir)) {
+                throw new \InvalidArgumentException(sprintf('Base directory does not exist or it is not a readable directory: "%s".', $input->getParameterOption('--base-dir')));
+            }
+
+            // We have to load extension after the override of `base_dir`
+            // configuration; because extension can rely on configuration inside the
+            // `config.yml` file.
+
+            $this->container['base_dir'] = $baseDir;
         }
 
-        $this->container['base_dir'] = $baseDir;
-
-        $this->registerExtension(new CoreExtension());
-
-        $this->loadThemes();
         $this->loadExtensions();
 
         return parent::doRun($input, $output);
@@ -71,7 +76,7 @@ class Carew extends Application
         $inputDefinition = parent::getDefaultInputDefinition();
 
         $inputDefinition->addOptions(array(
-            new InputOption('base-dir', null, InputOption::VALUE_REQUIRED, 'Where locate your content', getcwd()),
+            new InputOption('base-dir', null, InputOption::VALUE_REQUIRED, 'The location of your content', getcwd()),
         ));
 
         return $inputDefinition;
@@ -82,9 +87,7 @@ class Carew extends Application
         $config = $this->container['config'];
 
         if (isset($config['engine']['extensions'])) {
-            if (!is_array($extensions = $config['engine']['extensions'])) {
-                $extensions = array($extensions);
-            }
+            $extensions = (array) $config['engine']['extensions'];
             foreach ($extensions as $extension) {
                 if (!class_exists($extension)) {
                     throw new \LogicException(sprintf('The class "%s" does not exists. See "config.yml".', $extension));
@@ -96,22 +99,5 @@ class Carew extends Application
                 $this->registerExtension($extension);
             }
         }
-    }
-
-    private function loadThemes()
-    {
-        $this->container['themes'] = $this->container->share($this->container->extend('themes', function ($themesPath, $container) {
-            $config = $container['config'];
-            if (isset($config['engine']['themes'])) {
-                if (!is_array($themes = $config['engine']['themes'])) {
-                    $themes = array($themes);
-                }
-                foreach ($themes as $theme) {
-                    $themesPath[] = str_replace('%dir%', $container['base_dir'], $theme);
-                }
-            }
-
-            return $themesPath;
-        }));
     }
 }
