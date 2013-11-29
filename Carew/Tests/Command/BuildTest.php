@@ -67,31 +67,18 @@ class BuildTest extends AbstractTest
         $this->assertTrue(file_exists($webDir.'/index.html'));
         $expected = <<<EOL
 <p><ul><li><a href="#h1">H1</a><ul><li><a href="#h2">H2</a><ul><li><a href="#h3">H3</a><ul><li><a href="#h4">H4</a><ul><li><a href="#h5">H5</a><ul><li><a href="#h6">H6</a></li></ul></li></ul></li></ul></li></ul></li><li><a href="#h2-2">H2</a><ul><li><a href="#h3-2">H3</a><ul><li><a href="#h4-2">H4</a><ul><li><a href="#h5-2">H5</a><ul><li><a href="#h6-2">H6</a></li></ul></li></ul></li></ul></li></ul></li></ul></li></ul></p>
-
 <p>Good Night</p>
-
 <h1 id="h1">H1<a href="#h1" class="anchor">#</a></h1>
-
 <h2 id="h2">H2<a href="#h2" class="anchor">#</a></h2>
-
 <h3 id="h3">H3<a href="#h3" class="anchor">#</a></h3>
-
 <h4 id="h4">H4<a href="#h4" class="anchor">#</a></h4>
-
 <h5 id="h5">H5<a href="#h5" class="anchor">#</a></h5>
-
 <h6 id="h6">H6<a href="#h6" class="anchor">#</a></h6>
-
 <h2 id="h2-2">H2<a href="#h2-2" class="anchor">#</a></h2>
-
 <h3 id="h3-2">H3<a href="#h3-2" class="anchor">#</a></h3>
-
 <h4 id="h4-2">H4<a href="#h4-2" class="anchor">#</a></h4>
-
 <h5 id="h5-2">H5<a href="#h5-2" class="anchor">#</a></h5>
-
 <h6 id="h6-2">H6<a href="#h6-2" class="anchor">#</a></h6>
-
 EOL;
 
         $this->assertContains($expected, file_get_contents($webDir.'/index.html'));
