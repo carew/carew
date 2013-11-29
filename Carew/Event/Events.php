@@ -11,4 +11,6 @@ final class Events
     const DOCUMENT_BODY = 'carew.document.body';
 
     const DOCUMENT_DECORATION = 'carew.document.decoration';
+
+    const TERMINATE = 'carew.terminate';
 }

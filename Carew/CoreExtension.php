@@ -90,6 +90,7 @@ class CoreExtension implements ExtensionInterface
             $dispatcher->addSubscriber(new Listener\Body\Toc());
             $dispatcher->addSubscriber(new Listener\Documents\Tags());
             $dispatcher->addSubscriber(new Listener\Documents\Feed());
+            $dispatcher->addSubscriber(new Listener\Terminate\Assets($container['themes'], $container['filesystem']));
             $dispatcher->addSubscriber($container['listener.twig']);
 
             return $dispatcher;

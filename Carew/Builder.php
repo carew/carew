@@ -74,13 +74,8 @@ class Builder
             }
         }
 
-        $input->getOption('verbose') and $output->writeln('<info>Copy assets</info>');
-        foreach ($this->themes as $theme) {
-            $path = $theme.'/assets/';
-            if (is_dir($path)) {
-                $this->filesystem->mirror($path, $webDir.'/', null, array('override' => true));
-            }
-        }
+        $input->getOption('verbose') and $output->writeln('<info>Finishing</info>');
+        $this->processor->terminate($webDir);
 
         $output->writeln('<info>Build finished</info>');
         $input->getOption('verbose') and $output->writeln(sprintf('Time: %.2f seconds, Memory: %.2fMb', (microtime(true) - $startAt), (memory_get_usage() - $memoryUsage)/(1024 * 1024)));

@@ -85,11 +85,19 @@ class Processor
         }
     }
 
-    public function write(Document $document, $to)
+    public function write(Document $document, $webDir)
     {
-        $target = $to.'/'.$document->getPath();
+        $target = $webDir.'/'.$document->getPath();
         $this->filesystem->mkdir(dirname($target));
         file_put_contents($target, $document->getBodyDecorated());
+    }
+
+    public function terminate($webDir)
+    {
+        $event = new CarewEvent();
+        $event['webDir'] = $webDir;
+
+        $this->eventDispatcher->dispatch(Events::TERMINATE, $event);
     }
 
     private function sortByDate($documents)
