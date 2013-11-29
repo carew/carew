@@ -2,9 +2,11 @@
 
 namespace Carew;
 
+use Carew\Event\Events;
 use Carew\Processor;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -17,7 +19,7 @@ class Builder
     private $filesystem;
     private $finder;
 
-    public function __construct(Processor $processor, array $config, array $themes, \Twig_Environment $twig, Filesystem $filesystem, Finder $finder)
+    public function __construct(Processor $processor, array $config, array $themes, \Twig_Environment $twig, Filesystem $filesystem, Finder $finder, EventDispatcherInterface $eventDispatcher)
     {
         $this->processor = $processor;
         $this->config = $config;
@@ -25,6 +27,7 @@ class Builder
         $this->twig = $twig;
         $this->filesystem = $filesystem;
         $this->finder = $finder;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function build(OutputInterface $output, InputInterface $input, $baseDir, $webDir)
@@ -81,6 +84,8 @@ class Builder
                 $this->filesystem->mirror($path, $webDir.'/', null, array('override' => true));
             }
         }
+
+        $this->eventDispatcher->dispatch(Events::BUILD_FINISHED);
 
         $output->writeln('<info>Build finished</info>');
         $input->getOption('verbose') and $output->writeln(sprintf('Time: %.2f seconds, Memory: %.2fMb', (microtime(true) - $startAt), (memory_get_usage() - $memoryUsage)/(1024 * 1024)));
