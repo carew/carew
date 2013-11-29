@@ -8,7 +8,7 @@ use Carew\Event\Listener\Documents\Tags;
 use Carew\Processor;
 use Carew\Twig\Globals;
 
-class TagTest extends \PHPUnit_Framework_TestCase
+class TagsTest extends \PHPUnit_Framework_TestCase
 {
     public function testOnDocuments()
     {
