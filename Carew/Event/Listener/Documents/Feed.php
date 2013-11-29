@@ -29,9 +29,7 @@ class Feed implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            Events::DOCUMENTS => array(
-                array('onDocuments'),
-            ),
+            Events::DOCUMENTS => 'onDocuments',
         );
     }
 }
