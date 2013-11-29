@@ -3,7 +3,6 @@
 namespace Carew\Twig;
 
 use Carew\Document;
-use Carew\Event\Listener\Decorator\Twig;
 use Carew\Twig\NodeVisitor\Paginator;
 
 class CarewExtension extends \Twig_Extension
@@ -158,7 +157,7 @@ class CarewExtension extends \Twig_Extension
         return 'carew';
     }
 
-    private function getDocumentWithPath($twig, $filePath)
+    private function getDocumentWithPath(\Twig_Environment $twig, $filePath)
     {
         $globals = $twig->getGlobals();
         $documents = $globals['carew']->documents;
