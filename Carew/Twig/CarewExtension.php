@@ -61,10 +61,14 @@ class CarewExtension extends \Twig_Extension
         return $this->renderBlock($twig, 'document_toc', $parameters);
     }
 
-    public function renderDocumentAttribute(\Twig_Environment $twig, $attribute, Document $document = null)
+    public function renderDocumentAttribute(\Twig_Environment $twig, $attribute, $document = null)
     {
         if (null === $document) {
             $document = $this->getCarewGlobals($twig)->document;
+        } else {
+            if (!$document instanceof Document) {
+                $document = $this->getDocumentWithPath($twig, $document);
+            }
         }
 
         $parameters = array('document' => $document);
@@ -107,7 +111,6 @@ class CarewExtension extends \Twig_Extension
         $template = $twig->loadTemplate('blocks.html.twig');
 
         $parameters = $twig->mergeGlobals($parameters);
-
         $level = ob_get_level();
         ob_start();
         try {
@@ -124,23 +127,19 @@ class CarewExtension extends \Twig_Extension
         }
     }
 
-    public function path(\Twig_Environment $twig, $filePath)
+    public function path(\Twig_Environment $twig, $document)
     {
-        $document = $filePath;
-
         if (!$document instanceof Document) {
-            $document = $this->getDocumentWithPath($twig, $filePath);
+            $document = $this->getDocumentWithPath($twig, $document);
         }
 
         return $this->renderDocumentAttribute($twig, 'path', $document);
     }
 
-    public function link(\Twig_Environment $twig, $filePath, $title = null, array $attrs = array())
+    public function link(\Twig_Environment $twig, $document, $title = null, array $attrs = array())
     {
-        $document = $filePath;
-
         if (!$document instanceof Document) {
-            $document = $this->getDocumentWithPath($twig, $filePath);
+            $document = $this->getDocumentWithPath($twig, $document);
         }
 
         $parameters = array(
@@ -163,7 +162,7 @@ class CarewExtension extends \Twig_Extension
         $documents = $globals['carew']->documents;
 
         if (!array_key_exists($filePath, $documents)) {
-            throw new \InvalidArgumentException(sprintf('Unable to find path: "%s" in all documents', $filePath));
+            throw new \InvalidArgumentException(sprintf('The document with path "%s" does not exist.', $filePath));
         }
 
         return $documents[$filePath];

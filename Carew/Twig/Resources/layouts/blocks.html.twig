@@ -10,9 +10,7 @@
 
 {% block document_link %}
 {% spaceless -%}
-    <a href="{{ render_document_path(document) }}"{% for k,v in attrs %} {{ k }}="{{ v }}"{% endfor %}>
-        {{ title }}
-    </a>
+    <a href="{{ render_document_path(document) }}"{% for k,v in attrs %} {{ k }}="{{ v }}"{% endfor %}>{{ title }}</a>
 {%- endspaceless %}
 {% endblock %}
 
