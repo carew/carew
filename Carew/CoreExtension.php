@@ -6,6 +6,7 @@ use Carew\Event\Listener;
 use Carew\Helper\Path;
 use Carew\Twig\CarewExtension;
 use Carew\Twig\Globals;
+use HtmlTools\Inflector;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -33,6 +34,10 @@ class CoreExtension implements ExtensionInterface
 
         $container['helper.path'] = $container->share(function ($container) {
             return new Path();
+        });
+
+        $container['helper.inflector'] = $container->share(function ($container) {
+            return new Inflector();
         });
 
         $container['filesystem'] = $container->share(function ($container) {
@@ -95,8 +100,8 @@ class CoreExtension implements ExtensionInterface
             $dispatcher->addSubscriber(new Listener\Metadata\Optimization($container['config']['engine']['post_permalink_format'], $container['helper.path']));
             $dispatcher->addSubscriber(new Listener\Body\Markdown());
             $dispatcher->addSubscriber(new Listener\Body\Toc());
-            $dispatcher->addSubscriber(new Listener\Documents\Tags());
-            $dispatcher->addSubscriber(new Listener\Documents\TagsFeed());
+            $dispatcher->addSubscriber(new Listener\Documents\Tags($container['helper.inflector']));
+            $dispatcher->addSubscriber(new Listener\Documents\TagsFeed($container['helper.inflector']));
             $dispatcher->addSubscriber(new Listener\Documents\Feed());
             $dispatcher->addSubscriber(new Listener\Terminate\Assets($container['themes'], $container['filesystem']));
             $dispatcher->addSubscriber($container['listener.twig']);

@@ -5,10 +5,18 @@ namespace Carew\Event\Listener\Documents;
 use Carew\Document;
 use Carew\Event\CarewEvent;
 use Carew\Event\Events;
+use HtmlTools\Inflector;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class TagsFeed implements EventSubscriberInterface
 {
+    private $inflector;
+
+    public function __construct(Inflector $inflector = null)
+    {
+        $this->inflector = $inflector ?: new Inflector();
+    }
+
     public function onDocuments(CarewEvent $event)
     {
         $documents = $event->getSubject();
@@ -22,7 +30,7 @@ class TagsFeed implements EventSubscriberInterface
             $document = new Document();
             $document
                 ->setLayout('index.atom.twig')
-                ->setPath(sprintf('tags/%s/feed/atom.xml', $tagName))
+                ->setPath(sprintf('tags/%s/feed/atom.xml', $this->inflector->urlize($tagName)))
                 ->setFilePath(sprintf('tags/%s/feed/atom', $tagName))
                 ->setVar('post', $documentList)
             ;

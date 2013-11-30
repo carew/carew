@@ -39,5 +39,7 @@ class TagsFeedTest extends \PHPUnit_Framework_TestCase
 
         // 20 posts, 20 pages, 5 tags index
         $this->assertCount(45, $documents);
+
+        $this->assertSame('tags/tag-1/feed/atom.xml', $documents['tags/Tag #1/feed/atom']->getPath());
     }
 }

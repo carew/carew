@@ -5,10 +5,18 @@ namespace Carew\Event\Listener\Documents;
 use Carew\Document;
 use Carew\Event\CarewEvent;
 use Carew\Event\Events;
+use HtmlTools\Inflector;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class Tags implements EventSubscriberInterface
 {
+    private $inflector;
+
+    public function __construct(Inflector $inflector = null)
+    {
+        $this->inflector = $inflector ?: new Inflector();
+    }
+
     public function onDocuments(CarewEvent $event)
     {
         $documents = $event->getSubject();
@@ -21,7 +29,7 @@ class Tags implements EventSubscriberInterface
             $tagDocument
                 ->setLayout('default.html.twig')
                 ->setBody('{{ render_documents(carew.documents) }}')
-                ->setPath(sprintf('tags/%s.html', $tagName))
+                ->setPath(sprintf('tags/%s.html', $this->inflector->urlize($tagName)))
                 ->setTitle('Tag #'.$tagName)
                 ->setFilePath('tags/'.$tagName)
                 ->setNavigations(array('tags', 'sub-tags'))

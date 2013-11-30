@@ -31,5 +31,7 @@ class TagsTest extends \PHPUnit_Framework_TestCase
         $documents = $event->getSubject();
         // 20 post, 1 page for all tags, 5 tags
         $this->assertCount(26, $documents);
+
+        $this->assertSame('tags/tag-1.html', $documents['tags/Tag #1']->getPath());
     }
 }
