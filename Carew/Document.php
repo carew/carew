@@ -19,6 +19,7 @@ class Document
     private $metadatas;
     private $navigations;
     private $path;
+    private $published;
     private $tags;
     private $title;
     private $toc;
@@ -32,6 +33,7 @@ class Document
         $this->type = $type;
 
         $this->layout = false;
+        $this->published = true;
         $this->metadatas = array();
         $this->navigations = array();
         $this->tags = array();
@@ -247,5 +249,17 @@ class Document
     public function __toString()
     {
         return $this->title;
+    }
+
+    public function isPublished()
+    {
+        return $this->published;
+    }
+
+    public function setPublished($published)
+    {
+        $this->published = $published;
+
+        return $this;
     }
 }

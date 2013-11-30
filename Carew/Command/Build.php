@@ -16,15 +16,19 @@ class Build extends Command
             ->setDescription('Builds static html files from markdown source')
             ->setDefinition(array(
                 new InputOption('web-dir', null, InputOption::VALUE_REQUIRED, 'Where to write generated content', getcwd().'/web'),
+                new InputOption('all', null, InputOption::VALUE_NONE, 'Build all document, even if they a not published yet'),
             ))
         ;
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $baseDir = $input->getOption('base-dir');
-        $webDir = $input->getOption('web-dir');
-
-        $this->getApplication()->getBuilder()->build($output, $input, $baseDir, $webDir);
+        $this->getApplication()->getBuilder()->build(
+            $output,
+            $input,
+            $input->getOption('base-dir'),
+            $input->getOption('web-dir'),
+            $input->getOption('all')
+        );
     }
 }

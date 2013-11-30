@@ -27,7 +27,7 @@ class Builder
         $this->finder = $finder;
     }
 
-    public function build(OutputInterface $output, InputInterface $input, $baseDir, $webDir)
+    public function build(OutputInterface $output, InputInterface $input, $baseDir, $webDir, $all = false)
     {
         $startAt = microtime(true);
         $memoryUsage = memory_get_usage();
@@ -45,6 +45,9 @@ class Builder
             foreach ($files as $file) {
                 $input->getOption('verbose') and $output->writeln(sprintf('  >> <info>Reading</info> <comment>%s</comment>', (string) $file));
                 $document = $this->processor->processFile($file, $folderRaw, $type);
+                if (!$document->isPublished() && !$all) {
+                    continue;
+                }
                 $documents[$document->getFilePath()] = $document;
             }
         }
