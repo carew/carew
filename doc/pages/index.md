@@ -34,7 +34,10 @@ boilerplate](https://github.com/carew/boilerplate): You will need
     $ cd my_website
     $ bin/carew build
 
-That's all, you can browse the `web/` directory.
+That's all, you can browse the `web/` directory. If you are using php 5.4+, you
+can start the build-in webserver:
+
+    $ php bin/carew serve
 
 Demo
 ----
