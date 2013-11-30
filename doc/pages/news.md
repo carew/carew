@@ -10,5 +10,5 @@ navigations: main
 {% if carew.posts|slice(0, -1) %}
 ## Older blog posts
 
-{{ render_documents(paginate(carew.posts|slice(0, -1))) }}
+{{ render_documents(paginate(carew.posts|reverse|slice(1))) }}
 {% endif %}
