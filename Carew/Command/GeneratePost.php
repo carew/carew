@@ -16,10 +16,7 @@ class GeneratePost extends Command
 
     public function __construct($inflector = null, $defaultDate = null)
     {
-        if (null == $defaultDate) {
-            $this->defaultDate = date('Y-m-d');
-        }
-
+        $this->defaultDate = $defaultDate ?: date('Y-m-d');
         $this->inflector = $inflector ?: new Inflector();
 
         parent::__construct();
