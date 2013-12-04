@@ -58,7 +58,7 @@ another direction. So I fork it, and carew was born.
 
 ### Why this name?
 
-Like to all other tatic site / blog generator ([jekyll](https://github.com/mojombo/jekyll),
+Like to all other static site / blog generator ([jekyll](https://github.com/mojombo/jekyll),
 [hyde](https://github.com/hyde/hyde), [pool](https://github.com/obensonne/poole),
 [lanyon](https://github.com/spjwebster/lanyon)), its name come from the
 *[Strange Case of Dr Jekyll and Mr Hyde](http://en.wikipedia.org/wiki/Strange_Case_of_Dr_Jekyll_and_Mr_Hyde)*
