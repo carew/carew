@@ -49,7 +49,7 @@ class Toc implements EventSubscriberInterface
         // restore url value in href and src attribute
         $i = 0;
         $body = preg_replace_callback('/(?P<attr>href|src)="(?P<url>%%%%%%%%%%%%%%%%%%%%)"/', function ($matches) use (&$i, $urls) {
-            return sprintf('%s=%s"', $matches['attr'], $urls[$i++]);
+            return sprintf('%s="%s"', $matches['attr'], $urls[$i++]);
         }, $body);
 
         $document->setBody($body);
