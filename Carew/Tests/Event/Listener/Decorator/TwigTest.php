@@ -124,7 +124,7 @@ class TwigTest extends \PHPUnit_Framework_TestCase
             $this->assertCount(5, $crawler->filter('ul')->eq(1)->filter('li'));
 
             for ($i = 1; $i <= 5; $i++) {
-                $class = $page == $i ? 'active' : '';
+                $class = $page == $i ? 'active' : null;
                 $this->assertSame($class, $crawler->filter('ul')->eq(1)->filter('li')->eq($i - 1)->attr('class'), sprintf('Class "active" is present only when $i == $page, ($i = %s, $page = %s)', $i, $page));
                 $this->assertSame('page '.$i, $crawler->filter('ul')->eq(1)->filter('li')->eq($i - 1)->text(), sprintf('($i = %s, $page = %s)', $i, $page));
                 $href = 1 == $i ? 'index.html' : sprintf('index-page-%s.html', $i);
@@ -210,7 +210,7 @@ EOL
                 if (6 == $page) {
                     continue;
                 }
-                $class = $page === $i ? 'active' : '';
+                $class = $page === $i ? 'active' : null;
                 $this->assertSame($class, $crawler->filter('ul')->eq(2)->filter('li')->eq($i - 1)->attr('class'), sprintf('Class "active" is present only when $i == $page, ($i = %s, $page = %s, class = "%s")', $i, $page, $class));
             }
 
@@ -223,7 +223,7 @@ EOL
             if (1 == $page) {
                 $this->assertSame('active', $crawler->filter('ul')->eq(4)->filter('li')->eq(0)->attr('class'));
             } elseif (6 == $page) {
-                $this->assertSame('', $crawler->filter('ul')->eq(4)->filter('li')->eq(0)->attr('class'));
+                $this->assertSame(null, $crawler->filter('ul')->eq(4)->filter('li')->eq(0)->attr('class'));
                 $this->assertSame('active', $crawler->filter('ul')->eq(4)->filter('li')->eq(1)->attr('class'));
             }
             $this->assertSame('page 1', $crawler->filter('ul')->eq(4)->filter('li')->eq(0)->text());

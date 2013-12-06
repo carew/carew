@@ -115,7 +115,7 @@ EOL;
 
             // Check of pagination
             for ($i = 1; $i <= 4; $i++) {
-                $class = $page == $i ? 'active' : '';
+                $class = $page == $i ? 'active' : null;
                 $this->assertSame($class, $crawler->filter('ul')->eq(1)->filter('li')->eq($i - 1)->attr('class'), sprintf('Class "active" is present only when $i == $page, ($i = %s, $page = %s)', $i, $page));
                 $this->assertSame('page '.$i, $crawler->filter('ul')->eq(1)->filter('li')->eq($i - 1)->text(), sprintf('($i = %s, $page = %s)', $i, $page));
                 $href = 1 == $i ? 'index.html' : sprintf('index-page-%s.html', $i);
