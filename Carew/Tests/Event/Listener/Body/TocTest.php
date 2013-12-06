@@ -69,4 +69,27 @@ EOL;
 
         $this->assertSame($body, $document->getBody());
     }
+
+    public function testOnDocumentDoesNotAlterSrc()
+    {
+        $document = new Document();
+        $document->setPath('index.html');
+        $body = <<<EOL
+<img src="{{ path(\'foobar\') }}" alt="Foo Bar">
+AAAAA
+<script src="{{ path(\'baba\') }}"></script>
+BBBBB
+<!--[if lt IE 9]><script src="{{ path(\'bar\') }}"></script><![endif]-->
+CCCCC
+<img src="{{ path(\'foobar\') }}">
+EOL;
+        $document->setBody($body);
+
+        $event = new CarewEvent($document);
+
+        $toc = new Toc();
+        $toc->onDocument($event);
+
+        $this->assertSame($body, $document->getBody());
+    }
 }

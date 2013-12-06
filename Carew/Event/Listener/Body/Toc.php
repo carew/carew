@@ -31,10 +31,11 @@ class Toc implements EventSubscriberInterface
 
         $urls = array();
 
-        $body = preg_replace_callback('/href="(?P<url>.*)"/', function ($matches) use (&$urls) {
+        // hack to keep twig statements in local $urls variable because DOMDocument encode attributes value
+        $body = preg_replace_callback('/(?P<attr>href|src)="(?P<url>.*)"/', function ($matches) use (&$urls) {
             $urls[] = $matches['url'];
 
-            return sprintf('href="%s"', '%%%%%%%%%%%%%%%%%%%%');
+            return sprintf('%s="%s"', $matches['attr'], '%%%%%%%%%%%%%%%%%%%%');
         }, $document->getBody());
 
         try {
@@ -45,9 +46,10 @@ class Toc implements EventSubscriberInterface
             return;
         }
 
+        // restore url value in href and src attribute
         $i = 0;
-        $body = preg_replace_callback('/href="(?P<url>%%%%%%%%%%%%%%%%%%%%)"/', function ($matches) use (&$i, $urls) {
-            return sprintf('href="%s"', $urls[$i++]);
+        $body = preg_replace_callback('/(?P<attr>href|src)="(?P<url>%%%%%%%%%%%%%%%%%%%%)"/', function ($matches) use (&$i, $urls) {
+            return sprintf('%s="%s"', $matches['attr'], $urls[$i++]);
         }, $body);
 
         $document->setBody($body);
