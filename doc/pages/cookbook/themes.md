@@ -1,5 +1,5 @@
 ---
-title: How to use and create theme?
+title: How to use and create themes?
 layout: doc2
 navigations: cookbook
 ---
@@ -11,14 +11,14 @@ navigations: cookbook
 What is a theme?
 ----------------
 
-A theme is some default layouts / templates, blocks, and / or assets. You can use multiple
-theme in the same project. So thanks to theming, you can easily customize the
-rendering of your blog / website. There is two king of theme:
+A theme is some default layouts / templates, blocks, and / or assets. You can
+use multiple themes in the same project. So thanks to theming, you can easily
+customize the rendering of your blog / website. There is two kind of themes:
 
-* Personal theme, not shareable. In this case, just put yours templates in the
-`layouts/` directory, in the root directory.
+* Personal themes, not shareable. In this case, just put your templates in the
+`layouts/` directory.
 
-* Common theme, shareable. In this case, you can install theme created by the
+* Common themes, shareable. In this case, you can install themes created by the
 community.
 
 Existing Themes
@@ -29,13 +29,13 @@ Existing Themes
 Installation
 ------------
 
-You can use as many themes as you want. This section is only for theme created
+You can use as many themes as you want. This section is only for themes created
 by the community.
 
-1. Add the dependency with composer. Generally, the dependency can be found in
+1. add the dependency with composer. Generally, the dependency can be found in
 the `composer.json` file in the theme repository.
 
-1. Register theme in the `config.yml` file:
+2. register the theme in the `config.yml` file:
 
         #config.yml
         engine:
@@ -43,10 +43,10 @@ the `composer.json` file in the theme repository.
                 - %dir%/vendor/carew/theme-bootstrap
 
 Theme folder can contain `layouts` and `assets` folders. The `%dir%` parameter
-will be replaced by the current directory (i.e. the directory that contains the
+will be replaced by the current directory (i.e. the directory which contains the
 `config.yml` file).
 
-**Note:** The order matter. Carew will search for template in your `layouts/`
+**Note:** The order matters. Carew will search for template in your `layouts/`
 folder,  then in themes folder registered in the configuration, then fallback to
 the default theme.
 
@@ -91,9 +91,9 @@ Default layouts are in a special namespace `default_theme`:
 Blocks theming
 --------------
 
-With carew, you have {{ link('pages/cookbook/helper.md', 'useful helper set')
-}}. Almost all helper are customizable thanks to special `blocks.html.twig`. Of
-course, you can overide this template:
+With carew, you have {{ link('pages/cookbook/helper.md', 'useful helpers set')
+}}. Almost all helpers are customizable thanks to the special `blocks.html.twig`.
+Of course, you can overide this template:
 
     {% verbatim -%}
     {% use '@default_theme/blocks.html.twig' %} {# Reimport default blocks #}
@@ -122,7 +122,7 @@ course, you can overide this template:
 You have created a theme?
 -------------------------
 
-You have created a theme and you want to share it ? Write me an
+You have created a theme and you want to share it? Write me an
 [email](mailto:lyrixx@lyrixx.info) and I will create a new repository on
 [github/carew](https://github.com/carew) for you, or send me a
 [pull request](https://github.com/carew/carew.github.com/edit/master/_carew/pages/cookbook/themes.md)

@@ -33,8 +33,9 @@ Then run `./carew build` and look at `index.html` in the `web/` directory.
 
 ### Write a blog post
 
-Must be in the format of `YYYY-mm-dd-slug.md` and put in `posts` directory, e.g.
-`posts/2012-09-20-like-a-hacker.md`. Here is a sample blog post:
+The file must be located in the `posts/` directory and must have a name with
+the following format: `YYYY-mm-dd-slug.md` (for e.g.
+`posts/2012-09-20-like-a-hacker.md`). Here is a sample blog post:
 
     ---
     title: Blogging Like a Hacker
@@ -52,8 +53,9 @@ Then run `./carew build` and look at `2012/09/20/like-a-hacker.html` in the
 
 ### Write a page
 
-Must be put in the `pages/` folder or any subdirectories. Here is a sample page
-(`pages/doc/quick-start.md`):
+The file must be located in the `pages/` directory (or in one of its
+subdirectory).
+Here is a sample page (`pages/doc/quick-start.md`):
 
     ---
     title: Quick Start
@@ -69,11 +71,12 @@ Then run `./carew build` and look at `doc/quick-start.html` in the `web/` dir.
 
 ### Front Matter
 
-All files must start with the front matter. It describes meta-information about
-the current document. If the document doesn't contains a front matter, the
-document will be copied to `web/` directory in state.
+In order to be converted from markdown to HTML, a file must start with a
+"front matter" which describes the document's meta-information.
+Files which don't start with a front matter are simply copied to the `web/`
+directory as is.
 
-Here a sample of front matter:
+Here's a sample of front matter:
 
     ---
     layout: doc
@@ -85,19 +88,18 @@ Here a sample of front matter:
     author: John Do
     ---
 
-* **layout:** Twig layout to be used for rendering the page. Defaults to
-`default`, which means `layouts/default.html.twig` is rendered unless specified
-otherwise. {{ link('pages/cookbook/themes.md', 'See theme documentation for more
-information')}}
+* **layout:** the name of the layout (Twig) to use from the `layouts/` directory in
+order to render the page. If not mentionned, defaults to `default`, which means
+`layouts/default.html.twig`.
+{{ link('pages/cookbook/themes.md', 'See theme documentation for more information')}}
 
-* **title:** Title of the current document for display on the index, and for the
-title page.
+* **title:** will be used in the index page and by `<title></title>` and
+`<h1></h1>` HTML tags
 
-* **description:** Description of the current document for `meta` tag/
+* **permalink:** forces the target path of the current document
 
-* **permalink:** Force the target path of the current document.
-
-* **tags:** A collection of tag. Can be use to build collections of documents.
+* **tags:** adds the current document to the given tags, to make it easier to
+find
 
         ---
         tags: [nginx, varnish]
@@ -107,39 +109,46 @@ title page.
             - varnish
         ---
 
-* **navigations:** Add the current document to a collection of pages, organized
-for building menu:
+* **navigations:** adds the current document to a menu:
 
         ---
         navigation: [main]
         ---
 
-All others keys will be stored in `metadatas` attribute of the current document.
+All others keys (for example `description`) will be used in a
+`<meta name="" content="" />` HTML tag.
 
 ### Directory structure
 
 Now you can use the following directories:
 
-* **assets:** All of these files will be copied to the web directory. You can
-add JavaScript, CSS and images in here.
+* **assets:** all of these files will be copied to the web directory. You can
+add JavaScript, CSS and images in here
 
-* **layouts:** The layouts are used to render the pages. They have a
+* **layouts:** the layouts are used to render the pages. They have a
 `.html.twig` suffix. You can create base templates and have more specific ones
-that extend them using the `extends` tag. The layouts are renderer with
+that extend them using the `extends` tag. The layouts are rendered with
 [Twig](http://twig.sensiolabs.com). {{ link('pages/cookbook/themes.md', 'See theme
-documentation for more information') }}.
+documentation for more information') }}
 
-* **pages:** Markdown files representing pages. Each one must begin with a YAML
+* **pages:** markdown files representing pages. Each one must begin with a YAML
 front matter. Here is a sample page:
 
-* **posts:** Markdown files representing blog posts. Must be in the format of
-`YYYY-mm-dd-slug.md`, e.g. `2012-09-20-like-a-hacker.md`.
+    ---
+    title: A sample page
+    navigations: main
+    ---
 
-* **api**: Markdown, or not, files. Each one will be rendered in
-`/api/filename.html`.
+    This is a page.
 
-* **config.yml:** Yaml file with some configuration. All variables under `site`
-will be sent to twig templates. Here is a sample:
+* **posts:** markdown files representing blog posts. Must be named with the
+following format: `YYYY-mm-dd-slug.md` (for e.g. `2012-09-20-like-a-hacker.md`)
+
+* **api**: HTML or markdown files. Each one will be rendered in
+`/api/filename.html`
+
+* **config.yml:** configuration file. The `site` section defines variables which
+will be used in the Twig templates. Here is a sample:
 
         site:
           author: Grégoire Pineau
@@ -178,6 +187,6 @@ Just run:
 
 ## What next?
 
-Why not read all {{ link('pages/cookbook.md') }}?
+Why not read the whole {{ link('pages/cookbook.md') }}?
 
 {{ render_documents(carew.navigations.cookbook) }}
