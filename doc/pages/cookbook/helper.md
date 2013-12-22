@@ -8,7 +8,7 @@ navigations: cookbook
     {{ render_document_toc() }}
 </div>
 
-Inside your templates (`.html.twig` file) and / or your document (`.md` files)
+Inside your templates (`.html.twig` files) and / or your documents (`.md` files)
 you can use several twig globals / functions.
 
 ## Globals
@@ -32,12 +32,12 @@ collections of document.
 * `navigations`: Contains the list of all tags. Keys are the navigation name.
 Values are collections of document.
 
-* `relativeRoot`: Point the (web) root directory. Can be something like `../..`.
+* `relativeRoot`: Points to the (web) root directory. Can be something like `../..`.
 
-* `currentPath`: Point the current path from the `relativeRoot`. Can be
+* `currentPath`: Points to the current path from the `relativeRoot`. Can be
 something like `2012/01/01/hello.html`.
 
-* `document`: Represent the current document. This is an instance of
+* `document`: Represents the current document. This is an instance of
 `Carew/Document` class.
 
 Some examples:
@@ -101,7 +101,7 @@ located on your disk.
 
 1. `title` (optional): The link title. Default value is the document title.
 
-1. `attrs` (optional): An array of HTML attribute.
+1. `attrs` (optional): An array of HTML attributes.
 
 If you want to change the generated content, override the `document_link`
 block.
@@ -147,13 +147,13 @@ block.
 
 ### render_document
 
-`render_document`: Render a document.
+`render_document`: Renders a document.
 
     {% verbatim -%}
     {% render_document(carew.document) %}
     {%- endverbatim %}
 
-Generate something like:
+Generates something like:
 
     <h2>Document title</h2>
 
@@ -173,13 +173,13 @@ If you want to change the generated content, override one of theses blocks.
 
 ### render_documents
 
-`render_documents`: Render a collection of document.
+`render_documents`: Renders a collection of document.
 
     {% verbatim -%}
     {% render_document(carew.document) %}
     {%- endverbatim %}
 
-Generate something like:
+Generates something like:
 
     <ul>
         <li><a href="/post1.html">Post 1</a></li>
@@ -189,17 +189,17 @@ Generate something like:
 
 Arguments:
 
-1. `documents`: A collection (array) of document instance.
+1. `documents`: A collection (array) of document instances.
 
 If you want to change the generated content, override the `documents` block.
 
 ### paginate
 
-`paginate`: Add pagination support to a collection of document.
+`paginate`: Adds pagination support to a collection of documents.
 
 **warning:** This function can only be applied in a `file.md`, not in a template.
 
-**warning:** This function return an array. IT should be use with
+**warning:** This function returns an array. It should be used with the
 `render_documents` function.
 
     {% verbatim -%}
@@ -212,9 +212,9 @@ many page as needed.
 
 Arguments:
 
-1. `documents`: A collection (array) of document instance.
+1. `documents`: A collection (array) of document instances.
 
-1. `maxPerPage`: Number of item per page.
+1. `maxPerPage`: Number of items per page.
 
 If you want to change the generated content, override the `pagination`
 block.
