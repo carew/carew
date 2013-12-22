@@ -1,5 +1,5 @@
 ---
-title: How to host a website build with carew?
+title: How to host a website built with carew?
 layout: doc2
 navigations: cookbook
 ---
@@ -23,10 +23,9 @@ Start by creating a new project with [composer](http://getcomposer.org):
     $ mkdir my_site
     $ cd my_site
     $ git init
-    $ git co -b gh-pages
     $ php composer.phar create-project carew/boilerplate _carew
 
-To make it more simple to build your website, you can setup a `build.sh` script
+To make it easier to build your website, you can setup a `build.sh` script
 in `_carew` folder:
 
     #!/bin/bash
@@ -39,7 +38,7 @@ Now, you can commit and push everything to your github repository:
 
     $ git add .
     $ git commit -m "Inital commit"
-    $ git remote add origin git@github.com:YOUR_NAME/YOUR_REPO.git
-    $ git push origin gh-pages -u
+    $ git remote add origin git@github.com:YOUR_NAME/YOUR_NAME.github.io.git
+    $ git push -u origin master
 
-Now, you can browse `http://YOUR_NAME.github.com/YOU_REPO`
+Now, you can browse `http://YOUR_NAME.github.io`
