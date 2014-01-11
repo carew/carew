@@ -71,6 +71,9 @@ class Builder
         $input->getOption('verbose') and $output->writeln('<info>Writing</info>');
         foreach ($documents as $document) {
             $documentsTmps = $this->processor->processDocumentDecoration($document);
+            if (!$documentsTmps) {
+                continue;
+            }
             foreach ($documentsTmps as $documentTmp) {
                 $input->getOption('verbose') and $output->writeln(sprintf('  >> <info>Writing</info> <comment>%s</comment>', $documentTmp->getPath()));
                 $this->processor->write($documentTmp, $webDir);
