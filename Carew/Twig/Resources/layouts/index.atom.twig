@@ -10,7 +10,7 @@
     {% if carew.posts|last %}
     <updated>{{ (carew.posts|last).metadatas.date|date('Y-m-d\\TH:i:sP') }}</updated>
     {% endif %}
-    {% for post in carew.posts %}
+    {% for post in carew.posts|reverse %}
     <entry>
         <title>{{ post.title }}</title>
         {% if carew.site.url_absolute is defined %}
