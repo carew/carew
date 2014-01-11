@@ -39,8 +39,10 @@ class Toc implements EventSubscriberInterface
         }, $document->getBody());
 
         try {
+            $level = error_reporting(0);
             $document->setToc($this->htmlTools->buildTOC($document->getBody()));
             $body = $this->htmlTools->addHeadingsId($body, 'h1, h2, h3, h4, h5, h6', true);
+            error_reporting($level);
         } catch (\Exception $e) {
             // TODO: add a message when failing.
             return;

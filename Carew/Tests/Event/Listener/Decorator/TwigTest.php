@@ -101,9 +101,9 @@ class TwigTest extends \PHPUnit_Framework_TestCase
         $document->setPath('index.html');
         $document->setBody('{{ render_documents(paginate(carew.posts, 4)) }}');
 
-        $event = new CarewEvent(array($document));
         $this->getTwigGlobals()->fromArray(array('posts' => $posts));
 
+        $event = new CarewEvent(array($document));
         $this->twigListenner->preRender($event);
         $documents = $event->getSubject();
 
@@ -309,6 +309,54 @@ EOL;
 "value"
 EOL;
         $this->assertSame($expected, $document->getBodyDecorated());
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Unexpected "}" near "{{ foobar }" near line 3.
+     */
+    public function testPreRenderThrowExceptionOnTemplateFromString()
+    {
+        $document = new Document();
+        $document->setLayout('default');
+        $document->setBody(<<<EOL
+Hello
+
+{{ foobar }
+EOL
+        );
+
+        $event = new CarewEvent(array($document));
+
+        $this->twigListenner->preRender($event);
+
+        $this->assertSame('foobar', $document->getBody());
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Unexpected "}" in a string template line 1.
+     */
+    public function testPreRenderThrowExceptionOnRender()
+    {
+        $document = new Document();
+        $document->setLayout('default');
+        $document->setBody(<<<EOL
+Hello
+
+{{ foobar }}
+
+{% set text = '{{ foobar }' %}
+
+{{ template_from_string(text) }}
+EOL
+        );
+
+        $event = new CarewEvent(array($document));
+
+        $this->twigListenner->preRender($event);
+
+        $this->assertSame('foobar', $document->getBody());
     }
 
     public function tearDown()
