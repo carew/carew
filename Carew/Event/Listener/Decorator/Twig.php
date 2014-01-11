@@ -5,6 +5,7 @@ namespace Carew\Event\Listener\Decorator;
 use Carew\Document;
 use Carew\Event\CarewEvent;
 use Carew\Event\Events;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class Twig implements EventSubscriberInterface
@@ -36,7 +37,12 @@ class Twig implements EventSubscriberInterface
         // Force autoloading of Twig_Extension_StringLoader
         $this->twig->getExtension('string_loader');
 
-        $template = twig_template_from_string($this->twig, $document->getBody() ?: '');
+        try {
+            $template = twig_template_from_string($this->twig, $document->getBody() ?: '');
+        } catch (\Twig_Error $e) {
+            throw $this->enhanceTwigException($e, $document);
+        }
+
         $nbsItems = $template->getNbsItems(array());
         $maxesPerPage = $template->getMaxesPerPage();
 
@@ -47,13 +53,12 @@ class Twig implements EventSubscriberInterface
                 $parameters[sprintf('__pages_%d__', $key)] = array($document);
                 $parameters[sprintf('__current_page_%d__', $key)] = 1;
             }
+
             try {
                 $document->setBody($template->render($parameters));
-            } catch (\Twig_Error_Runtime $e) {
-                throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
+            } catch (\Twig_Error $e) {
+                throw $this->enhanceTwigException($e, $document, $template);
             }
-
-            return;
         }
 
         $parameters = array();
@@ -70,9 +75,10 @@ class Twig implements EventSubscriberInterface
 
         try {
             $body = $template->render($parameters);
-        } catch (\Twig_Error_Runtime $e) {
-            throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
+        } catch (\Twig_Error $e) {
+            throw $this->enhanceTwigException($e, $document, $template);
         }
+
         $document->setBody($body);
 
         foreach ($paginations as $key => $pages) {
@@ -86,8 +92,8 @@ class Twig implements EventSubscriberInterface
                 $parametersTmp[sprintf('__current_page_%d__', $key)] =  $nbPage;
                 try {
                     $body = $template->render($parametersTmp);
-                } catch (\Twig_Error_Runtime $e) {
-                    throw new \RuntimeException(sprintf("Unable to render template.\nMessage:\n%s\nTemplate:\n%s\n", $e->getMessage(), $document->getBody()), 0, $e);
+                } catch (\Twig_Error $e) {
+                    throw $this->enhanceTwigException($e, $document, $template);
                 }
                 $page->setBody($body);
 
@@ -128,6 +134,31 @@ class Twig implements EventSubscriberInterface
                 array('postRender', 0),
             ),
         );
+    }
+
+    private function enhanceTwigException(\Twig_Error $e, Document $document, $template = null)
+    {
+        if (-1 === $e->getTemplateLine()) {
+            return new \RuntimeException($e->getRawMessage());
+        }
+
+        $lines = explode(PHP_EOL, $document->getBody());
+
+        if (!$template || $template->getTemplateName() == $e->getTemplateFile())  {
+            return new \RuntimeException(OutputFormatter::escape(sprintf(
+                '%s near "%s" near line %d.',
+                $e->getRawMessage(),
+                $lines[$e->getTemplateLine() - 1],
+                $e->getTemplateLine()
+            )));
+        }
+
+        return new \RuntimeException(OutputFormatter::escape(sprintf(
+            '%s in a string template line %d.',
+            $e->getRawMessage(),
+            $e->getTemplateLine()
+        )));
+
     }
 
     private function setTwigGlobals(Document $document)
