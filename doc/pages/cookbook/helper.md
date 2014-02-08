@@ -71,7 +71,7 @@ chapter') }} for more information.
 `path`: Render a path to a document
 
     {% verbatim -%}
-    {% path('pages/index.md') %}
+    {{ path('pages/index.md') }}
     {%- endverbatim %}
 
 Render something like: `index.html`
@@ -89,7 +89,7 @@ block.
 `link`: Render a link to a document
 
     {% verbatim -%}
-    {% link('pages/index.md', 'a link') %}
+    {{ link('pages/index.md', 'a link') }}
     {%- endverbatim %}
 
 Render something like: `<a href="index.html">a link</a>`
@@ -111,7 +111,7 @@ block.
 `render_document_toc`: Render the Table Of Content of a document
 
     {% verbatim -%}
-    {% render_document_toc() %}
+    {{ render_document_toc() }}
     {%- endverbatim %}
 
 Render something like:
@@ -150,7 +150,7 @@ block.
 `render_document`: Renders a document.
 
     {% verbatim -%}
-    {% render_document(carew.document) %}
+    {{ render_document(carew.document) }}
     {%- endverbatim %}
 
 Generates something like:
@@ -176,7 +176,7 @@ If you want to change the generated content, override one of theses blocks.
 `render_documents`: Renders a collection of document.
 
     {% verbatim -%}
-    {% render_document(carew.document) %}
+    {{ render_document(carew.document) }}
     {%- endverbatim %}
 
 Generates something like:
@@ -203,7 +203,7 @@ If you want to change the generated content, override the `documents` block.
 `render_documents` function.
 
     {% verbatim -%}
-    {% render_documents(paginate(carew.posts)) %}
+    {{ render_documents(paginate(carew.posts)) }}
     {%- endverbatim %}
 
 This function will add a pagination on the collection. So it will create as
