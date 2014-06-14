@@ -12,6 +12,7 @@ class CarewTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->carew = new Carew();
+        $this->carew->setTerminalDimensions(150, 40);
         $this->carew->setAutoExit(false);
     }
 
