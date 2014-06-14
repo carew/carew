@@ -15,9 +15,9 @@ class BuildTest extends AbstractTest
     public function testExecuteWithRegularSite()
     {
         $this->deleteDir($webDir = __DIR__.'/fixtures/site/web');
-        list($application, $statusCode) = $this->runApplication(dirname($webDir));
+        $application = $this->runApplication(dirname($webDir));
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $application->getStatusCode());
 
         // Posts
         $this->assertTrue(file_exists($webDir.'/2010/01/01/hello.html'));
@@ -60,9 +60,9 @@ class BuildTest extends AbstractTest
     public function testExecuteToc()
     {
         $this->deleteDir($webDir = __DIR__.'/fixtures/toc/web');
-        list($application, $statusCode) = $this->runApplication(dirname($webDir));
+        $application = $this->runApplication(dirname($webDir));
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $application->getStatusCode());
 
         $this->assertTrue(file_exists($webDir.'/index.html'));
         $expected = <<<EOL
@@ -89,9 +89,9 @@ EOL;
     public function testExecutePagination()
     {
         $this->deleteDir($webDir = __DIR__.'/fixtures/pagination/web');
-        list($application, $statusCode) = $this->runApplication(dirname($webDir));
+        $application = $this->runApplication(dirname($webDir));
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $application->getStatusCode());
 
         $lis = array();
 
@@ -142,9 +142,9 @@ EOL;
     public function testExecuteMultiplePagination()
     {
         $this->deleteDir($webDir = __DIR__.'/fixtures/multiple-pagination/web');
-        list($application, $statusCode) = $this->runApplication(dirname($webDir));
+        $application = $this->runApplication(dirname($webDir));
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $application->getStatusCode());
 
         $this->deleteDir($webDir);
     }
@@ -152,9 +152,9 @@ EOL;
     public function testExecuteTags()
     {
         $this->deleteDir($webDir = __DIR__.'/fixtures/tags/web');
-        list($application, $statusCode) = $this->runApplication(dirname($webDir));
+        $application = $this->runApplication(dirname($webDir));
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $application->getStatusCode());
 
         $this->assertTrue(file_exists($webDir.'/tags/index.html'));
         $crawler = new Crawler(file_get_contents($webDir.'/tags/index.html'));
@@ -190,9 +190,9 @@ EOL;
     public function testExecuteWithConfigFolder()
     {
         $this->deleteDir($webDir = __DIR__.'/fixtures/config-folder/web');
-        list(, $statusCode) = $this->runApplication(dirname($webDir));
+        $application = $this->runApplication(dirname($webDir));
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $application->getStatusCode());
 
         $this->assertTrue(file_exists($webDir.'/2010/01/01/hello.html'));
         $crawler = new Crawler(file_get_contents($webDir.'/2010/01/01/hello.html'));
@@ -209,9 +209,9 @@ EOL;
     public function testExecuteWithConfigTheme()
     {
         $this->deleteDir($webDir = __DIR__.'/fixtures/theme/web');
-        list($application, $statusCode) = $this->runApplication(dirname($webDir));
+        $application = $this->runApplication(dirname($webDir));
 
-        $this->assertSame(0, $statusCode);
+        $this->assertSame(0, $application->getStatusCode());
 
         $this->assertTrue(file_exists($webDir.'/2010/01/01/local-layout.html'));
         $this->assertSame('local:local-layout', trim(file_get_contents($webDir.'/2010/01/01/local-layout.html')));
@@ -240,8 +240,8 @@ EOL;
             '--verbose' => true,
         );
 
-        $statusCode = $application->run($input);
+        $application->run($input);
 
-        return array($application, $statusCode);
+        return $application;
     }
 }
