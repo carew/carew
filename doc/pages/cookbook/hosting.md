@@ -31,7 +31,7 @@ in `_carew` folder:
     #!/bin/bash
 
     BASE=`dirname $0`
-    $BASE/bin/carew build --base-dir=$BASE --web-dir=$BASE/..
+    $BASE/vendor/bin/carew carew:build --base-dir=$BASE --web-dir=$BASE/..
 
 Then you can build the website with `_carew/build.sh` command.
 Now, you can commit and push everything to your github repository:
