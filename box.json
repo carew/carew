@@ -1,0 +1,34 @@
+{
+    "chmod": "0755",
+    "directories": ["Carew"],
+    "finder": [
+        {
+            "name": "*.php",
+            "exclude": ["Tests"],
+            "in": "vendor"
+        },
+        {
+            "name": "*.pem*",
+            "in": "vendor"
+        },
+        {
+            "name": "*.twig*",
+            "in": "vendor"
+        },
+        {
+            "name": "*.css*",
+            "in": "vendor"
+        },
+        {
+            "name": "*.js*",
+            "in": "vendor"
+        },
+        {
+            "name": "*.png*",
+            "in": "vendor"
+        }
+    ],
+    "main": "bin/carew",
+    "output": "carew.phar",
+    "stub": true
+}

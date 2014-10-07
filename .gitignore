@@ -1,3 +1,5 @@
+/box.phar
+/carew.phar
 /Carew/Tests/Command/fixtures/*/web/
 /composer.lock
 /vendor/

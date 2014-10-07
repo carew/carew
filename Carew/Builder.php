@@ -3,8 +3,7 @@
 namespace Carew;
 
 use Carew\Processor;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
@@ -27,7 +26,12 @@ class Builder
         $this->finder = $finder;
     }
 
-    public function build(OutputInterface $output, InputInterface $input, $baseDir, $webDir, $all = false)
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    public function build($baseDir, $webDir, $all = false)
     {
         $startAt = microtime(true);
         $memoryUsage = memory_get_usage();
@@ -40,10 +44,10 @@ class Builder
             if (!is_dir($folder)) {
                 continue;
             }
-            $input->getOption('verbose') and $output->writeln(sprintf('<info>Reading</info> <comment>%s</comment>', $folder));
+            $this->logger and $this->logger->info(sprintf('Reading %s', $folder));
             $files = $this->finder->create()->in($folder)->files();
             foreach ($files as $file) {
-                $input->getOption('verbose') and $output->writeln(sprintf('  >> <info>Reading</info> <comment>%s</comment>', (string) $file));
+                $this->logger and $this->logger->debug(sprintf('  >> Reading %s', (string) $file));
                 $document = $this->processor->processFile($file, $folderRaw, $type);
                 if (!$document->isPublished() && !$all) {
                     continue;
@@ -52,38 +56,38 @@ class Builder
             }
         }
 
-        $input->getOption('verbose') and $output->writeln('<info>Processing globals</info>');
+        $this->logger and $this->logger->info('Processing globals');
         $globals = $this->twig->getGlobals();
         $this->processor->processGlobals($documents, $globals['carew']);
 
-        $input->getOption('verbose') and $output->writeln('<info>Processing all documents</info>');
+        $this->logger and $this->logger->info('Processing all documents');
         $documents = $this->processor->processDocuments($documents, $globals['carew']);
 
-        $input->getOption('verbose') and $output->writeln('<info>Cleaning target folder</info>');
+        $this->logger and $this->logger->info('Cleaning target folder');
         $this->filesystem->remove($this->finder->create()->in($webDir)->exclude(basename(realpath($baseDir))));
 
-        $input->getOption('verbose') and $output->writeln('<info>Compiling</info>');
+        $this->logger and $this->logger->info('Compiling');
         foreach ($documents as $document) {
-            $input->getOption('verbose') and $output->writeln(sprintf('  >> <info>Compiling</info> <comment>%s</comment>', $document->getPath()));
+            $this->logger and $this->logger->debug(sprintf('  >> Compiling %s', $document->getPath()));
             $this->processor->processDocument($document);
         }
 
-        $input->getOption('verbose') and $output->writeln('<info>Writing</info>');
+        $this->logger and $this->logger->info('Writing');
         foreach ($documents as $document) {
             $documentsTmps = $this->processor->processDocumentDecoration($document);
             if (!$documentsTmps) {
                 continue;
             }
             foreach ($documentsTmps as $documentTmp) {
-                $input->getOption('verbose') and $output->writeln(sprintf('  >> <info>Writing</info> <comment>%s</comment>', $documentTmp->getPath()));
+                $this->logger and $this->logger->debug(sprintf('  >> Writing %s', $documentTmp->getPath()));
                 $this->processor->write($documentTmp, $webDir);
             }
         }
 
-        $input->getOption('verbose') and $output->writeln('<info>Finishing</info>');
+        $this->logger and $this->logger->info('Finishing');
         $this->processor->terminate($webDir);
 
-        $output->writeln('<info>Build finished</info>');
-        $input->getOption('verbose') and $output->writeln(sprintf('Time: %.2f seconds, Memory: %.2fMb', (microtime(true) - $startAt), (memory_get_usage() - $memoryUsage)/(1024 * 1024)));
+        $this->logger and $this->logger->notice('Build finished');
+        $this->logger and $this->logger->debug(sprintf('Time: %.2f seconds, Memory: %.2fMb', (microtime(true) - $startAt), (memory_get_usage() - $memoryUsage)/(1024 * 1024)));
     }
 }
