@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Carew extends Application
 {
-    const VERSION = '2.0.0-dev';
+    const VERSION = '2.0.0';
 
     private $container;
 
