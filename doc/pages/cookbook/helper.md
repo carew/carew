@@ -130,7 +130,7 @@ the current document.
 If you want to change the generated content, override the `document_toc`
 block.
 
-### render_document_*
+### render\_document\_*
 
 `render_document_*`: This is a wild-card function. It will take the `*` and
 render the  `document_*` block.

@@ -15,22 +15,22 @@
         }
     ],
     "require": {
-        "erusev/parsedown": "~0.7",
+        "erusev/parsedown": "~1.1.0",
         "pimple/pimple": "~1.0",
         "symfony/console": "~2.4",
-        "symfony/event-dispatcher": "~2.0",
-        "symfony/filesystem": "~2.1",
-        "symfony/finder": "~2.1",
-        "symfony/process": "~2.1",
-        "symfony/yaml": "~2.1",
-        "twig/twig": "~1.14",
+        "symfony/event-dispatcher": "~2.3",
+        "symfony/filesystem": "~2.3",
+        "symfony/finder": "~2.3",
+        "symfony/process": "~2.3",
+        "symfony/yaml": "~2.3",
+        "twig/twig": "~1.15",
         "yohang/htmltools": "~0.1"
     },
     "require-dev": {
-        "symfony/dom-crawler":  "~2.2",
-        "symfony/css-selector": "~2.2",
-        "carew/theme-bootstrap" : "~2.0@dev",
-        "lyrixx/my-theme-bootstrap" : "~2.0@dev"
+        "carew/theme-bootstrap" : "~2.0",
+        "lyrixx/my-theme-bootstrap" : "~2.0",
+        "symfony/css-selector": "~2.3",
+        "symfony/dom-crawler":  "~2.3"
     },
     "autoload": {
         "psr-0": { "Carew": "" }
