@@ -11,16 +11,14 @@ class Builder
 {
     private $processor;
     private $config;
-    private $themes;
     private $twig;
     private $filesystem;
     private $finder;
 
-    public function __construct(Processor $processor, array $config, array $themes, \Twig_Environment $twig, Filesystem $filesystem, Finder $finder)
+    public function __construct(Processor $processor, array $config, \Twig_Environment $twig, Filesystem $filesystem, Finder $finder)
     {
         $this->processor = $processor;
         $this->config = $config;
-        $this->themes = $themes;
         $this->twig = $twig;
         $this->filesystem = $filesystem;
         $this->finder = $finder;

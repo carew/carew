@@ -25,7 +25,7 @@ class CoreExtension implements ExtensionInterface
         $this->registerTwig($container);
 
         $container['builder'] = $container->share(function ($container) {
-            return new Builder($container['processor'], $container['config'], $container['themes'], $container['twig'], $container['filesystem'], $container['finder']);
+            return new Builder($container['processor'], $container['config'], $container['twig'], $container['filesystem'], $container['finder']);
         });
 
         $container['processor'] = $container->share(function ($container) {

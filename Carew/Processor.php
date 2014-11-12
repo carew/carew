@@ -102,7 +102,7 @@ class Processor
 
     private function sortByDate($documents)
     {
-        uasort($documents, function ($a, $b) {
+        uasort($documents, function (Document $a, Document $b) {
             $aMetadatas = $a->getMetadatas();
             $bMetadatas = $b->getMetadatas();
             if (!array_key_exists('date', $aMetadatas)) {

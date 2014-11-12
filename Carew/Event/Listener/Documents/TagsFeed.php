@@ -23,7 +23,7 @@ class TagsFeed implements EventSubscriberInterface
         $globals = $event['globals'];
 
         foreach ($globals->tags as $tagName => $documentList) {
-            $documentList = array_filter($documentList, function ($document) {
+            $documentList = array_filter($documentList, function (Document $document) {
                 return $document->isTypePost() ;
             });
 
