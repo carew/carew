@@ -55,7 +55,7 @@ EOF
         $builder = new ProcessBuilder(array(PHP_BINARY, '-S', $input->getArgument('address')));
         $builder->setWorkingDirectory($input->getOption('web-dir'));
         $builder->setTimeout(null);
-        $builder->getProcess()->run(function ($type, $buffer) use ($output) {
+        $builder->getProcess()->mustRun(function ($type, $buffer) use ($output) {
             if (OutputInterface::VERBOSITY_VERBOSE <= $output->getVerbosity()) {
                 $output->write($buffer);
             }
