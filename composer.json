@@ -28,7 +28,7 @@
         "yohang/htmltools": "~0.1"
     },
     "require-dev": {
-        "carew/theme-bootstrap" : "~2.0",
+        "carew/theme-bootstrap" : "~2.1",
         "lyrixx/my-theme-bootstrap" : "~2.0",
         "symfony/css-selector": "~2.3",
         "symfony/dom-crawler":  "~2.3"
