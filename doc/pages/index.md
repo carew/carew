@@ -30,7 +30,7 @@ The best way to start with carew is to use the [carew
 boilerplate](https://github.com/carew/boilerplate): You will need
 [composer](http://getcomposer.org).
 
-    $ php composer.phar create-project carew/boilerplate my_website -s dev
+    $ php composer.phar create-project carew/boilerplate my_website
     $ cd my_website
     $ bin/carew build
 
