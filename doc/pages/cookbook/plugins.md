@@ -8,6 +8,7 @@ Existing Plugins
 ----------------
 
 * [Sami](https://github.com/carew/plugin-sami#readme): Build api doc from carew
+* [Next](https://github.com/gnugat/carew-next#readme): Functions to get next/previous document
 
 Installation
 ------------
