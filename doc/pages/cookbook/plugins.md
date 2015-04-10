@@ -51,5 +51,5 @@ You have created a plugin
 You have created a plugin and you want to share it?
 Write me an [email](mailto:lyrixx@lyrixx.info) and I will create a new
 repository on [github/carew](https://github.com/carew) for you, or send me a
-[pull request](https://github.com/carew/carew.github.com/edit/master/_carew/pages/cookbook/plugins.md)
+[pull request](https://github.com/carew/carew/edit/master/doc/pages/cookbook/plugins.md)
 and add a new link.
