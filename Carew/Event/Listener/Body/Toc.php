@@ -32,7 +32,7 @@ class Toc implements EventSubscriberInterface
         $urls = array();
 
         // hack to keep twig statements in local $urls variable because DOMDocument encode attributes value
-        $body = preg_replace_callback('/(?P<attr>href|src)="(?P<url>.*)"/', function ($matches) use (&$urls) {
+        $body = preg_replace_callback('/(?P<attr>href|src)="(?P<url>[^"]*)"/', function ($matches) use (&$urls) {
             $urls[] = $matches['url'];
 
             return sprintf('%s="%s"', $matches['attr'], '%%%%%%%%%%%%%%%%%%%%');
