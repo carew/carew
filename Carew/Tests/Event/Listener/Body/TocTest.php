@@ -92,4 +92,21 @@ EOL;
 
         $this->assertSame($body, $document->getBody());
     }
+
+
+    public function testOnDocumentDoesNotLinkWithDoubleQuote()
+    {
+        $document = new Document();
+        $document->setPath('index.html');
+        $body = '<a href="https://google.com">"google.com"</a>';
+        $document->setBody($body);
+
+        $event = new CarewEvent($document);
+
+        $toc = new Toc();
+        $toc->onDocument($event);
+
+        $this->assertSame($body, $document->getBody());
+    }
+
 }
