@@ -19,7 +19,7 @@
         <updated>{{ post.metadatas.date|date('Y-m-d\\TH:i:sP') }}</updated>
         <author>
             <name>{{ post.metadatas.author_name|default(carew.site.author_name|default('')) }}</name>
-            <email>{{ post.metadatas.author_name|default(carew.site.author_email|default('')) }}</email>
+            <email>{{ post.metadatas.author_email|default(carew.site.author_email|default('')) }}</email>
         </author>
         <link rel="alternate" type="text/html" href="{{ carew.site.url_absolute|default('') }}/{{ post.path }}"/>
         <content type="html" xml:lang="en"><![CDATA[{{ post.body|raw }}]]></content>
