@@ -67,7 +67,7 @@ class CoreExtension implements ExtensionInterface
             );
 
             if (file_exists($container['base_dir'].'/config.yml')) {
-                $config = array_replace_recursive($config, Yaml::parse($container['base_dir'].'/config.yml') ?: array());
+                $config = array_replace_recursive($config, Yaml::parse(file_get_contents($container['base_dir'].'/config.yml')) ?: array());
             }
 
             return $config;
