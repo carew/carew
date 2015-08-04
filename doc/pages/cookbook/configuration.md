@@ -18,6 +18,9 @@ root directory. Here is a sample:
         themes:
             - %dir%/vendor/lyrixx/my-theme-bootstrap
             - %dir%/vendor/carew/theme-bootstrap
+        core_extensions:
+            toc: true # Generate a table of content
+            feed: true # Generate atom feed
         extensions:
             - Carew\Plugin\Sami\SamiExtension
         post_permalink_format: "%year%/%slug%.html"
