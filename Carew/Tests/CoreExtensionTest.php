@@ -5,6 +5,7 @@ namespace Carew\Tests;
 use Carew\Carew;
 use Carew\CoreExtension;
 use Carew\Document;
+use Carew\Event\Events;
 
 class CoreExtensionTest extends \PHPUnit_Framework_TestCase
 {
@@ -33,6 +34,10 @@ class CoreExtensionTest extends \PHPUnit_Framework_TestCase
             'site' => array(),
             'engine' => array(
                 'post_permalink_format' => '%year%/%month%/%day%/%slug%.html',
+                'core_extensions' => array(
+                    'toc' => true,
+                    'feed' => true,
+                ),
             ),
             'folders' => array(
                 'posts' => Document::TYPE_POST,
@@ -58,6 +63,10 @@ class CoreExtensionTest extends \PHPUnit_Framework_TestCase
             ),
             'engine' => array(
                 'post_permalink_format' => '%slug%-%month%-%year%-%format%-foobar',
+                'core_extensions' => array(
+                    'toc' => false,
+                    'feed' => true,
+                ),
                 'themes' => '%dir%/vendor',
             ),
             'folders' => array(
@@ -90,6 +99,19 @@ class CoreExtensionTest extends \PHPUnit_Framework_TestCase
         $globals = $twig->getGlobals();
         $this->assertInstanceOf('Carew\Twig\Globals', $globals['carew']);
         $this->assertTrue($twig->hasExtension('carew'));
+    }
+
+    public function testRegisterAndDisableSomeCorePlugins()
+    {
+        $this->core->register($this->carew);
+
+        $container = $this->carew->getContainer();
+        $container['base_dir'] = __DIR__.'/fixtures';
+
+        $eventDispatcher = $container['event_dispatcher'];
+        foreach ($eventDispatcher->getListeners(Events::DOCUMENT_BODY) as $listener) {
+            $this->assertNotInstanceOf('Carew\Event\Listener\Body\Toc', $listener[0]);
+        };
     }
 
     public function tearDown()

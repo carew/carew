@@ -57,7 +57,11 @@ class CoreExtension implements ExtensionInterface
             $config = array(
                 'site' => array(),
                 'engine' => array(
-                    'post_permalink_format' => '%year%/%month%/%day%/%slug%.html'
+                    'post_permalink_format' => '%year%/%month%/%day%/%slug%.html',
+                    'core_extensions' => array(
+                        'toc' => true,
+                        'feed' => true,
+                    ),
                 ),
                 'folders' => array(
                     'posts' => Document::TYPE_POST,
@@ -99,10 +103,15 @@ class CoreExtension implements ExtensionInterface
             $dispatcher->addSubscriber(new Listener\Metadata\Extraction($container['helper.path']));
             $dispatcher->addSubscriber(new Listener\Metadata\Optimization($container['config']['engine']['post_permalink_format'], $container['helper.path']));
             $dispatcher->addSubscriber(new Listener\Body\Markdown());
-            $dispatcher->addSubscriber(new Listener\Body\Toc());
+            $config = $container['config']['engine']['core_extensions'];
+            if ($config['toc']) {
+                $dispatcher->addSubscriber(new Listener\Body\Toc());
+            }
             $dispatcher->addSubscriber(new Listener\Documents\Tags($container['helper.inflector']));
-            $dispatcher->addSubscriber(new Listener\Documents\TagsFeed($container['helper.inflector']));
-            $dispatcher->addSubscriber(new Listener\Documents\Feed());
+            if ($config['feed']) {
+                $dispatcher->addSubscriber(new Listener\Documents\TagsFeed($container['helper.inflector']));
+                $dispatcher->addSubscriber(new Listener\Documents\Feed());
+            }
             $dispatcher->addSubscriber(new Listener\Terminate\Assets($container['themes'], $container['filesystem']));
             $dispatcher->addSubscriber($container['listener.twig']);
 
