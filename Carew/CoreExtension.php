@@ -98,7 +98,7 @@ class CoreExtension implements ExtensionInterface
             return new Listener\Decorator\Twig($container['twig']);
         });
         $container['event_dispatcher'] = $container->share(function ($container) {
-            $dispatcher =  new EventDispatcher();
+            $dispatcher = new EventDispatcher();
 
             $dispatcher->addSubscriber(new Listener\Metadata\Extraction($container['helper.path']));
             $dispatcher->addSubscriber(new Listener\Metadata\Optimization($container['config']['engine']['post_permalink_format'], $container['helper.path']));
@@ -125,10 +125,10 @@ class CoreExtension implements ExtensionInterface
             $loader = new Twig_Loader_Filesystem(array());
 
            foreach ($container['themes'] as $theme) {
-                if (is_dir($path = $theme.'/layouts')) {
-                    $loader->addPath($path);
-                }
-            }
+               if (is_dir($path = $theme.'/layouts')) {
+                   $loader->addPath($path);
+               }
+           }
             $loader->addPath(__DIR__.'/Twig/Resources/layouts');
             $loader->addPath(__DIR__.'/Twig/Resources/layouts', 'default_theme');
             if (isset($container['config']['engine']['theme_base_dir'])) {

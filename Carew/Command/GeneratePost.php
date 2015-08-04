@@ -37,8 +37,8 @@ class GeneratePost extends Command
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $baseDir = $input->getOption('base-dir');
-        $date    = $input->getOption('date');
-        $title   = $input->getArgument('title');
+        $date = $input->getOption('date');
+        $title = $input->getArgument('title');
 
         $content = <<<EOL
 ---

@@ -35,7 +35,6 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
 
         $extraction = new Markdown($markdownParser);
         $extraction->onDocument($event);
-
     }
 
     public function testParseTwigLink()
@@ -48,7 +47,6 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
         $extraction->onDocument($event);
 
         $this->assertSame('<p><a href="{{ carew.relativeRoot }}">homepage</a></p>', $document->getBody());
-
     }
 
     private function createDocument($file)

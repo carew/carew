@@ -26,7 +26,7 @@ class Paginator implements \Twig_NodeVisitorInterface
             if ('paginate' == $name) {
                 $node = $this->enterPaginationFilterNode($node, $env);
 
-                $this->currentNumberOfPagination++;
+                ++$this->currentNumberOfPagination;
 
                 return $node;
             }

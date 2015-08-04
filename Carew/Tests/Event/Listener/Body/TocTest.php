@@ -93,7 +93,6 @@ EOL;
         $this->assertSame($body, $document->getBody());
     }
 
-
     public function testOnDocumentDoesNotLinkWithDoubleQuote()
     {
         $document = new Document();
@@ -108,5 +107,4 @@ EOL;
 
         $this->assertSame($body, $document->getBody());
     }
-
 }

@@ -15,7 +15,7 @@ class Path
         $extension = pathinfo($path, PATHINFO_EXTENSION);
 
         if ('twig' === $extension) {
-            $path = substr($path, 0, - (strlen($extension) + 1));
+            $path = substr($path, 0, -(strlen($extension) + 1));
             $extension = pathinfo($path, PATHINFO_EXTENSION);
         }
 
@@ -24,7 +24,7 @@ class Path
         }
 
         if (in_array(strtolower($extension), static::$extensionsToRewrite)) {
-            $path = substr($path, 0, - (strlen($extension) + 1));
+            $path = substr($path, 0, -(strlen($extension) + 1));
 
             return ltrim($path, '/').'.html';
         }

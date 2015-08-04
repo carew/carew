@@ -88,8 +88,8 @@ class Twig implements EventSubscriberInterface
                     continue;
                 }
 
-                $parametersTmp[sprintf('__offset_%d__', $key)] =  ($nbPage - 1) * $maxesPerPage[$key];
-                $parametersTmp[sprintf('__current_page_%d__', $key)] =  $nbPage;
+                $parametersTmp[sprintf('__offset_%d__', $key)] = ($nbPage - 1) * $maxesPerPage[$key];
+                $parametersTmp[sprintf('__current_page_%d__', $key)] = $nbPage;
                 try {
                     $body = $template->render($parametersTmp);
                 } catch (\Twig_Error $e) {
@@ -144,7 +144,7 @@ class Twig implements EventSubscriberInterface
 
         $lines = explode(PHP_EOL, $document->getBody());
 
-        if (!$template || $template->getTemplateName() == $e->getTemplateFile())  {
+        if (!$template || $template->getTemplateName() == $e->getTemplateFile()) {
             return new \RuntimeException(OutputFormatter::escape(sprintf(
                 '%s near "%s" near line %d.',
                 $e->getRawMessage(),
@@ -158,7 +158,6 @@ class Twig implements EventSubscriberInterface
             $e->getRawMessage(),
             $e->getTemplateLine()
         )));
-
     }
 
     private function setTwigGlobals(Document $document)
@@ -198,7 +197,7 @@ class Twig implements EventSubscriberInterface
     private function generatePages(Document $originalDocument, $nbPages, $isFirstPagination = true, $collectionNb = 1)
     {
         $pages = array();
-        for ($pageNb = 1; $pageNb <= $nbPages; $pageNb++) {
+        for ($pageNb = 1; $pageNb <= $nbPages; ++$pageNb) {
             $currentPage = $pages[$pageNb] = clone $originalDocument;
 
             if (1 == $pageNb) {
@@ -212,7 +211,6 @@ class Twig implements EventSubscriberInterface
                 $pathInfo['filename'] = sprintf('%s-%d-page-%d', $pathInfo['filename'], $collectionNb, $pageNb);
             }
             $currentPage->setPath(ltrim(sprintf('%s/%s.%s', $pathInfo['dirname'], $pathInfo['filename'], $pathInfo['extension']), './'));
-
         }
 
         return $pages;

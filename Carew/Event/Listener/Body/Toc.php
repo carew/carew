@@ -54,7 +54,7 @@ class Toc implements EventSubscriberInterface
             return sprintf('%s="%s"', $matches['attr'], $urls[$i++]);
         }, $body);
 
-        $document->setBody(html_entity_decode($body, ENT_QUOTES, "UTF-8"));
+        $document->setBody(html_entity_decode($body, ENT_QUOTES, 'UTF-8'));
     }
 
     public static function getSubscribedEvents()

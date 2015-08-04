@@ -2,7 +2,6 @@
 
 namespace Carew;
 
-use Carew\Document;
 use Carew\Event\CarewEvent;
 use Carew\Event\Events;
 use Carew\Twig\Globals;
@@ -32,7 +31,7 @@ class Processor
         try {
             return $this->eventDispatcher->dispatch(Events::DOCUMENT_HEADER, $event)->getSubject();
         } catch (\Exception $e) {
-            throw new \LogicException(sprintf('Could not process "%s": "%s".', $file->getRelativePathname(), $e->getMessage()), 0 , $e);
+            throw new \LogicException(sprintf('Could not process "%s": "%s".', $file->getRelativePathname(), $e->getMessage()), 0, $e);
         }
     }
 
@@ -64,10 +63,10 @@ class Processor
             return $this->eventDispatcher->dispatch(Events::DOCUMENT_BODY, $event)->getSubject();
         } catch (\Exception $e) {
             if ($document->getFile()) {
-                throw new \LogicException(sprintf('Could not process "%s": "%s".', $document->getFile()->getRelativePathname(), $e->getMessage()), 0 , $e);
+                throw new \LogicException(sprintf('Could not process "%s": "%s".', $document->getFile()->getRelativePathname(), $e->getMessage()), 0, $e);
             }
 
-            throw new \LogicException(sprintf('Could not process "%s": "%s".', $document->getBody(), $e->getMessage()), 0 , $e);
+            throw new \LogicException(sprintf('Could not process "%s": "%s".', $document->getBody(), $e->getMessage()), 0, $e);
         }
     }
 
@@ -78,10 +77,10 @@ class Processor
             return $this->eventDispatcher->dispatch(Events::DOCUMENT_DECORATION, $event)->getSubject();
         } catch (\Exception $e) {
             if ($document->getFile()) {
-                throw new \LogicException(sprintf('Could not process "%s": "%s".', $document->getFile()->getRelativePathname(), $e->getMessage()), 0 , $e);
+                throw new \LogicException(sprintf('Could not process "%s": "%s".', $document->getFile()->getRelativePathname(), $e->getMessage()), 0, $e);
             }
 
-            throw new \LogicException(sprintf('Could not process "%s": "%s".', $document->getBody(), $e->getMessage()), 0 , $e);
+            throw new \LogicException(sprintf('Could not process "%s": "%s".', $document->getBody(), $e->getMessage()), 0, $e);
         }
     }
 

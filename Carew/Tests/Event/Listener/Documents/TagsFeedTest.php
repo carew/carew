@@ -13,14 +13,14 @@ class TagsFeedTest extends \PHPUnit_Framework_TestCase
     {
         $documents = array();
 
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= 20; ++$i) {
             $document = new Document(null, null, Document::TYPE_POST);
             $document->setTitle('Post #'.$i);
             $document->setTags('Tag #'.$i % 5);
             $documents[] = $document;
         }
 
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= 20; ++$i) {
             $document = new Document(null, null, Document::TYPE_PAGE);
             $document->setTitle('Post #'.$i);
             $document->setTags('Tag #'.$i % 5);

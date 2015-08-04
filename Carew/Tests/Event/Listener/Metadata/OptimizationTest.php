@@ -5,7 +5,6 @@ namespace Carew\Tests\Event\Listener\Metadata;
 use Carew\Document;
 use Carew\Event\CarewEvent;
 use Carew\Event\Listener\Metadata\Optimization;
-use Symfony\Component\Finder\SplFileInfo;
 
 class OptimizationTest extends \PHPUnit_Framework_TestCase
 {
@@ -49,6 +48,5 @@ class OptimizationTest extends \PHPUnit_Framework_TestCase
         $extraction = new Optimization($format);
         $extraction->onDocument($event);
         $this->assertSame($expected, $document->getPath());
-
     }
 }

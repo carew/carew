@@ -34,7 +34,6 @@ class Tags implements EventSubscriberInterface
                 ->setFilePath('tags/'.$tagName)
                 ->setNavigations(array('tags', 'sub-tags'))
                 ->setVar('documents', $documentList);
-            ;
             $documents[$tagDocument->getFilePath()] = $tagDocument;
             $tags[$tagDocument->getFilePath()] = $tagDocument;
         }
@@ -48,7 +47,6 @@ class Tags implements EventSubscriberInterface
             ->setFilePath('tags')
             ->setNavigations('tags')
             ->setVar('tags', $tags);
-        ;
         $documents[$tagsDocument->getFilePath()] = $tagsDocument;
 
         $globals->documents = array_replace($globals->documents, $documents);
