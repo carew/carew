@@ -127,7 +127,7 @@ class ProcessorTest extends AbstractTest
         $this->assertContains($documents[5], $globalVars->posts);
         $this->assertContains($documents[6], $globalVars->posts);
 
-        $this->assertSame(array('h', 'f', 'd', 'i', 'g', 'e'), array_keys($globalVars->posts));
+        $this->assertEquals(array('f', 'h', 'd','i', 'e', 'g'), array_keys($globalVars->posts));
     }
 
     public function testProcessDocument()

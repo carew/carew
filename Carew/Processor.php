@@ -105,6 +105,16 @@ class Processor
         uasort($documents, function (Document $a, Document $b) {
             $aMetadatas = $a->getMetadatas();
             $bMetadatas = $b->getMetadatas();
+            if (!array_key_exists('date', $aMetadatas) && !array_key_exists('date', $bMetadatas)) {
+                if ($a->getFilePath() < $b->getFilePath()) {
+                    return -1;
+                } elseif ($a->getFilePath() > $b->getFilePath()) {
+                    return 1;
+                }
+
+                return 0;
+            }
+
             if (!array_key_exists('date', $aMetadatas)) {
                 return -1;
             }
@@ -113,11 +123,17 @@ class Processor
                 return 1;
             }
 
-            if ($aMetadatas['date'] == $bMetadatas['date']) {
+            if ($aMetadatas['date'] < $bMetadatas['date']) {
                 return -1;
+            } elseif ($aMetadatas['date'] > $bMetadatas['date']) {
+                return 1;
+            } elseif ($a->getFilePath() < $b->getFilePath()) {
+                return -1;
+            } elseif ($a->getFilePath() > $b->getFilePath()) {
+                return 1;
             }
 
-            return ($aMetadatas['date'] < $bMetadatas['date']) ? -1 : 1;
+            return 0;
         });
 
         return $documents;

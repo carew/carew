@@ -38,15 +38,11 @@ class OptimizationTest extends \PHPUnit_Framework_TestCase
      */
     public function testOnPost($expected, $format)
     {
-        $file = $this->getMockBuilder('Symfony\Component\Finder\SplFileInfo')->disableOriginalConstructor()->getMock();
-        $file
-            ->expects($this->any())
-            ->method('getBasename')
-            ->with('.md')
-            ->will($this->returnValue('2010-09-09-foobar-bar'))
-        ;
+        $file = $this->prophesize('Symfony\Component\Finder\SplFileInfo');
+        $file->getBasename('.md')->willReturn('2010-09-09-foobar-bar');
+        $file->__toString()->willReturn('');
 
-        $document = new Document($file, null, Document::TYPE_POST);
+        $document = new Document($file->reveal(), null, Document::TYPE_POST);
 
         $event = new CarewEvent($document);
 

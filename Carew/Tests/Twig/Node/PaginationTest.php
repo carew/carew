@@ -45,7 +45,8 @@ public function getNbsItems(array $context)
     $context = $this->env->mergeGlobals($context);
 
     return array(
-        count(twig_reverse_filter($this->env, (isset($context["collection"]) ? $context["collection"] : null))),
+        count(twig_reverse_filter($this->env,         // line 1
+(isset($context["collection"]) ? $context["collection"] : null))),
     );
 }
 
@@ -70,7 +71,8 @@ public function getNbsItems(array $context)
     $context = $this->env->mergeGlobals($context);
 
     return array(
-        count(twig_reverse_filter($this->env, (isset($context["collection"]) ? $context["collection"] : null))),
+        count(twig_reverse_filter($this->env,         // line 1
+(isset($context["collection"]) ? $context["collection"] : null))),
         count(twig_reverse_filter($this->env, (isset($context["collection"]) ? $context["collection"] : null))),
     );
 }

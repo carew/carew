@@ -36,7 +36,23 @@ class Markdown implements EventSubscriberInterface
             }
         }
 
-        $document->setBody($this->markdownParser->parse($document->getBody()));
+        $twig = array();
+
+        // hack to keep twig statements in local $twig variable because MD parser does not work with that
+        $body = preg_replace_callback('/(?<twig>{{\s*[^}}]*\s*}})/', function ($matches) use (&$twig) {
+            $twig[] = $matches['twig'];
+
+            return 'http://%%%%%%%%%%%%%%%%%%%%';
+        }, $document->getBody());
+
+        $body = $this->markdownParser->text($body);
+
+        $i = 0;
+        $body = preg_replace_callback('/(http:\/\/%%%%%%%%%%%%%%%%%%%%)/', function ($matches) use (&$i, $twig) {
+            return $twig[$i++];
+        }, $body);
+
+        $document->setBody($body);
     }
 
     public static function getSubscribedEvents()
