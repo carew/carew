@@ -18,7 +18,7 @@ class TwigTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->twigLoader = new \Twig_Loader_Array(array(
-            'blocks.html.twig' => file_get_contents(__DIR__.'/../../../../Twig/Resources/layouts/blocks.html.twig')
+            'blocks.html.twig' => file_get_contents(__DIR__.'/../../../../Twig/Resources/layouts/blocks.html.twig'),
         ));
         $this->twig = new \Twig_Environment($this->twigLoader, array(
             'base_template_class' => 'Carew\Twig\Template',
@@ -90,7 +90,7 @@ class TwigTest extends \PHPUnit_Framework_TestCase
     public function testPreRenderWithPagination()
     {
         $posts = array();
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= 20; ++$i) {
             $document = new Document();
             $document->setTitle('Post #'.$i);
             $posts[] = $document;
@@ -123,7 +123,7 @@ class TwigTest extends \PHPUnit_Framework_TestCase
 
             $this->assertCount(5, $crawler->filter('ul')->eq(1)->filter('li'));
 
-            for ($i = 1; $i <= 5; $i++) {
+            for ($i = 1; $i <= 5; ++$i) {
                 $class = $page == $i ? 'active' : null;
                 $this->assertSame($class, $crawler->filter('ul')->eq(1)->filter('li')->eq($i - 1)->attr('class'), sprintf('Class "active" is present only when $i == $page, ($i = %s, $page = %s)', $i, $page));
                 $this->assertSame('page '.$i, $crawler->filter('ul')->eq(1)->filter('li')->eq($i - 1)->text(), sprintf('($i = %s, $page = %s)', $i, $page));
@@ -133,7 +133,7 @@ class TwigTest extends \PHPUnit_Framework_TestCase
         }
 
         sort($lis);
-        $expected = array (
+        $expected = array(
             'Post #1', 'Post #10', 'Post #11', 'Post #12', 'Post #13',
             'Post #14', 'Post #15', 'Post #16', 'Post #17', 'Post #18',
             'Post #19', 'Post #2', 'Post #20', 'Post #3', 'Post #4', 'Post #5',
@@ -146,14 +146,14 @@ class TwigTest extends \PHPUnit_Framework_TestCase
     public function testPreRenderWithMultiplePagination()
     {
         $posts = array();
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= 20; ++$i) {
             $document = new Document();
             $document->setTitle('Post #'.$i);
             $posts[] = $document;
         }
 
         $posts2 = array();
-        for ($i = 1; $i <= 12; $i++) {
+        for ($i = 1; $i <= 12; ++$i) {
             $document = new Document();
             $document->setTitle('Other Post #'.$i);
             $posts2[] = $document;
@@ -203,7 +203,7 @@ EOL
                 $lis2[] = trim($li->textContent);
             }
             $this->assertCount(5, $crawler->filter('ul')->eq(2)->filter('li'));
-            for ($i = 1; $i <= 5; $i++) {
+            for ($i = 1; $i <= 5; ++$i) {
                 $this->assertSame('page '.$i, $crawler->filter('ul')->eq(2)->filter('li')->eq($i - 1)->text(), sprintf('($i = %s, $page = %s)', $i, $page));
                 $href = 1 == $i ? 'index.html' : sprintf('index-1-page-%s.html', $i);
                 $this->assertSame($href, $crawler->filter('ul')->eq(2)->filter('li')->eq($i - 1)->filter('a')->attr('href'), sprintf('($i = %s, $page = %s)', $i, $page));
@@ -239,7 +239,7 @@ EOL
 
         $lis2 = array_unique($lis2);
         sort($lis2);
-        $lis2Expected = array (
+        $lis2Expected = array(
             'Post #1', 'Post #10', 'Post #11', 'Post #12', 'Post #13',
             'Post #14', 'Post #15', 'Post #16', 'Post #17', 'Post #18',
             'Post #19', 'Post #2', 'Post #20', 'Post #3', 'Post #4', 'Post #5',

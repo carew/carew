@@ -15,7 +15,7 @@ class TagsTest extends \PHPUnit_Framework_TestCase
         $tags = new Tags();
 
         $documents = array();
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= 20; ++$i) {
             $document = new Document();
             $document->setTitle('Post #'.$i);
             $document->setTags('Tag #'.$i % 5);

@@ -2,7 +2,6 @@
 
 namespace Carew;
 
-use Carew\Processor;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -86,6 +85,6 @@ class Builder
         $this->processor->terminate($webDir);
 
         $this->logger and $this->logger->notice('Build finished');
-        $this->logger and $this->logger->debug(sprintf('Time: %.2f seconds, Memory: %.2fMb', (microtime(true) - $startAt), (memory_get_usage() - $memoryUsage)/(1024 * 1024)));
+        $this->logger and $this->logger->debug(sprintf('Time: %.2f seconds, Memory: %.2fMb', (microtime(true) - $startAt), (memory_get_usage() - $memoryUsage) / (1024 * 1024)));
     }
 }

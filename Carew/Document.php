@@ -6,9 +6,9 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class Document
 {
-    const TYPE_POST    = 'post';
-    const TYPE_PAGE    = 'page';
-    const TYPE_API     = 'api';
+    const TYPE_POST = 'post';
+    const TYPE_PAGE = 'page';
+    const TYPE_API = 'api';
     const TYPE_UNKNOWN = 'unknown';
 
     private $body;

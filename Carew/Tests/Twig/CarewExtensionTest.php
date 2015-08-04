@@ -7,7 +7,7 @@ use Carew\Processor;
 use Carew\Twig\CarewExtension;
 use Carew\Twig\Globals;
 
-class CarewExtensioTest extends \PHPUnit_Framework_TestCase
+class CarewExtensionTest extends \PHPUnit_Framework_TestCase
 {
     private $documents;
     private $globals;
@@ -27,7 +27,7 @@ class CarewExtensioTest extends \PHPUnit_Framework_TestCase
         )));
 
         $documents = array();
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= 20; ++$i) {
             $document = new Document();
             $document->setTitle('Doc #'.$i);
             $document->setTags('Tag #'.$i % 5);

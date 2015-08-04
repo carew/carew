@@ -24,7 +24,7 @@ class TagsFeed implements EventSubscriberInterface
 
         foreach ($globals->tags as $tagName => $documentList) {
             $documentList = array_filter($documentList, function (Document $document) {
-                return $document->isTypePost() ;
+                return $document->isTypePost();
             });
 
             $document = new Document();

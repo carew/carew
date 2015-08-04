@@ -29,7 +29,7 @@ class CarewExtension extends \Twig_Extension
             new \Twig_SimpleFunction('render_document',      array($this, 'renderDocument'),          array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_documents',     array($this, 'renderDocuments'),         array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('render_pagination',    array($this, 'renderPagination'),        array('is_safe' => array('html'), 'needs_environment' => true)),
-            new \Twig_SimpleFunction('paginate',             function () { } ),
+            new \Twig_SimpleFunction('paginate',             function () { }),
             new \Twig_SimpleFunction('path',                 array($this, 'path'),                    array('needs_environment' => true)),
             new \Twig_SimpleFunction('link',                 array($this, 'link'),                    array('is_safe' => array('html'), 'needs_environment' => true)),
         );
