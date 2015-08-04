@@ -30,7 +30,7 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
         $markdownParser = $this->getMock('Parsedown');
         $markdownParser
             ->expects($this->exactly($expected))
-            ->method('parse')
+            ->method('text')
         ;
 
         $extraction = new Markdown($markdownParser);
