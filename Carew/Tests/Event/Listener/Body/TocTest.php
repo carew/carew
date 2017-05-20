@@ -107,4 +107,34 @@ EOL;
 
         $this->assertSame($body, $document->getBody());
     }
+
+    public function testOnDocumentDoesNotDecodeEncodedHtml()
+    {
+        $document = new Document();
+        $document->setPath('index.html');
+        $body = <<<EOL
+<span>And cyrillic letter: А</span>
+<div>
+    &lt;ul class="{% block ul_class '' %}"&gt;
+        {% for document in documents %}
+            &lt;li class="{% block li_class '' %}"&gt;
+                {% block document_list %}
+                    &lt;a href="{{ render_document_path(document) }}"&gt;
+                        {{ render_document_title(document) }}
+                    &lt;/a&gt;
+                {% endblock %}
+            &lt;/li&gt;
+        {% endfor %}
+    &lt;/ul&gt;
+</div>
+EOL;
+        $document->setBody($body);
+
+        $event = new CarewEvent($document);
+
+        $toc = new Toc();
+        $toc->onDocument($event);
+
+        $this->assertSame($body, $document->getBody());
+    }
 }
